@@ -1,0 +1,7 @@
+*.rsf
+*.o
+*.vpl
+*.png
+!images/*.png
+!diagrams/*.png
+*.pyc
