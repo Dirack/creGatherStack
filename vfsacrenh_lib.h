@@ -6,8 +6,10 @@
 
 #define Beta_MAX 1
 #define Beta_MIN -1
-#define Rnip_MAX 2
+#define Rnip_MAX 5
 #define Rnip_MIN 0
+#define Rn_MAX 5
+#define Rn_MIN 0
 #define hMAX 50
 #define mMAX 50
 #define ITMAX 10000
@@ -18,27 +20,27 @@
 #include <rsf.h>
 
 
-float sinal(float s);
-/*< Função sinal >*/
+float signal(float s);
+/*< Signal function >*/
 
 
-float gerarNumeroAleatorioEntre0e1();
-/*< Função gerar número aleatório entre 0 e 1 >*/
+float getRandomNumberBetween0and1();
+/*< Function to get a random number between 0 and 1 >*/
 
 
-float temperaturaIteracaoVfsa(int iteracao,float fatorDeAmortecimento,float temperaturaInicial);
-/*< Função temperatura do algoritmo VFSA >*/
+float getVfsaIterationTemperature(int iteration,float dampingFactor,float inicialTemperature);
+/*< Temperature function for VFSA algorithm >*/
 
 
-void perturbacaoParametros(float temperatura, float* parametrosPerturbados, float* parametros);
+void disturbParameters(float temperature, float* disturbedParameter, float* parameter);
 /*< Perturbar os parâmetros da iteração anterior >*/
 
 
-float fomel(float m, float h, float t0, float v0, float RNIP, float BETA);
-/*< Aproximação de tempo de trânsito do CRS não hiperbólico (FOMEL; KAZINNIK, 2013) >*/
+float nonHyperbolicCRSapp(float m, float h, float t0, float v0, float RN, float RNIP, float BETA);
+/*< Non hyperbolic CRS approximation (FOMEL; KAZINNIK, 2013) >*/
 
 
-float semblance(float m0, float dm, float om, float oh, float dh, float dt, int nt,float t0, float v0,float RNIP, float BETA, float*** t);
-/*< Função Semblance >*/
+float semblance(float m0, float dm, float om, float oh, float dh, float dt, int nt,float t0, float v0,float RN, float RNIP, float BETA, float*** t);
+/*< Semblance: Non Hyperbolic CRS approximation with data >*/
 
 #endif

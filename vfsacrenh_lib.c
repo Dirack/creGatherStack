@@ -1,25 +1,26 @@
 /*
 	 vfsacrenh_lib.c (c)
 	 
-	 Objetivo: Biblioteca de funções do programa 'Mvfsacrenh.c'.
-	 Realiza a otimização dos parâmetros RNIP e BETA do CRE zero offset,
-	 aplicando a condição CDS (RN=RNIP) à aproximação do CRS não Hiperbólico (Fomel, 2013).
-	 
-	 Versão 1.0
+	 Purpose: 'Mvfsacrenh.c' library.
+	 	 
+	 Version 1.0
 	 
 	 Site: http://www.dirackslounge.online
 	 
-	 Programador: Rodolfo A. C. Neves (Dirack) 29/08/2019
-	 
-	 Email: rodolfo_profissional@hotmail.com
-	 
-	 Licença: Software de uso livre e código aberto.
+	 Programer: Rodolfo A. C. Neves (Dirack) 19/09/2019
+
+	 Email:  rodolfo_profissional@hotmail.com
+
+	 License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
+
 */
 
 #define Beta_MAX 1
 #define Beta_MIN -1
-#define Rnip_MAX 2
+#define Rnip_MAX 5
 #define Rnip_MIN 0
+#define Rn_MAX 5
+#define Rn_MIN 0
 #define hMAX 50
 #define mMAX 50
 #define ITMAX 10000
@@ -30,8 +31,8 @@
 #include <rsf.h>
 /*^*/
 
-float sinal(float s) { 
-/*< Função sinal >*/
+float signal(float s) { 
+/*< Signal function >*/
 
 	if(s >= 0){
 		
@@ -42,73 +43,80 @@ float sinal(float s) {
 		
 }
 
-float gerarNumeroAleatorioEntre0e1(){
-/*< Função gerar número aleatório entre 0 e 1 >*/
+float getRandomNumberBetween0and1(){
+/*< Function to get a random number between 0 and 1 >*/
 
-	float numeroAleatorio;
+	float randomNumber;
 	int u;
 
 	u = rand()%1000;
 			
-	numeroAleatorio = (float)u/1000;
+	randomNumber = (float)u/1000;
 
-	return numeroAleatorio;
+	return randomNumber;
 
 }
 
-float temperaturaIteracaoVfsa(int iteracao,float fatorDeAmortecimento,float temperaturaInicial){
-/*< Função temperatura do algoritmo VFSA >*/
+float getVfsaIterationTemperature(int iteration,float dampingFactor,float inicialTemperature){
+/*< Temperature function for VFSA algorithm >*/
 
-	float temperatura;
+	float temperature;
 
-	temperatura=temperaturaInicial*expf(-fatorDeAmortecimento*pow(iteracao,0.25));
+	temperature=inicialTemperature*expf(-dampingFactor*pow(iteration,0.25));
 
-	return temperatura;
+	return temperature;
 }
 
-void perturbacaoParametros(float temperatura, float* parametrosPerturbados, float* parametros){
+void disturbParameters(float temperature, float* disturbedParameter, float* parameter){
 /*< Perturbar os parâmetros da iteração anterior >*/
 
 	float u;
-	float perturbacao;
-	float janelaDeBusca;
+	float disturbance;
+	float aperture;
 
-	u=gerarNumeroAleatorioEntre0e1();
+	u=getRandomNumberBetween0and1();
 			
-	perturbacao = sinal(u - 0.5) * temperatura * (pow( (1+temperatura),fabs(2*u-1) )-1);
+	disturbance = signal(u - 0.5) * temperature * (pow( (1+temperature),fabs(2*u-1) )-1);
 
-	/* Perturbação e janelamento de RNIP */
-	janelaDeBusca = Rnip_MAX - Rnip_MIN;
+	/* RN */
+	aperture = Rn_MAX - Rn_MIN;
 
-	parametrosPerturbados[0] = parametros[0] + perturbacao * (janelaDeBusca);
+	disturbedParameter[0] = parameter[0] + disturbance * (aperture);
 				
-	if (parametrosPerturbados[0] >= Rnip_MAX || parametrosPerturbados[0] <= Rnip_MIN) {
+	if (disturbedParameter[0] >= Rn_MAX || disturbedParameter[0] <= Rn_MIN) {
 
-		parametrosPerturbados[0] = (janelaDeBusca) * gerarNumeroAleatorioEntre0e1() + Rnip_MIN;
+		disturbedParameter[0] = (aperture) * getRandomNumberBetween0and1() + Rn_MIN;
 		
 	}
 
-	/* Perturbação e janelamento de BETA */
-	janelaDeBusca = Beta_MAX - Beta_MIN;
+	/* RNIP */
+	aperture = Rnip_MAX - Rnip_MIN;
 
-	parametrosPerturbados[1] = parametros[1] + perturbacao * (janelaDeBusca);
+	disturbedParameter[1] = parameter[1] + disturbance * (aperture);
+				
+	if (disturbedParameter[1] >= Rnip_MAX || disturbedParameter[1] <= Rnip_MIN) {
 
-	if (parametrosPerturbados[1] >= Beta_MAX || parametrosPerturbados[1] <= Beta_MIN) {
+		disturbedParameter[1] = (aperture) * getRandomNumberBetween0and1() + Rnip_MIN;
+		
+	}
 
-		parametrosPerturbados[1] = (janelaDeBusca) * gerarNumeroAleatorioEntre0e1() + Beta_MIN;
+	/* BETA */
+	aperture = Beta_MAX - Beta_MIN;
+
+	disturbedParameter[2] = parameter[2] + disturbance * (aperture);
+
+	if (disturbedParameter[2] >= Beta_MAX || disturbedParameter[2] <= Beta_MIN) {
+
+		disturbedParameter[2] = (aperture) * getRandomNumberBetween0and1() + Beta_MIN;
 
 	}		
 
 }
 
-float fomel(float m, float h, float t0, float v0, float RNIP, float BETA){
-/*< Aproximação de tempo de trânsito do CRS não hiperbólico (FOMEL; KAZINNIK, 2013) >*/
+float nonHyperbolicCRSapp(float m, float h, float t0, float v0, float RN, float RNIP, float BETA){
+/*< Non hyperbolic CRS approximation (FOMEL; KAZINNIK, 2013) >*/
 	float t;
-	float a1, a2, b2, c1, Fd, Fdmais, Fdmenos;
-	float RN;
-
-	/* Condição CDS */
-	RN=RNIP;
+	float a1, a2, b2, c1, Fd, Fd1, Fd2;
 			
 	a1=(2*sin(BETA))/(v0);		
 	a2=(2*cos(BETA)*cos(BETA)*t0)/(v0*RN);
@@ -116,28 +124,28 @@ float fomel(float m, float h, float t0, float v0, float RNIP, float BETA){
 	c1=2*b2+a1*a1-a2;
 												
 	Fd=(t0+a1*m)*(t0+a1*m)+a2*m*m;				
-	Fdmenos=(t0+a1*(m-h))*(t0+a1*(m-h))+a2*(m-h)*(m-h);
-	Fdmais=(t0+a1*(m+h))*(t0+a1*(m+h))+a2*(m+h)*(m+h);					
-	return t=sqrt((Fd+c1*h*h+sqrt(Fdmenos*Fdmais))*0.5); 
+	Fd2=(t0+a1*(m-h))*(t0+a1*(m-h))+a2*(m-h)*(m-h);
+	Fd1=(t0+a1*(m+h))*(t0+a1*(m+h))+a2*(m+h)*(m+h);					
+	return t=sqrt((Fd+c1*h*h+sqrt(Fd2*Fd1))*0.5); 
 
 }
 
-float semblance(float m0, float dm, float om, float oh, float dh, float dt, int nt,float t0, float v0,float RNIP, float BETA, float*** t){
-/*< Função Semblance >*/
+float semblance(float m0, float dm, float om, float oh, float dh, float dt, int nt,float t0, float v0,float RN, float RNIP, float BETA, float*** t){
+/*< Semblance: Non Hyperbolic CRS approximation with data >*/
 
-	int im, ih, numAmostras=0;
+	int im, ih, numSamples=0;
 	float m, h;
 	float amplitude=0.;
-	float somaAmplitudesAmostras=0.;
-	float somaQuadradoAmplitudesAmostras=0.;
+	float amplitudeSampleSum=0.;
+	float amplitudeSquaredSampleSum=0.;
 	float semblance=0;
 	int tetai;
 	float teta;
-	int indice_m0;
+	int m0_index;
 
-	indice_m0 = (int)(m0/dm);
+	m0_index = (int)(m0/dm);
 
-	for (im=indice_m0-mMAX; im < indice_m0+mMAX; im++){
+	for (im=m0_index-mMAX; im < m0_index+mMAX; im++){
 			
 		for(ih=0;ih<hMAX;ih++){
 
@@ -147,8 +155,7 @@ float semblance(float m0, float dm, float om, float oh, float dh, float dt, int 
 			
 			h=ih*dh+oh;
 
-			/* Aproximação Fomel (CRS NÃO hiperbólico) */
-			teta = fomel(m,h,t0,v0,RNIP,BETA);
+			teta = nonHyperbolicCRSapp(m,h,t0,v0,RN,RNIP,BETA);
 
 			tetai=teta/dt;
 
@@ -158,19 +165,19 @@ float semblance(float m0, float dm, float om, float oh, float dh, float dt, int 
 				amplitude=0.;
 			}
 	
-			somaAmplitudesAmostras=somaAmplitudesAmostras+amplitude;
+			amplitudeSampleSum=amplitudeSampleSum+amplitude;
 					
-			somaQuadradoAmplitudesAmostras=somaQuadradoAmplitudesAmostras+(amplitude*amplitude);
+			amplitudeSquaredSampleSum=amplitudeSquaredSampleSum+(amplitude*amplitude);
 				
-			numAmostras++;
+			numSamples++;
 		}
 		
 	}		
 
-	if(somaQuadradoAmplitudesAmostras==0 || somaAmplitudesAmostras==0)		
+	if(amplitudeSquaredSampleSum==0 || amplitudeSampleSum==0)		
 	return semblance=0;
 	else
-	return semblance=(somaAmplitudesAmostras*somaAmplitudesAmostras)/(numAmostras*somaQuadradoAmplitudesAmostras);
+	return semblance=(amplitudeSampleSum*amplitudeSampleSum)/(numSamples*amplitudeSquaredSampleSum);
 
 }
 

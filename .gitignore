@@ -6,3 +6,6 @@
 !diagrams/*.png
 *.pyc
 *.jpeg
+sf*
+.sconsign
+sf*
