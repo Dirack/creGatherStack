@@ -5,7 +5,7 @@ import bldutil
 # Put your name programs in progs variable 
 # without 'M' preffix and '.c' extension
 progs = '''
-vfsacrenh
+vfsacrenh nhcrssurf
 '''
 
 try:  # distributed version

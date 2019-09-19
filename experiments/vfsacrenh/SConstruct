@@ -64,5 +64,23 @@ Flow('crsParameters','dataCube',
 	vfsacrenh m0=%g v0=%g t0=%g verb=y
 	''' % (m0,v0,t0))
 
+# Aproximation Error
+Flow('dataReflectionSurface','dataCube','envelope | max1 | window n1=1 | real')
+Flow('crsAppSurface',['dataReflectionSurface','crsParameters'],
+	'''
+	nhcrssurf param=${SOURCES[1]} m0=%g v0=%g t0=%g verb=y
+	''' % (m0,v0,t0))
+
+Flow('error',['crsAppSurface','dataReflectionSurface'],
+	'''
+	add scale=1,-1 ${SOURCES[1]} | 
+	math output="abs(input)" 
+	''')
+
+Result('error',
+	'''
+	grey color=j bias=2 scalebar=y barlabel=Time barunit=s barreverse=y title="Error CMP Gather 5Km" label1=Half-Offset unit1=km label2=Midpoint unit2=km
+	''')
+
 End()
 
