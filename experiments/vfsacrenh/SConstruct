@@ -3,13 +3,13 @@
 #
 # SConstruct  (Madagascar Script)
 #
-# Purpose: Model a data cube A(m,h,t) using Kirchoff modeling.
+# Purpose: Obtain zero offset CRS parameters using VFSA.
 #
 # Site: http://www.dirackslounge.online
 # 
 # Version 1.0
 #
-# Programer: Rodolfo A. C. Neves (Dirack) 18/09/2019
+# Programer: Rodolfo A. C. Neves (Dirack) 19/09/2019
 #
 # Email: rodolfo_profissional@hotmail.com
 #
@@ -33,15 +33,6 @@ Flow('gaussianReflector',None,
      output="4-3*exp(-(x1-5)^2/9)"
      ''')
 
-for g in range(2):
-    gaussianReflector = 'gaussianReflector%d' % g
-    Plot(gaussianReflector,'gaussianReflector',
-         '''
-         graph min2=0 max2=4 min1=0 max1=10
-         yreverse=y plotcol=%d plotfat=%d
-         wantaxis=n wanttitle=n scalebar=y pad=n
-         ''' % ((7,0)[g],(7,3)[g]))
-
 # Velocity Model
 Flow('velocityModel','gaussianReflector',
      '''
@@ -49,14 +40,6 @@ Flow('velocityModel','gaussianReflector',
      spray axis=1 n=451 d=0.01 o=0 label=Depth unit=km |
      math output="1.5+0.5*x1+0.0*x2"
      ''')
-
-Plot('velocityModel',
-     '''
-     grey color=j allpos=y bias=1.5 scalebar=y wanttitle=n
-     barreverse=y barlabel=Velocity barunit=km/s
-     ''')
-
-Result('gaussianReflectorVelocityModel','velocityModel gaussianReflector0 gaussianReflector1','Overlay')
 
 Flow('reflectorDip','gaussianReflector','math output="2/3*(x1-5)*input" ')
 
@@ -71,14 +54,15 @@ Flow('dataCube','gaussianReflector reflectorDip',
      put d2=0.0125 label3="CMP" unit3="Km" label2="Offset" unit2="Km" label1=Time unit1=s
      ''')
 
-Result('dataCube',grey3('Modeled seismic data cube'))
+m0=5
+t0=1.2
+v0=1.5
 
-# Select a CMP gather m0=5Km
-Flow('cmpGather','dataCube',
+# Very Fast Simulated Aneelling Global Optimization (VFSA)
+Flow('crsParameters','dataCube',
 	'''
-	window n3=1 f3=200
-	''')
-
-Result('cmpGather',grey('CMP Gather 5Km'))
+	vfsacrenh m0=%g v0=%g t0=%g verb=y
+	''' % (m0,v0,t0))
 
 End()
+
