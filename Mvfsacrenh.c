@@ -36,13 +36,14 @@ int main(int argc, char* argv[])
 	float Em0=0; // Major semblance
 	float u; // Random number
 	float ***t; // Data cube A(m,h,t)
-	int q; // counter
+	int q, i; // loop counter
 	float semb; // Semblance - actual iteration
 	float RN, RNIP, BETA; // CRS parameters
 	float semb0; // Inicial semblance value
 	float c0; // VFSA damping factor
 	float temp0; // inicial VFSA temperature
 	float temp; // VFSA temperature
+	int repeat; // perform VFSA optimization more than once
 
 	/* RSF files I/O */  
 	sf_file in, out;
@@ -70,6 +71,9 @@ int main(int argc, char* argv[])
 	if (!sf_getfloat("temp0",&temp0)) temp0=10;
 	/* inicial VFSA temperature */
 
+	if(!sf_getint("repeat",&repeat)) repeat=1;
+	/* How many times to perform VFSA global optimization */
+
 	if (!sf_histint(in,"n1",&nt)) sf_error("No n1= in input");
 	if (!sf_histfloat(in,"d1",&dt)) sf_error("No d1= in input");
 	if (!sf_histfloat(in,"o1",&ot)) sf_error("No o1= in input");
@@ -87,7 +91,7 @@ int main(int argc, char* argv[])
 
 		sf_warning("Active mode on!!!");
 		sf_warning("Command line parameters: "); 
-		sf_warning("m0=%f v0=%f t0=%f c0=%f temp0=%f",m0,v0,t0,c0,temp0);
+		sf_warning("m0=%f v0=%f t0=%f c0=%f temp0=%f repeat=%i",m0,v0,t0,c0,temp0,repeat);
 		sf_warning("Input file parameters: ");
 		sf_warning("n1=%i d1=%f o1=%f",nt,dt,ot);
 		sf_warning("n2=%i d2=%f o2=%f",nh,dh,oh);
@@ -109,54 +113,58 @@ int main(int argc, char* argv[])
 
 	semb0=0;
 
-	for (q=0; q <ITMAX; q++){
+	for(i=0;i<repeat;i++){
+
+		for (q=0; q <ITMAX; q++){
+				
+			/* calculate VFSA temperature for this iteration */
+			temp=getVfsaIterationTemperature(q,c0,temp0);
+							
+			/* parameter disturbance */
+			disturbParameters(temp,cnew,c);
+																	
+			RN = cnew[0];
+			RNIP = cnew[1];
+			BETA = cnew[2];
+		
+			semb=0;
 			
-		/* calculate VFSA temperature for this iteration */
-		temp=getVfsaIterationTemperature(q,c0,temp0);
-						
-		/* parameter disturbance */
-		disturbParameters(temp,cnew,c);
-																
-		RN = cnew[0];
-		RNIP = cnew[1];
-		BETA = cnew[2];
-	
-		semb=0;
-		
-		/* Calculate semblance: Non-hyperbolic CRS approximation with data */		
-		semb=semblance(m0,dm,om,oh,dh,dt,nt,t0,v0,RN,RNIP,BETA,t);
-						
-		/* VFSA parameters convergence condition */		
-		if(fabs(semb) > fabs(semb0) ){
-			otsemb = semb;
-			otrn = RN;
-			otrnip = RNIP;
-			otbeta = BETA;
-			semb0 = semb;			
-		}
-		
-		/* VFSA parameters update condition */
-		deltaE = -semb - Em0;
-		
-		/* Metrópolis criteria */
-		PM = expf(-deltaE/temp);
-		
-		if (deltaE<=0){
-			c[0] = cnew[0];
-			c[1] = cnew[1];
-			c[2] = cnew[2];
-			Em0 = -semb;
-		} else {
-			u=getRandomNumberBetween0and1();
-			if (PM > u){
+			/* Calculate semblance: Non-hyperbolic CRS approximation with data */		
+			semb=semblance(m0,dm,om,oh,dh,dt,nt,t0,v0,RN,RNIP,BETA,t);
+							
+			/* VFSA parameters convergence condition */		
+			if(fabs(semb) > fabs(semb0) ){
+				otsemb = semb;
+				otrn = RN;
+				otrnip = RNIP;
+				otbeta = BETA;
+				semb0 = semb;			
+			}
+			
+			/* VFSA parameters update condition */
+			deltaE = -semb - Em0;
+			
+			/* Metrópolis criteria */
+			PM = expf(-deltaE/temp);
+			
+			if (deltaE<=0){
 				c[0] = cnew[0];
 				c[1] = cnew[1];
 				c[2] = cnew[2];
 				Em0 = -semb;
+			} else {
+				u=getRandomNumberBetween0and1();
+				if (PM > u){
+					c[0] = cnew[0];
+					c[1] = cnew[1];
+					c[2] = cnew[2];
+					Em0 = -semb;
+				}	
 			}	
-		}	
-		
-	} /*loop over iterations */
+			
+		} /* loop over iterations */
+
+	} /* repeat VFSA global optimization */
 
 
 	/* Save optimized parameters in 'param' file */
