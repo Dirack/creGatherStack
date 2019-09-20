@@ -66,21 +66,34 @@ Flow('crsParameters','dataCube',
 
 # Aproximation Error
 Flow('dataReflectionSurface','dataCube','envelope | max1 | window n1=1 | real')
+Plot('dataReflectionSurface',
+	'''
+	grey color=j bias=2 scalebar=y barlabel=Time barunit=s barreverse=y 
+	title="Modeled traveltime surface" label1=Half-Offset unit1=km label2=Midpoint unit2=km
+	''')
 Flow('crsAppSurface',['dataReflectionSurface','crsParameters'],
 	'''
 	nhcrssurf param=${SOURCES[1]} m0=%g v0=%g t0=%g verb=y
 	''' % (m0,v0,t0))
+Plot('crsAppSurface',
+	'''
+	grey color=j bias=2 scalebar=y barlabel=Time barunit=s barreverse=y 
+	title="Non-hyperbolic CRS m0=5Km" label1=Half-Offset unit1=km label2=Midpoint unit2=km
+	''')
 
 Flow('error',['crsAppSurface','dataReflectionSurface'],
 	'''
 	add scale=1,-1 ${SOURCES[1]} | 
 	math output="abs(input)" 
 	''')
-
-Result('error',
+Plot('error',
 	'''
-	grey color=j bias=2 scalebar=y barlabel=Time barunit=s barreverse=y title="Error CMP Gather 5Km" label1=Half-Offset unit1=km label2=Midpoint unit2=km
+	grey color=j bias=2 scalebar=y barlabel=Time barunit=s barreverse=y 
+	title="Approximation error" label1=Half-Offset unit1=km label2=Midpoint unit2=km
+	maxval=1 minval=0
 	''')
+
+Result('errorAndCRSSurfaces',['dataReflectionSurface','crsAppSurface','error'],'SideBySideAniso')
 
 End()
 
