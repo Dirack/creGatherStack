@@ -1,4 +1,4 @@
-/* Versão 1.0 - Calculate CRE trajectory on m,h plane given zero offset CRS parameters (RNIP, BETA)
+/* Version 1.0 - Calculate CRE trajectory on m,h plane given zero offset CRS parameters (RNIP, BETA)
 
 Programer: Rodolfo A. C. Neves (Dirack) 31/08/2019
 
