@@ -1,4 +1,4 @@
-/* Version 1.0 - Calculate CRE trajectory on m,h plane given zero offset CRS parameters (RNIP, BETA)
+/* Version 1.0 - Calculate CRE trajectory on m,h plane given zero offset CRS parameters (RN, RNIP, BETA)
 
 Programer: Rodolfo A. C. Neves (Dirack) 31/08/2019
 
@@ -53,14 +53,14 @@ int main(int argc, char* argv[])
 
 	if (!sf_histint(par,"n1",&np)){
 		sf_error("No n1= in parameters file");
-	}else if(np != 2){
-		sf_error("The number of paramters should be 2: RNIP and BETA");
+	}else if(np < 3){
+		sf_error("The number of paramters should be 3 at least: RN, RNIP and BETA");
 	}else{
-		p = sf_floatalloc(2);
-		sf_floatread(p,2,par);
-		RNIP = p[0];
+		p = sf_floatalloc(np);
+		sf_floatread(p,np,par);
+		RNIP = p[1];
 		if(RNIP == 0) sf_error("RNIP can't be zero");
-		BETA = p[1];
+		BETA = p[2];
 	}
 
 	if (!sf_histint(in,"n1",&nt)) sf_error("No n1= in input file");

@@ -1,4 +1,4 @@
-/* Version 1.0 - Calculate CRE traveltime curve t(m,h) given CRS zero offset parameters (RNIP, BETA)
+/* Version 1.0 - Calculate CRE traveltime curve t(m,h) given CRS zero offset parameters (RN, RNIP, BETA)
 
 Programer: Rodolfo A. C. Neves (Dirack) 14/09/2019
 
@@ -57,14 +57,14 @@ int main(int argc, char* argv[])
 
 	if (!sf_histint(par,"n1",&np)){
 		sf_error("No n1= in the parameter file");
-	}else if(np != 2){
-		sf_error("Number of parameters should be 2 in the input file: RNIP e BETA");
+	}else if(np < 3){
+		sf_error("Number of parameters should be 3 at least in the input file: RN, RNIP and BETA");
 	}else{
-		p = sf_floatalloc(2);
-		sf_floatread(p,2,par);
-		RNIP = p[0];
+		p = sf_floatalloc(np);
+		sf_floatread(p,np,par);
+		RNIP = p[1];
 		if(RNIP == 0) sf_error("RNIP can't be zero");
-		BETA = p[1];
+		BETA = p[2];
 	}
 
 	if (!sf_histint(in,"n1",&nh)) sf_error("No n1= in input file");
