@@ -1,0 +1,127 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# SConstruct  (Madagascar Script)
+#
+# Purpose: get CRE gather for several m0's.
+#
+# Site: http://www.dirackslounge.online
+# 
+# Version 1.0
+#
+# Programer: Rodolfo A. C. Neves (Dirack) 26/09/2019
+#
+# Email: rodolfo_profissional@hotmail.com
+#
+# License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
+
+
+# Madagascar library
+from rsf.proj import *
+
+# Python math library
+import math
+
+# Ploting functions
+from graph_scons import *
+
+Flow('zeroOffsetSection','interpolatedDataCube',
+	'''
+	window n2=1 f2=1
+	''')
+
+Result('zeroOffsetSection',
+	'''
+	grey label1=Time unit1=s label2=CMP unit2=km pclip=99.5 title="Zero offset Section"
+	''')
+
+Flow('dataReflectionSurface','dataCube','envelope | max1 | window n1=1 | real')
+Plot('dataReflectionSurface',
+	'''
+	grey color=j bias=2 scalebar=y barlabel=Time barunit=s barreverse=y 
+	title="Modeled traveltime surface" label1=Half-Offset unit1=km label2=Midpoint unit2=km
+	''')
+
+t0=1.3
+v0=1.5
+for i in range(1):
+
+	m0 = 4 + (i * 0.0125)
+
+	crsParameters = 'crsParameters-m0-%i' % i
+	crsAppSurface = 'crsAppSurface-m0-%i' % i
+	error = 'errorSurface-m0-%i' % i
+	errorAndCRSSurfaces = 'errorAndCRSSurfaces-m0-%i' % i
+	creMhCoordinates = 'creMhCoordinates-m0-%i' % i
+	creGather = 'creGather-m0-%i' % i
+	creMcoordinate = 'creMcoordinate-m0-%i' % i
+	creTimeCurve = 'creTimeCurve-m0-%i' % i
+	creInterpolationError = 'creInterpolationError-m0-%i' % i
+
+	# Very Fast Simulated Aneelling Global Optimization (VFSA)
+	Flow(crsParameters,'interpolatedDataCube',
+		'''
+		vfsacrenh m0=%g v0=%g t0=%g verb=y repeat=2
+		''' % (m0,v0,t0))
+
+	# Aproximation Error surface
+	Flow(crsAppSurface,['dataReflectionSurface',crsParameters],
+		'''
+		nhcrssurf param=${SOURCES[1]} m0=%g v0=%g t0=%g verb=y
+		''' % (m0,v0,t0))
+	Plot(crsAppSurface,
+		'''
+		grey color=j bias=2 scalebar=y barlabel=Time barunit=s barreverse=y 
+		title="Non-hyperbolic CRS m0=%dKm" label1=Half-Offset unit1=km label2=Midpoint unit2=km
+		''' % (m0))
+
+	Flow(error,[crsAppSurface,'dataReflectionSurface'],
+		'''
+		add scale=1,-1 ${SOURCES[1]} | 
+		math output="abs(input)" 
+		''')
+	Plot(error,
+		'''
+		grey color=j scalebar=y barlabel=Time barunit=s barreverse=y 
+		title="Approximation error" label1=Half-Offset unit1=km label2=Midpoint unit2=km
+		maxval=1 minval=0
+		''')
+
+	Result(errorAndCRSSurfaces,['dataReflectionSurface',crsAppSurface,error],'SideBySideAniso')
+
+	# Calculate CRE trajectory
+	Flow(creMhCoordinates,['interpolatedDataCube',crsParameters],
+		'''
+		cretrajec verb=y m0=%g param=${SOURCES[1]} |
+		put unit1="Offset" label1="Km"
+		''' % (m0))
+
+	#Get CRE Gather from interpolated Data Cube
+	Flow([creGather,creMcoordinate],['interpolatedDataCube',creMhCoordinates],
+		'''
+		getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]}
+		''')
+
+
+	# Plot CRE Gather with half offset coordinates
+	Plot(creGather,
+		'''
+		grey label1=Tempo unit1=s label2=Offset unit2=km pclip=99.5 title="CRE Gather m0=%dKm"
+		''' % (m0))
+
+
+	# Plot CRE traveltime curve t(m,h)
+	Flow(creTimeCurve,[creMcoordinate, crsParameters],
+		'''
+		getcretimecurve param=${SOURCES[1]} t0=%g m0=%g v0=%g verb=y
+		''' % (t0,m0,v0))
+
+	Plot(creTimeCurve,
+		'''
+		graph plotcol=1 symbol=* label1=Offset unit1=Km label2=Tempo unit2=s pclip=99.5 min1=0 max2=4 min2=0 yreverse=y wanttitle=n wantaxis1=n
+		''')
+
+	# Plot CRE traveltime curve + CRE Gather
+	Result(creInterpolationError,[creGather,creTimeCurve],'Overlay',vppen='txscale=1.5')
+
+End()
