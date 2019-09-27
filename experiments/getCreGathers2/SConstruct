@@ -27,6 +27,8 @@ import math
 from graph_scons import *
 
 v0=1.5
+parametersCube = []
+creGatherIndex = 0
 for i in range(1):
 
 	m0 = 4 + (i * 0.1)
@@ -60,10 +62,19 @@ for i in range(1):
 			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]}
 			''')
 
-		# Plot CRE traveltime curve t(m,h)
+		# Calculate CRE traveltime curve t(m,h)
 		Flow(creTimeCurve,[creMcoordinate, crsParameters],
 			'''
 			getcretimecurve param=${SOURCES[1]} t0=%g m0=%g v0=%g verb=y
 			''' % (t0,m0,v0))
+
+		parametersCube.append(crsParameters)
+		creGatherIndex = creGatherIndex + 1
+
+# Get a paramters cube RN, RNIP, BETA, SEMBLANCE
+Flow('parametersCube',parametersCube,
+	'''
+	rcat axis=2 ${SOURCES[0:%d]}
+	''' % creGatherIndex)
 
 End()
