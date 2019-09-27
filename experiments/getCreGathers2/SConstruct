@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# SConstruct  (Madagascar Script)
+#
+# Purpose: get CRE gather for several m0's and t0's. Save the CRS parameters obtained
+# in the optimization step in order to get the radiusgram, anglegram and semblancegram.
+#
+# Site: http://www.dirackslounge.online
+# 
+# Version 1.0
+#
+# Programer: Rodolfo A. C. Neves (Dirack) 27/09/2019
+#
+# Email: rodolfo_profissional@hotmail.com
+#
+# License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
+
+
+# Madagascar library
+from rsf.proj import *
+
+# Python math library
+import math
+
+# Ploting functions
+from graph_scons import *
+
+v0=1.5
+for i in range(1):
+
+	m0 = 4 + (i * 0.1)
+
+	for j in range(5):
+
+		t0 = 1.0 + (0.1 * j)
+
+		crsParameters = 'crsParameters-m0-%g-t0-%g' % (m0,t0)
+		creMhCoordinates = 'creMhCoordinates-m0-%g-t0-%g' % (m0,t0)
+		creGather = 'creGather-m0-%g-t0-%g' % (m0,t0)
+		creMcoordinate = 'creMcoordinate-m0-%g-t0-%g' % (m0,t0)
+		creTimeCurve = 'creTimeCurve-m0-%g-t0-%g' % (m0,t0)
+
+		# Very Fast Simulated Aneelling Global Optimization (VFSA)
+		Flow(crsParameters,'interpolatedDataCube',
+			'''
+			vfsacrenh m0=%g v0=%g t0=%g verb=y repeat=2
+			''' % (m0,v0,t0))
+
+		# Calculate CRE trajectory
+		Flow(creMhCoordinates,['interpolatedDataCube',crsParameters],
+			'''
+			cretrajec verb=y m0=%g param=${SOURCES[1]} |
+			put unit1="Offset" label1="Km"
+			''' % (m0))
+
+		#Get CRE Gather from interpolated Data Cube
+		Flow([creGather,creMcoordinate],['interpolatedDataCube',creMhCoordinates],
+			'''
+			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]}
+			''')
+
+		# Plot CRE traveltime curve t(m,h)
+		Flow(creTimeCurve,[creMcoordinate, crsParameters],
+			'''
+			getcretimecurve param=${SOURCES[1]} t0=%g m0=%g v0=%g verb=y
+			''' % (t0,m0,v0))
+
+End()
