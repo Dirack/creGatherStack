@@ -26,22 +26,32 @@ import math
 # Ploting functions
 from graph_scons import *
 
-v0=1.5
+v0 = 1.5
+ot0 = 1.1
+dt0 = 0.01
+nt0 = 2
+om0 = 5
+dm0 = 0.1
+nm0 = 2
+
 parametersCube = []
+creGatherCube = []
+creTimeCurveCube = []
 creGatherIndex = 0
-for i in range(1):
 
-	m0 = 4 + (i * 0.1)
+for i in range(nm0):
 
-	for j in range(5):
+	m0 = om0 + (i * dm0)
 
-		t0 = 1.0 + (0.1 * j)
+	for j in range(nt0):
 
-		crsParameters = 'crsParameters-m0-%g-t0-%g' % (m0,t0)
-		creMhCoordinates = 'creMhCoordinates-m0-%g-t0-%g' % (m0,t0)
-		creGather = 'creGather-m0-%g-t0-%g' % (m0,t0)
-		creMcoordinate = 'creMcoordinate-m0-%g-t0-%g' % (m0,t0)
-		creTimeCurve = 'creTimeCurve-m0-%g-t0-%g' % (m0,t0)
+		t0 = ot0 + (dt0 * j)
+
+		crsParameters = 'crsParameters-m0-%g-t0-%g' % (i,j)
+		creMhCoordinates = 'creMhCoordinates-m0-%g-t0-%g' % (i,j)
+		creGather = 'creGather-m0-%g-t0-%g' % (i,j)
+		creMcoordinate = 'creMcoordinate-m0-%g-t0-%g' % (i,j)
+		creTimeCurve = 'creTimeCurve-m0-%g-t0-%g' % (i,j)
 
 		# Very Fast Simulated Aneelling Global Optimization (VFSA)
 		Flow(crsParameters,'interpolatedDataCube',
@@ -68,13 +78,33 @@ for i in range(1):
 			getcretimecurve param=${SOURCES[1]} t0=%g m0=%g v0=%g verb=y
 			''' % (t0,m0,v0))
 
+
+
 		parametersCube.append(crsParameters)
+		creGatherCube.append(creGather)
+		creTimeCurveCube.append(creTimeCurve)
 		creGatherIndex = creGatherIndex + 1
 
 # Get a paramters cube RN, RNIP, BETA, SEMBLANCE
 Flow('parametersCube',parametersCube,
 	'''
 	rcat axis=2 ${SOURCES[0:%d]}
-	''' % creGatherIndex)
+	''' % (creGatherIndex-1))
+
+# Get cre Gathers organized by t0 and m0
+Flow('creGatherCube',creGatherCube,
+	'''
+	rcat axis=3 ${SOURCES[0:%d]} |
+	put label2=Offset unit2=Km label1=Time unit1=s |
+	put label3=t0 unit3=s o3=%g d3=%g n3=%i label4=m0 unit4=Km o4=%g d4=%g n4=%i
+	''' % (creGatherIndex-1,ot0,dt0,nt0,om0,dm0,nm0))
+
+# Get all the traveltime curves organized by t0 and m0
+Flow('creTimeCurveCube',creTimeCurveCube,
+	'''
+	rcat axis=3 ${SOURCES[0:%d]} |
+	put label2=Index label1=Time unit1=s |
+	put label3=t0 unit3=s o3=%g d3=%g n3=%i label4=m0 unit4=Km o4=%g d4=%g n4=%i
+	''' % (creGatherIndex-1,ot0,dt0,nt0,om0,dm0,nm0))
 
 End()
