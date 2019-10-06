@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
 	float temp0; // inicial VFSA temperature
 	float temp; // VFSA temperature
 	int repeat; // perform VFSA optimization more than once
+	int m0_index;
 
 	/* RSF files I/O */  
 	sf_file in, out;
@@ -107,9 +108,11 @@ int main(int argc, char* argv[])
 
 	srand(time(NULL));
 
+	m0_index = (int)(m0/dm);
+
 	/* Read seismic data cube */
-	t=sf_floatalloc3(nt,nh,nm);
-	sf_floatread(t[0][0],nh*nm*nt,in);
+	t=sf_floatalloc3(nt,hMAX,(2*(mMAX)+1));
+	sf_floatread(t[0][0],hMAX*(2*(mMAX)+1)*nt,in);
 
 	semb0=0;
 
@@ -131,7 +134,8 @@ int main(int argc, char* argv[])
 			
 			/* Calculate semblance: Non-hyperbolic CRS approximation with data */		
 			semb=semblance(m0,dm,om,oh,dh,dt,nt,t0,v0,RN,RNIP,BETA,t);
-							
+			
+			
 			/* VFSA parameters convergence condition */		
 			if(fabs(semb) > fabs(semb0) ){
 				otsemb = semb;
@@ -140,7 +144,7 @@ int main(int argc, char* argv[])
 				otbeta = BETA;
 				semb0 = semb;			
 			}
-			
+
 			/* VFSA parameters update condition */
 			deltaE = -semb - Em0;
 			
@@ -168,19 +172,21 @@ int main(int argc, char* argv[])
 
 
 	/* Save optimized parameters in 'param' file */
-	otm=sf_floatalloc(6);
+	otm=sf_floatalloc(8);
 	otm[0] = otrn;
 	otm[1] = otrnip;
 	otm[2] = otbeta;
 	otm[3] = otsemb;
 	otm[4] = c0;
 	otm[5] = temp0;
+	otm[6] = t0;
+	otm[7] = m0;
 
 	/* Show optimized parameters on screen before save them */
 	sf_warning("Parâmetros otimizados:\n RN=%f, RNIP=%f, BETA=%f, SEMB=%f",otrn,otrnip,otbeta,otsemb);
 
 	/* axis = sf_maxa(n,o,d)*/
-	ax = sf_maxa(6, 0, 1);
+	ax = sf_maxa(8, 0, 1);
 	ay = sf_maxa(1, 0, 1);
 	az = sf_maxa(1, 0, 1);
 
@@ -188,7 +194,7 @@ int main(int argc, char* argv[])
 	sf_oaxa(out,ax,1);
 	sf_oaxa(out,ay,2);
 	sf_oaxa(out,az,3);
-	sf_floatwrite(otm,6,out);
+	sf_floatwrite(otm,8,out);
 
 	exit(0);
 }
