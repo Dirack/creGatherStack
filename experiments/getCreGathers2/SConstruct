@@ -27,7 +27,7 @@ import math
 from graph_scons import *
 
 v0 = 1.5
-ot0 = 1.1
+ot0 = 1.2
 dt0 = 0.01
 nt0 = 2
 om0 = 5
@@ -106,5 +106,12 @@ Flow('creTimeCurveCube',creTimeCurveCube,
 	put label2=Index label1=Time unit1=s |
 	put label3=t0 unit3=s o3=%g d3=%g n3=%i label4=m0 unit4=Km o4=%g d4=%g n4=%i
 	''' % (creGatherIndex-1,ot0,dt0,nt0,om0,dm0,nm0))
+
+# CRE stacking
+Flow('creStackedSection',['creGatherCube','creTimeCurveCube'],
+	'''
+	crestack timeCurves=${SOURCES[1]} verb=y |
+	put label1=t0 unit1=s label2=m0 unit2=Km
+	''')
 
 End()

@@ -44,7 +44,6 @@ int main(int argc, char* argv[])
 	float temp0; // inicial VFSA temperature
 	float temp; // VFSA temperature
 	int repeat; // perform VFSA optimization more than once
-	int m0_index;
 
 	/* RSF files I/O */  
 	sf_file in, out;
@@ -108,11 +107,9 @@ int main(int argc, char* argv[])
 
 	srand(time(NULL));
 
-	m0_index = (int)(m0/dm);
-
 	/* Read seismic data cube */
-	t=sf_floatalloc3(nt,hMAX,(2*(mMAX)+1));
-	sf_floatread(t[0][0],hMAX*(2*(mMAX)+1)*nt,in);
+	t=sf_floatalloc3(nt,nh,nm);
+	sf_floatread(t[0][0],nm*nh*nt,in);
 
 	semb0=0;
 

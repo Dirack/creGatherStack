@@ -145,11 +145,11 @@ float semblance(float m0, float dm, float om, float oh, float dh, float dt, int 
 
 	m0_index = (int)(m0/dm);
 
-	for (im=0; im < 2*(mMAX)+1; im++){
+	for (im=m0_index-mMAX; im < m0_index+mMAX; im++){
 			
 		for(ih=0;ih<hMAX;ih++){
 
-			m=(im+m0_index-mMAX)*dm+om;
+			m=im*dm+om;
 	
 			m=m-m0;
 			
