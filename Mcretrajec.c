@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
 	
 	m = sf_floatalloc(nh);
 
-	if(alpha <= 0.001){
+	if(alpha <= 0.001 && alpha >= -0.001){
 		for(i=0;i<nh;i++){
 			m[i] = m0;
 		}
