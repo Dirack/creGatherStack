@@ -28,11 +28,11 @@ from graph_scons import *
 
 v0 = 1.5
 ot0 = 1
-dt0 = 0.004
-nt0 = 2
+dt0 = 0.1
+nt0 = 10
 om0 = 5
-dm0 = 0.0125
-nm0 = 2
+dm0 = 0.125
+nm0 = 1
 
 parametersCube = []
 creGatherCube = []
@@ -115,8 +115,9 @@ Flow('parametersCube',parametersCube,
 # Get cre Gathers organized by t0 and m0
 Flow('creGatherCube',creGatherCubeForM0List,
 	'''
-	rcat axis=4 ${SOURCES[1:%d]}
-	''' % nm0)
+	rcat axis=4 ${SOURCES[1:%d]} |
+	put d4=0.0125 o4=5 d3=%g o3=%g
+	''' % (nm0,dt0,ot0))
 
 # Get all the traveltime curves organized by t0 and m0
 Flow('creTimeCurveCube',creTimeCurveCubeForM0List,
@@ -125,11 +126,10 @@ Flow('creTimeCurveCube',creTimeCurveCubeForM0List,
 	''' % nm0)
 
 # CRE stacking
-#Flow('creStackedSection',['creGatherCube','creTimeCurveCube'],
-#	'''
-#	crestack timeCurves=${SOURCES[1]} verb=y |
-#	put label1=t0 unit1=s label2=m0 unit2=Km
-#	''')
-
+Flow('creStackedSection',['creGatherCube','creTimeCurveCube'],
+	'''
+	crestack timeCurves=${SOURCES[1]} verb=y |
+	put label1=t0 unit1=s label2=m0 unit2=Km
+	''')
 
 End()
