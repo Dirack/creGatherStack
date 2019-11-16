@@ -27,10 +27,10 @@ import math
 from graph_scons import *
 
 v0 = 1.5
-ot0 = 1.4
+ot0 = 1.1
 dt0 = 0.004
-nt0 = 4
-om0 = 4
+nt0 = 1
+om0 = 5
 dm0 = 0.0125
 nm0 = 1
 
