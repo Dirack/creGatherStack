@@ -111,9 +111,10 @@ int main(int argc, char* argv[])
 
 			for(ih=0; ih < nh; ih++){
 
-				tetai = (int) creTimeCurve[im0][it0][ih]/dt;
+				tetai = (int) (creTimeCurve[im0][it0][ih]/dt);
 
 				sumAmplitudes += creGatherCube[im0][it0][ih][tetai];
+				sf_warning("tetai: %i, amp: %f creTime: %f ih: %i dt: %f cre: %f",tetai,sumAmplitudes,creTimeCurve[im0][it0][ih], ih, dt, creGatherCube[im0][it0][ih][tetai]);
 
 			} /* loop over h*/
 
