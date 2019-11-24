@@ -1,0 +1,16 @@
+
+
+Flow('reflectorDip','gaussianReflector','math output="2/3*(x1-5)*input" ')
+
+# Kirchoff Modeling
+Flow('dataCube','gaussianReflector reflectorDip',
+     '''
+     kirmod cmp=y dip=${SOURCES[1]} 
+     nh=161 dh=0.025 h0=0
+     ns=401 ds=0.025 s0=0
+     freq=10 dt=0.004 nt=1001
+     vel=1.5 gradz=0.5 gradx=0.0 verb=y |
+     put d2=0.0125 label3="CMP" unit3="Km" label2="Offset" unit2="Km" label1=Time unit1=s
+     ''')
+
+Result('dataCube',grey3('Modeled seismic data cube'))
