@@ -17,3 +17,7 @@ backup/
 *.pdf
 *.scons
 checkpoints
+*.lof
+*.jp2
+*.bbl
+*.blg
