@@ -1,9 +1,0 @@
-
-
-# Select a CMP gather m0=5Km
-Flow('cmpGather','dataCube',
-	'''
-	window n3=1 f3=200
-	''')
-
-Result('cmpGather',grey('CMP Gather 5Km'))

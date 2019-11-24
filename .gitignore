@@ -15,3 +15,5 @@ backup/
 *.ltx
 *.out
 *.pdf
+*.scons
+checkpoints
