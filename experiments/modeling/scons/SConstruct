@@ -1,5 +1,3 @@
-from rsf.proj import *
-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
@@ -19,6 +17,7 @@ from rsf.proj import *
 
 
 # Madagascar library
+from rsf.proj import *
 
 # Python math library
 import math

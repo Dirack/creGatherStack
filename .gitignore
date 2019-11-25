@@ -21,3 +21,4 @@ checkpoints
 *.jp2
 *.bbl
 *.blg
+.ipynb_checkpoints/
