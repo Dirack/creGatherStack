@@ -20,6 +20,10 @@ except: # local version
     root = None
     SConscript('../../api/c/SConstruct')
 
+## Set a c flag to compilation process
+## the flag -Wp,-DTDD=1 informs to the preprocessor that TDD=1
+env['CFLAGS'] = '-Wp,-DTDD=1'
+
 if sys.platform.startswith('linux'):
     env.Prepend(CPPDEFINES=['LINUX'])
 
