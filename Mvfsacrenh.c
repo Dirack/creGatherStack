@@ -111,6 +111,8 @@ int main(int argc, char* argv[])
 	t=sf_floatalloc3(nt,nh,nm);
 	sf_floatread(t[0][0],nm*nh*nt,in);
 
+	sf_fileclose(in);
+
 	semb0=0;
 
 	for(i=0;i<repeat;i++){
@@ -167,6 +169,7 @@ int main(int argc, char* argv[])
 
 	} /* repeat VFSA global optimization */
 
+	free(t);
 
 	/* Save optimized parameters in 'param' file */
 	otm=sf_floatalloc(8);
@@ -193,5 +196,6 @@ int main(int argc, char* argv[])
 	sf_oaxa(out,az,3);
 	sf_floatwrite(otm,8,out);
 
+	sf_close();
 	exit(0);
 }
