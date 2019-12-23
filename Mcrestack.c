@@ -10,6 +10,8 @@ License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
 #include <rsf.h>
 
+#define STACK_APERTURE 50
+
 int main(int argc, char* argv[])
 {
 
@@ -31,14 +33,11 @@ int main(int argc, char* argv[])
 	float oht; // Offset axis origin
 	float dht; // Offset sampling
 	int nht; // Number of Offsets
-	int ntt; // Number of time samples
-	float ott; // Time axis origin
-	float dtt; // Time sampling
 	int nt0t;
 	float ot0t;
 	float dt0t;
 	bool verb; // Key to turn On/Off active mode
-	float ****creTimeCurve; // CRE traveltime curves
+	float ***creTimeCurve; // CRE traveltime curves
 	float ****creGatherCube; // CRE Data cube A(m0,t0,h,t)
 	float **stackedSection; // CRE stacked section
 	int it0, im0, ih, tetai; // loop counter and indexes
@@ -71,18 +70,15 @@ int main(int argc, char* argv[])
 	if (!sf_histfloat(in,"o4",&om0)) sf_error("No o4= in input");
 
 	/* Read cre time curves geometry */
-	if (!sf_histint(timeCurves,"n1",&ntt)) sf_error("No n1= in timeCurves input");
-	if (!sf_histfloat(timeCurves,"d1",&dtt)) sf_error("No d1= in timeCurves input");
-	if (!sf_histfloat(timeCurves,"o1",&ott)) sf_error("No o1= in timeCurves input");
-	if (!sf_histint(timeCurves,"n2",&nht)) sf_error("No n2= in timeCurves input");
-	if (!sf_histfloat(timeCurves,"d2",&dht)) sf_error("No d2= in timeCurves input");
-	if (!sf_histfloat(timeCurves,"o2",&oht)) sf_error("No o2= in timeCurves input");
-	if (!sf_histint(timeCurves,"n3",&nt0t)) sf_error("No n3= in timeCurves input");
-	if (!sf_histfloat(timeCurves,"d3",&dt0t)) sf_error("No d3= timeCurves in input");
-	if (!sf_histfloat(timeCurves,"o3",&ot0t)) sf_error("No o3= timeCurves in input");
-	if (!sf_histint(timeCurves,"n4",&nm0t)) sf_error("No n4= in timeCurves input");
-	if (!sf_histfloat(timeCurves,"d4",&dm0t)) sf_error("No d4= in timeCurves input");
-	if (!sf_histfloat(timeCurves,"o4",&om0t)) sf_error("No o4= in timeCurves input");
+	if (!sf_histint(timeCurves,"n1",&nht)) sf_error("No n1= in timeCurves input");
+	if (!sf_histfloat(timeCurves,"d1",&dht)) sf_error("No d1= in timeCurves input");
+	if (!sf_histfloat(timeCurves,"o1",&oht)) sf_error("No o1= in timeCurves input");
+	if (!sf_histint(timeCurves,"n2",&nt0t)) sf_error("No n2= in timeCurves input");
+	if (!sf_histfloat(timeCurves,"d2",&dt0t)) sf_error("No d2= timeCurves in input");
+	if (!sf_histfloat(timeCurves,"o2",&ot0t)) sf_error("No o2= timeCurves in input");
+	if (!sf_histint(timeCurves,"n3",&nm0t)) sf_error("No n3= in timeCurves input");
+	if (!sf_histfloat(timeCurves,"d3",&dm0t)) sf_error("No d3= in timeCurves input");
+	if (!sf_histfloat(timeCurves,"o3",&om0t)) sf_error("No o3= in timeCurves input");
 
 	if(! sf_getbool("verb",&verb)) verb=0;
 	/* 1: active mode; 0: quiet mode */
@@ -97,14 +93,13 @@ int main(int argc, char* argv[])
 		sf_warning("n4=%i d4=%f o4=%f",nm0,dm0,om0);
 
 		sf_warning("Time curves file parameters: ");
-		sf_warning("n1=%i d1=%f o1=%f",ntt,dtt,ott);
-		sf_warning("n2=%i d2=%f o2=%f",nht,dht,oht);
-		sf_warning("n3=%i d3=%f o3=%f",nt0t,dt0t,ot0t);
-		sf_warning("n4=%i d4=%f o4=%f",nm0t,dm0t,om0t);
+		sf_warning("n1=%i d1=%f o1=%f",nht,dht,oht);
+		sf_warning("n2=%i d2=%f o2=%f",nt0t,dt0t,ot0t);
+		sf_warning("n3=%i d3=%f o3=%f",nm0t,dm0t,om0t);
 	}
 
-	creTimeCurve = sf_floatalloc4(ntt,nht,nt0t,nm0t);
-	sf_floatread(creTimeCurve[0][0][0],nm0t*nt0t*nht*ntt,timeCurves);
+	creTimeCurve = sf_floatalloc3(nht,nt0t,nm0t);
+	sf_floatread(creTimeCurve[0][0],nm0t*nt0t*nht,timeCurves);
 	creGatherCube = sf_floatalloc4(nt,nh,nt0,nm0);
 	sf_floatread(creGatherCube[0][0][0],nm0*nt0*nh*nt,in);
 	stackedSection = sf_floatalloc2(nt0,nm0);
@@ -116,11 +111,12 @@ int main(int argc, char* argv[])
 
 			sumAmplitudes = 0;
 
-			for(ih=0; ih < nh; ih++){
+			for(ih=0; ih < STACK_APERTURE; ih++){
 
-				tetai = (int) creTimeCurve[im0][it0][0][ih]/dt;
-
+				tetai = (int) ((double)creTimeCurve[im0][it0][ih]/dt);
 				sumAmplitudes += creGatherCube[im0][it0][ih][tetai];
+				
+				//sf_warning("%i, %f, %f",tetai,creTimeCurve[im0][it0][ih],sumAmplitudes);
 
 			} /* loop over h*/
 

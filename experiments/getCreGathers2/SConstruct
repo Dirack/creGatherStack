@@ -16,7 +16,6 @@
 #
 # License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
-
 # Madagascar library
 from rsf.proj import *
 
@@ -27,12 +26,12 @@ import math
 from graph_scons import *
 
 v0 = 1.5
-ot0 = 1.2
-dt0 = 0.01
-nt0 = 2
-om0 = 5
-dm0 = 0.1
-nm0 = 2
+ot0 = 1.0
+dt0 = 0.004
+nt0 = 250
+om0 = 4
+dm0 = 0.0125
+nm0 = 160
 
 parametersCube = []
 creGatherCube = []
@@ -47,65 +46,107 @@ for i in range(nm0):
 
 		t0 = ot0 + (dt0 * j)
 
-		crsParameters = 'crsParameters-m0-%g-t0-%g' % (i,j)
-		creMhCoordinates = 'creMhCoordinates-m0-%g-t0-%g' % (i,j)
-		creGather = 'creGather-m0-%g-t0-%g' % (i,j)
-		creMcoordinate = 'creMcoordinate-m0-%g-t0-%g' % (i,j)
-		creTimeCurve = 'creTimeCurve-m0-%g-t0-%g' % (i,j)
-
-		# Very Fast Simulated Aneelling Global Optimization (VFSA)
-		Flow(crsParameters,'interpolatedDataCube',
-			'''
-			vfsacrenh m0=%g v0=%g t0=%g verb=y repeat=2
-			''' % (m0,v0,t0))
-
-		# Calculate CRE trajectory
-		Flow(creMhCoordinates,['interpolatedDataCube',crsParameters],
-			'''
-			cretrajec verb=y m0=%g param=${SOURCES[1]} |
-			put unit1="Offset" label1="Km"
-			''' % (m0))
-
-		#Get CRE Gather from interpolated Data Cube
-		Flow([creGather,creMcoordinate],['interpolatedDataCube',creMhCoordinates],
-			'''
-			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]}
-			''')
-
-		# Calculate CRE traveltime curve t(m,h)
-		Flow(creTimeCurve,[creMcoordinate, crsParameters],
-			'''
-			getcretimecurve param=${SOURCES[1]} t0=%g m0=%g v0=%g verb=y
-			''' % (t0,m0,v0))
-
-
-
+		crsParameters = 'crsParameters-m0-%g-t0-%g' % (m0,t0)
+		creMhCoordinates = 'creMhCoordinates-m0-%g-t0-%g' % (m0,t0)
+		creGather = 'creGather-m0-%g-t0-%g' % (m0,t0)
+		creMcoordinate = 'creMcoordinate-m0-%g-t0-%g' % (m0,t0)
+		creTimeCurve = 'creTimeCurve-m0-%g-t0-%g' % (m0,t0)
+#
+#		# Very Fast Simulated Aneelling Global Optimization (VFSA)
+#		Flow(crsParameters,'interpolatedDataCube',
+#			'''
+#			vfsacrenh m0=%g v0=%g t0=%g verb=y repeat=2
+#			''' % (m0,v0,t0))
+#
+#		# Calculate CRE trajectory
+#		Flow(creMhCoordinates,['interpolatedDataCube',crsParameters],
+#			'''
+#			cretrajec verb=y m0=%g param=${SOURCES[1]} |
+#			put unit1="Offset" label1="Km"
+#			''' % (m0))
+#
+#		#Get CRE Gather from interpolated Data Cube
+#		Flow([creGather,creMcoordinate],['interpolatedDataCube',creMhCoordinates],
+#			'''
+#			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]}
+#			''')
+#
+#		# Calculate CRE traveltime curve t(m,h)
+#		Flow(creTimeCurve,[creMcoordinate, crsParameters],
+#			'''
+#			getcretimecurve param=${SOURCES[1]} t0=%g m0=%g v0=%g verb=y
+#			''' % (t0,m0,v0))
+#
+#
+#
 		parametersCube.append(crsParameters)
 		creGatherCube.append(creGather)
 		creTimeCurveCube.append(creTimeCurve)
 		creGatherIndex = creGatherIndex + 1
 
+tmplist = []
+tmpfiles = []
+tmpcrelist = []
+tmpcrefiles = []
+tmptimelist = []
+tmptimefiles = []
+
+for i in range(16):
+
+	tmp = "tmp-parameter-%i" % i
+	tmpfiles.append(tmp)
+
+	tmplist = parametersCube[i*10*250:(i+1)*10*250]
+
+#	Flow(tmp,tmplist,
+#		'''
+#		rcat axis=2 ${SOURCES[1:10*250]}
+#		''')
+
+	tmplist = []
+
+	tmpcre = "tmp-cregather-%i" % i
+	tmpcrefiles.append(tmpcre)
+
+	tmpcrelist = creGatherCube[i*10*250:(i+1)*10*250]
+
+#	Flow(tmpcre,tmpcrelist,
+#		'''
+#		rcat axis=2 ${SOURCES[1:10*250]}
+#		''')
+
+	tmpcrelist = []
+
+	tmptime = "tmp-timecurve-%i" % i
+	tmptimefiles.append(tmptime)
+
+	tmptimelist = creTimeCurveCube[i*10*250:(i+1)*10*250]
+#	Flow(tmptime,tmptimelist,
+#		'''
+#		rcat axis=2 ${SOURCES[1:10*250]}
+#		''')
+
+	tmptimelist = []
+
 # Get a paramters cube RN, RNIP, BETA, SEMBLANCE
-Flow('parametersCube',parametersCube,
+Flow('parametersCube',tmpfiles,
 	'''
-	rcat axis=2 ${SOURCES[0:%d]}
-	''' % (creGatherIndex-1))
+	rcat axis=2 ${SOURCES[1:16]} --out=stdout
+	''')
 
 # Get cre Gathers organized by t0 and m0
-Flow('creGatherCube',creGatherCube,
+Flow('creGatherCube',tmpcrefiles,
 	'''
-	rcat axis=3 ${SOURCES[0:%d]} |
-	put label2=Offset unit2=Km label1=Time unit1=s |
-	put label3=t0 unit3=s o3=%g d3=%g n3=%i label4=m0 unit4=Km o4=%g d4=%g n4=%i
-	''' % (creGatherIndex-1,ot0,dt0,nt0,om0,dm0,nm0))
+	rcat axis=3 ${SOURCES[1:16]} |
+	put n2=1 n3=250 n4=160 d2=0.0125 o2=0 d3=0.004 o3=1 d4=0.0125 o4=4  --out=stdout
+	''' )
 
 # Get all the traveltime curves organized by t0 and m0
-Flow('creTimeCurveCube',creTimeCurveCube,
+Flow('creTimeCurveCube',tmptimefiles,
 	'''
-	rcat axis=3 ${SOURCES[0:%d]} |
-	put label2=Index label1=Time unit1=s |
-	put label3=t0 unit3=s o3=%g d3=%g n3=%i label4=m0 unit4=Km o4=%g d4=%g n4=%i
-	''' % (creGatherIndex-1,ot0,dt0,nt0,om0,dm0,nm0))
+	rcat axis=3 ${SOURCES[1:16]} |
+	put n2=1 n3=250 n4=160 d2=0.0125 o2=0 d3=0.004 o3=1 d4=0.0125 o4=4   --out=stdout
+	''')
 
 # CRE stacking
 Flow('creStackedSection',['creGatherCube','creTimeCurveCube'],
@@ -115,3 +156,4 @@ Flow('creStackedSection',['creGatherCube','creTimeCurveCube'],
 	''')
 
 End()
+

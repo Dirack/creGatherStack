@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
 	float* m; // CMP
 	float h; // Half offset
-	float alpha; // Assymetry parameter
+	double alpha; // Assymetry parameter
 	float m0; // central CMP
 	float* p; // RNIP and BETA parameters temporary vector
 	float RNIP; 

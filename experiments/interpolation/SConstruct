@@ -130,7 +130,7 @@ totalPefIterations = 100
 totalInterpolationIterations = 20
 
 offsetGathers = []
-for offsetGatherIndex in range(2):
+for offsetGatherIndex in range(161):
 
 	offsetGather = "offsetGather-%i" % offsetGatherIndex
 	resampledOffsetGather = "resampledOffsetGather-%i" % offsetGatherIndex
@@ -166,8 +166,8 @@ for offsetGatherIndex in range(2):
 # Concatenate interpolated sections
 Flow('interpolatedDataCube',offsetGathers,
 	'''
-	rcat axis=3 ${SOURCES[0:%d]} |
-	transp plane=23
+	rcat axis=3 ${SOURCES[1:%d]} |
+	transp plane=23 --out=stdout
 	''' % offsetGatherIndex)
 
 

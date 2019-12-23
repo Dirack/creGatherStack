@@ -9,3 +9,9 @@
 sf*
 .sconsign
 sf*
+crsParameters-*
+creTimeCurve-*
+creMhCoordinates-*
+creMcoordinate-*
+creGather-*
+experiments/backup/*

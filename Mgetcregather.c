@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 	creGather = sf_floatalloc2(nt,cre_n);
 
 	for(i=0;i<cre_n;i++){
-		trac_m = (int)(m[i]/dm);
+		trac_m = (int)((double)m[i]/dm);
 
 		for(j=0;j<nt;j++){
 			creGather[i][j] = t[trac_m][i][j];
