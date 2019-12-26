@@ -32,8 +32,9 @@ int main(int argc, char* argv[])
 	float oh; // Half offset axis origin
 	int nh; // Half offset number of samples
 	int i; // loop counter
-	double c1, c2; // temporary variables
-        //float a1, a2, b2, c1, Fd, Fd1, Fd2;
+	//double c1, c2; // temporary variables
+	double d;
+        double a1, a2, b2, c1, Fd, Fd1, Fd2;
 
 
 	/* RSF files I/O */  
@@ -95,24 +96,35 @@ int main(int argc, char* argv[])
 	sf_floatread(m,nh,in);
 	t = sf_floatalloc(nh);
 
-	for(i=0;i<nh;i++){
+	/*for(i=0;i<nh;i++){
 		h = (dh*i) + oh;
 		c1 = (m[i]-m0+h)/(RNIP);
 		c2 = (m[i]-m0-h)/(RNIP);
 		t[i] = (t0-2*RNIP/v0)+(RNIP/v0)*sqrt(1-2*alpha*(m[i]-m0+h)+c1*c1)+(RNIP/v0)*sqrt(1-2*alpha*(m[i]-m0-h)+c2*c2);
-	}
+	}*/
 
-	/*888for(i=0;i<nh;i++){
+	/* CDS approximation
+	for(i=0;i<nh;i++){
 		h = (dh*i) + oh;
+		d = m[i]-m0;
+		c1 = (t0+(2*sin(BETA)*d)/v0)*(t0+(2*sin(BETA)*d)/v0);
+		c2 = (2*t0*cos(BETA)*cos(BETA))/(v0*RNIP);
+		t[i] =	c1 + c2 * (d*d-h*h);
+		t[i] = sqrt(t[i]);
+	}*/
+
+	for(i=0;i<nh;i++){
+		h = (dh*i) + oh;
+		d = m[i]-m0;
 	        a1=(2*sin(BETA))/(v0);
         	a2=(2*cos(BETA)*cos(BETA)*t0)/(v0*RNIP);
         	b2=(2*cos(BETA)*cos(BETA)*t0)/(v0*RNIP);
      		c1=2*b2+a1*a1-a2;
-       		Fd=(t0+a1*m[i])*(t0+a1*m[i])+a2*m[i]*m[i];
-        	Fd2=(t0+a1*(m[i]-h))*(t0+a1*(m[i]-h))+a2*(m[i]-h)*(m[i]-h);
-        	Fd1=(t0+a1*(m[i]+h))*(t0+a1*(m[i]+h))+a2*(m[i]+h)*(m[i]+h);
+       		Fd=(t0+a1*d)*(t0+a1*d)+a2*d*d;
+        	Fd2=(t0+a1*(d-h))*(t0+a1*(d-h))+a2*(d-h)*(d-h);
+        	Fd1=(t0+a1*(d+h))*(t0+a1*(d+h))+a2*(d+h)*(d+h);
         	t[i]=sqrt((Fd+c1*h*h+sqrt(Fd2*Fd1))*0.5);
-	}*/
+	}
 
 
 
