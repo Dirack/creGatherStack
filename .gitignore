@@ -15,3 +15,5 @@ creMhCoordinates-*
 creMcoordinate-*
 creGather-*
 experiments/backup/*
+experiments/generateStackedSection/*
+!experiments/generateStackedSection/SConstruct

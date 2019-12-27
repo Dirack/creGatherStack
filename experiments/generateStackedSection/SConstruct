@@ -1,0 +1,27 @@
+from rsf.proj import *
+import glob
+
+files = glob.glob('creStackedTrace-*.rsf')
+
+length = len(files)
+
+sortedFiles = []
+
+for i in range(length):
+	string = 'creStackedTrace-m0-%i.rsf' % i
+	sortedFiles.append(string)  
+
+Flow('stackedSection',sortedFiles,
+	'''
+	rcat axis=2 ${SOURCES[1:%d]} --out=stdout
+	''' % len(files))
+
+Flow('filtStackedSection','stackedSection',
+	'''
+	bandpass fhi=20
+	''')
+
+Flow('slice','zeroOffsetSection',
+	'''
+	window min1=1 max1=1.5 min2=4 max2=6 --out=stdout
+	''')
