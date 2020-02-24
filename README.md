@@ -10,13 +10,25 @@ those programs is to model a cube of seismic data organized in CMP x Offset X Ti
 CRS parameters (RN, RNIP, BETA) from it. These parameters can be used to obtain the CRE Gathers from the data cube after
 an interpolation process using PEF. With those gathers, someone can obtain the stacked section.
 
-The main advantage of the CRE stacking is that allows to get the macrovelocity model and ...
+The main advantage of the CRE stacking is that allows to get the macrovelocity model and stacked section without the NMO
+velocity analisys. And it can be used in a inversion process, such as tomography algorithms, in order to get the velocity
+model.
 
 #### Schematic representation of the CRE Gather geometry for a curved reflector:
 
-<img src="https://github.com/Dirack/qualificacao-doutorado/blob/master/images/cre.png" width="1000">
+The CRE traveltime aproximation is derived from geometric considerations in a constant velocity model in the 
+neighborhood of a normal ray. Bellow, an schematic representation of a CRE gather geometry. Someone shold realize
+that the sources s_i and receivers r_i have different CMP's and Offset, distributed assimetrically along the aquisition
+surface caused by reflector's curvature. Though, _they have the same reflection point_ in the reflector surface and
+are associated to a normal ray with defined RNIP and BETA parameters.
+
+<img src="https://github.com/Dirack/qualificacao-doutorado/blob/master/images/cre.png" width="800">
 
 #### Example of a interpolated CRE Gather with a calculated CRE traveltime curve:
+
+That's an example of a CRE gather obtained with the programs in that package (in yellow there is the stacking curve).
+The CRE stacking curve can be determined with the help of RNIP and BETA parameters and near surface velocity v0 for
+all Offset and CMP positions.
 
 ![Interpolated CRE Gather](https://github.com/Dirack/qualificacao-doutorado/blob/master/images/interpolacao4.jpeg)
 
