@@ -5,6 +5,13 @@
 
 [Developed to Madagascar package, version 2.0.](http://www.ahay.org/wiki/Main_Page)
 
+This is a package with several C programs adpted to the Madagascar seismic processing package. The mains objective of
+those programs is to model a cube of seismic data organized in CMP x Offset X Time coordinates and extract the zero offset
+CRS parameters (RN, RNIP, BETA) from it. These parameters can be used to obtain the CRE Gathers from the data cube after
+an interpolation process using PEF. With those gathers, someone can obtain the stacked section.
+
+The main advantage of the CRE stacking is that allows to get the macrovelocity model and ...
+
 #### Schematic representation of the CRE Gather geometry for a curved reflector:
 
 <img src="https://github.com/Dirack/qualificacao-doutorado/blob/master/images/cre.png" width="1000">
@@ -13,43 +20,50 @@
 
 ![Interpolated CRE Gather](https://github.com/Dirack/qualificacao-doutorado/blob/master/images/interpolacao4.jpeg)
 
+## Development setup
+
+You need to have the actual Madagascar package stable release installed on your computer. Please follow the
+[Installing Madagascar page](http://www.ahay.org/wiki/Installation) in the official documentation.
+
 ## Installation
 
-Linux:
+After Madagascar installing process, you need to install the programs of this repository in your local Madagascar users
+directory. You can compile and install as any Madagascar program. 
+Run 'scons' on your Madagascar repository to compile:
 
-```sh
-npm install my-crazy-module --save
+```shell
+~$ scons
 ```
+
+If you need a SConstruct to compile, use 
+[this example](https://github.com/Dirack/cre-gather-interpolation/blob/documentation/0.1/SConstruct).
+
+And install it on your local Madagascar installation:
+
+```shell
+~$ sudo scons install
+```
+
+If you have any doubt about this process, please reffer to the oficial documentation in 
+[Adding_new_programs_to_Madagascar](http://www.ahay.org/wiki/Adding_new_programs_to_Madagascar)
 
 ## Usage example
 
-A few motivating and useful examples of how your product can be used. Spice this up with code blocks and potentially more screenshots.
+A few motivating and useful examples of how that product can be used. 
+_For examples and usage, please refer to the [Wiki](https://github.com/Dirack/cre-gather-interpolation/wiki)._
 
-_For more examples and usage, please refer to the [Wiki][wiki]._
-
-## Development setup
-
-Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms.
-
-```sh
-make install
-npm test
-```
+We also have many SConstruct examples in this repository in the
+[experiments directory](https://github.com/Dirack/cre-gather-interpolation/tree/documentation/0.1/experiments)
 
 ## Release History
 
-* 0.2.1
-    * CHANGE: Update docs (module code remains unchanged)
-* 0.2.0
-    * CHANGE: Remove `setDefaultXYZ()`
-    * ADD: Add `init()`
-* 0.1.1
-    * FIX: Crash when calling `baz()` (Thanks @GenerousContributorName!)
-* 0.1.0
+* 1.1 - Stable release
     * The first proper release
-    * CHANGE: Rename `foo()` to `bar()`
-* 0.0.1
-    * Work in progress
+    * Complete interpolation programs in the CRE domain
+* [0.0.1](https://github.com/Dirack/cre-gather-interpolation/releases/tag/creStackedSection) - Work in progress
+    * Beta version of the CRE stacking process example: In the examples/getCreGathers2 directory is the 
+    example of a cre stacking process. It needs the interpolatedDataCube build in the example/getCreGathers/SConstruct.
+    CRE stacking is done through a cre traveltime curve in the cre Gather domain.
 
 ## Meta
 
