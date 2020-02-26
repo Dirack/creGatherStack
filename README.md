@@ -85,14 +85,11 @@ We also have many SConstruct examples in this repository in the
 [experiments directory](https://github.com/Dirack/cre-gather-interpolation/tree/documentation/0.1/experiments)
 
 ## Release History
-
-* 1.1 - Stable release
-    * The first proper release
-    * Complete interpolation programs in the CRE domain
-* [0.0.1](https://github.com/Dirack/cre-gather-interpolation/releases/tag/creStackedSection) - Work in progress
-    * Beta version of the CRE stacking process example: In the examples/getCreGathers2 directory is the 
-    example of a cre stacking process. It needs the interpolatedDataCube build in the example/getCreGathers/SConstruct.
-    CRE stacking is done through a cre traveltime curve in the cre Gather domain.
+   
+* [1.0](https://github.com/Dirack/cre-gather-interpolation/releases/tag/creStackedSection) - Work in progress
+  * Get zero offset CRS parameters RN, RNIP and BETA with [vfsa](https://github.com/Dirack/vfsa).
+  * Interpolate the data cube to increase sampling to allow CRE gathers building.
+  * Stacking process in the CRE Gather domain.
 
 ## Meta
 
