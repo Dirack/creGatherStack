@@ -86,7 +86,7 @@ We also have many SConstruct examples in this repository in the
 
 ## Release History
    
-* [1.0](https://github.com/Dirack/cre-gather-interpolation/releases/tag/creStackedSection) - Work in progress
+* [v1.0-beta.1](https://github.com/Dirack/cre-gather-interpolation/releases/tag/creStackedSection) - Work in progress
   * Get zero offset CRS parameters RN, RNIP and BETA with [vfsa](https://github.com/Dirack/vfsa).
   * Interpolate the data cube to increase sampling to allow CRE gathers building.
   * Stacking process in the CRE Gather domain.
