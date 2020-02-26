@@ -5,6 +5,8 @@
 
 [Developed to Madagascar package, version 2.0.](http://www.ahay.org/wiki/Main_Page)
 
+![Interpolated CRE Gather](https://github.com/Dirack/creGatherInterpolation/blob/master/images/hugeStackedSection.jpeg)
+
 This is a package with several C programs adpted to the Madagascar seismic processing package. The mains objective of
 those programs is to model a cube of seismic data organized in CMP x Offset X Time coordinates and extract the zero offset
 CRS parameters (RN, RNIP, BETA) from it. These parameters can be used to obtain the CRE Gathers from the data cube after
@@ -22,7 +24,7 @@ that the sources s_i and receivers r_i have different CMP's and Offset, distribu
 surface caused by reflector's curvature. Though, _they have the same reflection point_ in the reflector surface and
 are associated to a normal ray with defined RNIP and BETA parameters.
 
-<img src="https://github.com/Dirack/qualificacao-doutorado/blob/master/images/cre.png" width="800">
+<img src="https://github.com/Dirack/creGatherInterpolation/blob/master/images/cre.png" width="800">
 
 #### Example of a interpolated CRE Gather with a calculated CRE traveltime curve:
 
@@ -30,7 +32,7 @@ That's an example of a CRE gather obtained with the programs in that package (in
 The CRE stacking curve can be determined with the help of RNIP and BETA parameters and near surface velocity v0 for
 all Offset and CMP positions.
 
-![Interpolated CRE Gather](https://github.com/Dirack/qualificacao-doutorado/blob/master/images/interpolacao4.jpeg)
+![Interpolated CRE Gather](https://github.com/Dirack/creGatherInterpolation/blob/master/images/interpolacao4.jpeg)
 
 ## Development setup
 
