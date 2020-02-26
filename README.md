@@ -41,18 +41,33 @@ You need to have the actual Madagascar package stable release installed on your 
 
 ## Installation
 
-After Madagascar installing process, you need to install the programs of this repository in your local Madagascar users
-directory. You can compile and install as any Madagascar program. 
-Run 'scons' on your Madagascar repository to compile:
+After Madagascar installing process, you need to install the programs of this repository in your local Madagascar user's
+directory. You can compile and install it as any other Madagascar program. 
+Usually, Madagascar keeps the path of your local copy source files in the $RSFSRC environment variable. You can
+show that on a bash terminal using 'echo' command:
+
+```sh
+~$ echo "$RSFSRC"
+```
+
+And Madagascar will install executable files on your $RSFROOT directory. You can show that environment variable
+with 'echo' too:
+
+```sh
+~$ echo "$RSFROOT"
+```
+
+Madagascar stores user programs in $RSFSRC/user directory. So, you can create a new directory or put this
+repository inside that directory. In this repository, such as every user's repository in Madagascar, we have a compilation 
+[SConstruct](https://github.com/Dirack/vfsa/blob/master/SConstruct) that compile the C programs.
+Run 'scons' on your $RSFSRC/user/vfsa repository to compile it:
 
 ```shell
 ~$ scons
 ```
 
-If you need a SConstruct to compile, use 
-[this example](https://github.com/Dirack/cre-gather-interpolation/blob/documentation/0.1/SConstruct).
-
-And install it on your local Madagascar installation:
+And run 'scons install' in the top directory of your local Madagascar installation 
+(the directory path in your $RSFSRC variable):
 
 ```shell
 ~$ sudo scons install
