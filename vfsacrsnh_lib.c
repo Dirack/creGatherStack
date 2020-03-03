@@ -1,7 +1,7 @@
 /*
-	 vfsacrenh_lib.c (c)
+	 vfsacrsnh_lib.c (c)
 	 
-	 Purpose: 'Mvfsacrenh.c' library.
+	 Purpose: 'Mvfsacrsnh.c' library.
 	 	 
 	 Version 1.0
 	 

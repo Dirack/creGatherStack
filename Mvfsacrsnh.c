@@ -10,7 +10,7 @@ License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
  */
 
-#include "vfsacrenh_lib.h"
+#include "vfsacrsnh_lib.h"
 
 int main(int argc, char* argv[])
 {
@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
 	otm[7] = m0;
 
 	/* Show optimized parameters on screen before save them */
-	sf_warning("Parâmetros otimizados:\n RN=%f, RNIP=%f, BETA=%f, SEMB=%f",otrn,otrnip,otbeta,otsemb);
+	sf_warning("Optimized parameters:\n RN=%f, RNIP=%f, BETA=%f, SEMB=%f",otrn,otrnip,otbeta,otsemb);
 
 	/* axis = sf_maxa(n,o,d)*/
 	ax = sf_maxa(8, 0, 1);
