@@ -1,0 +1,54 @@
+\title{Reproducible experiment: Kirchhoff modeling}
+
+\author{Rodolfo A C Neves (Dirack)}
+\begin{abstract}
+To show how to implement Kirchoff modeling in Madagascar
+package. This paper is part of the current directory 
+documentation followed by a SConstruct script and a jupyter
+notebook explaning details of the script.
+\end{abstract}
+
+\section{Introduction}
+
+\indent In this directory we build a seismic data cube from a gaussian reflector in a linear velocity model.
+\footnote{This numerical experiment was originaly 
+design by Sergey Fomel and Roman Kazinnik in 
+the paper Non-hyperbolic common reflection surface
+(2013). 
+This paper is avaliable as a reproducible paper in
+the \href{http://www.ahay.org}{Madagascar website}.}
+Velocity increases with depth with a 0.5 
+velocity gradient and near surface velocity 
+$v_0=1.5Km/s$.
+
+\indent A seismic data cube means that each sample
+in the data space can be identifyed by it's CMP, 
+half-offset and time coordinates. So, the seismic 
+data can be represented by an amplitude function
+A(m,h,t), where m is the CMP, h the half-offset
+and t is the time.
+
+Kirchhoff modeling \cite[]{km}:
+
+\begin{quote}
+Kirchhoff modeling can be defined as the 
+mathematical transpose of Kirchhoff migration.
+The resulting Kirchhoff modeling algorithm 
+has the same low computational cost as 
+Kirchhoff migration and, unlike expensive full 
+acoustic or elastic wave‐equation methods, 
+only models the events that Kirchhoff migration
+can image.
+\end{quote}
+
+\inputdir{scons}
+\plot{gaussianReflectorVelocityModel}{width=\textwidth}{Gaussian reflector model.}
+
+\plot{dataCube}{width=\textwidth}{Seismic data cube.}
+
+\plot{cmpGather}{width=\textwidth}{CMP gather 
+extracted from the seismic data cube, 
+5Km is the CMP Gather coordinate.}
+
+\bibliographystyle{seg}
+\bibliography{mybib}

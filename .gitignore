@@ -24,4 +24,10 @@ experiments/generateStackedSection/*
 *.log
 *.ltx
 *.out
+backup/
+*.pdf
+*.scons
+checkpoints
+*.jp2
+.ipynb_checkpoints/
 
