@@ -9,3 +9,10 @@
 sf*
 .sconsign
 sf*
+*.aux
+*.bbl
+*.blg
+*.lof
+*.log
+*.ltx
+*.out
