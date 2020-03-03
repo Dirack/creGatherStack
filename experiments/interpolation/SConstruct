@@ -1,26 +1,203 @@
-from rsf.tex import *
-import os
-import glob
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# SConstruct  (Madagascar Script)
+#
+# Purpose: Interpolation of modeled data Cube to increase dara sampling.
+#
+# Site: http://www.dirackslounge.online
+# 
+# Version 1.0
+#
+# Programer: Rodolfo A. C. Neves (Dirack) 22/09/2019
+#
+# Email: rodolfo_profissional@hotmail.com
+#
+# License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
+
+
+# Madagascar library
+from rsf.proj import *
+
+# Python math library
+import math
+
+# Ploting functions
+from graph_scons import *
+
+# Modeling: Gaussian reflector in a velocity linear model
+# velocity increases with depth and a 0.5 velocity gradient
+Flow('gaussianReflector',None,
+     '''
+     math d1=0.01 n1=2001 o1=-5 unit1=km label1=Offset
+     output="4-3*exp(-(x1-5)^2/9)"
+     ''')
+
+# Velocity Model
+Flow('velocityModel','gaussianReflector',
+     '''
+     window min1=0 max1=10 |
+     spray axis=1 n=451 d=0.01 o=0 label=Depth unit=km |
+     math output="1.5+0.5*x1+0.0*x2"
+     ''')
+
+Flow('reflectorDip','gaussianReflector','math output="2/3*(x1-5)*input" ')
+
+# Kirchoff Modeling
+Flow('dataCube','gaussianReflector reflectorDip',
+     '''
+     kirmod cmp=y dip=${SOURCES[1]} 
+     nh=161 dh=0.025 h0=0
+     ns=401 ds=0.025 s0=0
+     freq=10 dt=0.004 nt=1001
+     vel=1.5 gradz=0.5 gradx=0.0 verb=y |
+     put d2=0.0125 label3="CMP" unit3="Km" label2="Offset" unit2="Km" label1=Time unit1=s
+     ''')
+
+m0=5
+t0=1.1
+v0=1.5
+
+# Very Fast Simulated Aneelling Global Optimization (VFSA)
+Flow('crsParameters','dataCube',
+	'''
+	vfsacrenh m0=%g v0=%g t0=%g verb=y repeat=2
+	''' % (m0,v0,t0))
+
+# Aproximation Error
+Flow('dataReflectionSurface','dataCube','envelope | max1 | window n1=1 | real')
+Plot('dataReflectionSurface',
+	'''
+	grey color=j bias=2 scalebar=y barlabel=Time barunit=s barreverse=y 
+	title="Modeled traveltime surface" label1=Half-Offset unit1=km label2=Midpoint unit2=km
+	''')
+Flow('crsAppSurface',['dataReflectionSurface','crsParameters'],
+	'''
+	nhcrssurf param=${SOURCES[1]} m0=%g v0=%g t0=%g verb=y
+	''' % (m0,v0,t0))
+Plot('crsAppSurface',
+	'''
+	grey color=j bias=2 scalebar=y barlabel=Time barunit=s barreverse=y 
+	title="Non-hyperbolic CRS m0=5Km" label1=Half-Offset unit1=km label2=Midpoint unit2=km
+	''')
+
+Flow('error',['crsAppSurface','dataReflectionSurface'],
+	'''
+	add scale=1,-1 ${SOURCES[1]} | 
+	math output="abs(input)" 
+	''')
+Plot('error',
+	'''
+	grey color=j scalebar=y barlabel=Time barunit=s barreverse=y 
+	title="Approximation error" label1=Half-Offset unit1=km label2=Midpoint unit2=km
+	maxval=1 minval=0
+	''')
+
+Result('errorAndCRSSurfaces',['dataReflectionSurface','crsAppSurface','error'],'SideBySideAniso')
+
+
+# Build a mask to interleave zero traces with original data traces
+Flow('aa',None,'spike n1=401 d1=0.0125 o1=0')
+Flow('bb',None,'spike n1=401 d1=0.0125 o1=0 mag=0')
+Flow('mask1','bb aa',
+	'''
+	interleave axis=1 ${SOURCES[1]} |
+	dd type=int
+	''')
+
+Flow('a',None,'spike n1=401 d1=0.0125 o1=0')
+Flow('b',None,'spike n1=401 d1=0.0125 o1=0 mag=0')
+Flow('mask','a b',
+	'''
+	interleave axis=1 ${SOURCES[1]} |
+	dd type=int
+	''')
+Flow('zeroTraceGather','b',
+	'''
+	spray axis=2 n=1001 d=0.0125 |
+	transp |
+	put label2=Offset unit2=Km label1=Time unit1=s
+	''')
+
+# Data Mask with double of traces in CMP (half of CMP sampling)
+# Keep the same Time and Offset original data sampling
+Flow('mask0','mask',
+     '''
+     spray axis=1 n=1001 d=0.004
+     ''')
+
+totalPefIterations = 100
+totalInterpolationIterations = 20
+
+offsetGathers = []
+for offsetGatherIndex in range(161):
+
+	offsetGather = "offsetGather-%i" % offsetGatherIndex
+	resampledOffsetGather = "resampledOffsetGather-%i" % offsetGatherIndex
+	interpolatedOffsetGather = "interpolatedOffsetGather-%i" % offsetGatherIndex
+	pefCoeficients = "pefCoeficients-%i" % offsetGatherIndex
+
+	Flow(offsetGather,'dataCube',
+	'''
+	window n2=1 f2=%i
+	''' % (offsetGatherIndex))
+	
+	Flow(resampledOffsetGather,[offsetGather,'zeroTraceGather'],
+	'''
+	interleave axis=2 ${SOURCES[1]}
+	''')
+
+	# Calculate adaptive PEF coeficients
+	Flow(pefCoeficients,[resampledOffsetGather,'mask0'],
+		'''
+		apef jump=2 a=10,2 rect1=50 rect2=2 niter=%g verb=y
+		maskin=${SOURCES[1]}
+		''' % (totalPefIterations))
+
+	# 4. Interpolation
+	Flow(interpolatedOffsetGather, 	[resampledOffsetGather,pefCoeficients,'mask0','mask1'],
+		'''
+		miss4 exact=y filt=${SOURCES[1]} mask=${SOURCES[2]} niter=%g verb=y |
+		put d2=0.0125
+		''' % (totalInterpolationIterations))
+
+	offsetGathers.append(interpolatedOffsetGather)
+
+# Concatenate interpolated sections
+Flow('interpolatedDataCube',offsetGathers,
+	'''
+	rcat axis=3 ${SOURCES[1:%d]} |
+	transp plane=23 --out=stdout
+	''' % offsetGatherIndex)
+
+
+
+End()
+
+#from rsf.tex import *
+#import os
+#import glob
 
 # Run the experiment with scons
-print('Running experiment with scons...')
-os.chdir('scons/')
-os.system('scons')
+#print('Running experiment with scons...')
+#os.chdir('scons/')
+#os.system('scons')
 
 # Build figures
-print('Building figures...')
-os.chdir('Fig/')
-listOfFigures = glob.glob('*.vpl')
+#print('Building figures...')
+#os.chdir('Fig/')
+#listOfFigures = glob.glob('*.vpl')
 
-for i in listOfFigures:
-	i = i.split('.')[0]
-	print('Building '+str(i)+'.pdf')
-	string = 'jpegpen <'+str(i)+'.vpl bgcolor=w >'+str(i)+'.jp2'
-	os.system(string)
-	string = 'img2pdf <'+str(i)+'.jp2 >'+str(i)+'.pdf'
-	os.system(string)
+#for i in listOfFigures:
+#	i = i.split('.')[0]
+#	print('Building '+str(i)+'.pdf')
+#	string = 'jpegpen <'+str(i)+'.vpl bgcolor=w >'+str(i)+'.jp2'
+#	os.system(string)
+#	string = 'img2pdf <'+str(i)+'.jp2 >'+str(i)+'.pdf'
+#	os.system(string)
 
-print('Building reproducible papper...')
-os.chdir('../..')
+#print('Building reproducible papper...')
+#os.chdir('../..')
 
-End(options='manuscript',use=['[bookmarks=true]hyperref','amsmath','color','listings'])
+#End(options='manuscript',use=['[bookmarks=true]hyperref','amsmath','color','listings'])
+

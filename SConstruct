@@ -5,7 +5,7 @@ import bldutil
 # Put your name programs in progs variable 
 # without 'M' preffix and '.c' extension
 progs = '''
-vfsacrenh nhcrssurf cretrajec getcregather getcretimecurve crestack
+vfsacrsnh nhcrssurf
 '''
 
 try:  # distributed version
@@ -19,6 +19,13 @@ except: # local version
     env.Prepend(CPPDEFINES=['DEBUG'])
     root = None
     SConscript('../../api/c/SConstruct')
+
+# Check if the TDD option is set
+if ARGUMENTS.get('tdd',0):
+	print("TDD option is set...")
+	## Set a c flag to compilation process
+	## the flag -Wp,-DTDD=1 informs to the preprocessor that TDD=1
+	env['CFLAGS'] = '-Wp,-DTDD=1'
 
 if sys.platform.startswith('linux'):
     env.Prepend(CPPDEFINES=['LINUX'])
