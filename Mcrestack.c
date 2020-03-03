@@ -10,6 +10,8 @@ License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
 #include <rsf.h>
 
+#define STACK_APERTURE 100
+
 int main(int argc, char* argv[])
 {
 
@@ -109,11 +111,12 @@ int main(int argc, char* argv[])
 
 			sumAmplitudes = 0;
 
-			for(ih=0; ih < nh; ih++){
+			for(ih=0; ih < STACK_APERTURE; ih++){
 
-				tetai = (int) (creTimeCurve[im0][it0][ih]/dt);
-
+				tetai = (int) ((double)creTimeCurve[im0][it0][ih]/dt);
 				sumAmplitudes += creGatherCube[im0][it0][ih][tetai];
+				
+				//sf_warning("%i, %f, %f",tetai,creTimeCurve[im0][it0][ih],sumAmplitudes);
 
 			} /* loop over h*/
 

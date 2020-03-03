@@ -9,6 +9,14 @@
 sf*
 .sconsign
 sf*
+crsParameters-*
+creTimeCurve-*
+creMhCoordinates-*
+creMcoordinate-*
+creGather-*
+experiments/backup/*
+experiments/generateStackedSection/*
+!experiments/generateStackedSection/SConstruct
 *.aux
 *.bbl
 *.blg
@@ -16,3 +24,4 @@ sf*
 *.log
 *.ltx
 *.out
+
