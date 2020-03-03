@@ -5,6 +5,7 @@ import bldutil
 # Put your name programs in progs variable 
 # without 'M' preffix and '.c' extension
 progs = '''
+vfsacrenh nhcrssurf cretrajec getcregather getcretimecurve crestack
 '''
 
 try:  # distributed version
