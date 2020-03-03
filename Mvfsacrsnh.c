@@ -10,7 +10,7 @@ License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
  */
 
-#include "vfsacrenh_lib.h"
+#include "vfsacrsnh_lib.h"
 
 int main(int argc, char* argv[])
 {
@@ -111,6 +111,8 @@ int main(int argc, char* argv[])
 	t=sf_floatalloc3(nt,nh,nm);
 	sf_floatread(t[0][0],nm*nh*nt,in);
 
+	sf_fileclose(in);
+
 	semb0=0;
 
 	for(i=0;i<repeat;i++){
@@ -167,6 +169,7 @@ int main(int argc, char* argv[])
 
 	} /* repeat VFSA global optimization */
 
+	free(t);
 
 	/* Save optimized parameters in 'param' file */
 	otm=sf_floatalloc(8);
@@ -180,7 +183,7 @@ int main(int argc, char* argv[])
 	otm[7] = m0;
 
 	/* Show optimized parameters on screen before save them */
-	sf_warning("Parâmetros otimizados:\n RN=%f, RNIP=%f, BETA=%f, SEMB=%f",otrn,otrnip,otbeta,otsemb);
+	sf_warning("Optimized parameters:\n RN=%f, RNIP=%f, BETA=%f, SEMB=%f",otrn,otrnip,otbeta,otsemb);
 
 	/* axis = sf_maxa(n,o,d)*/
 	ax = sf_maxa(8, 0, 1);
@@ -193,5 +196,6 @@ int main(int argc, char* argv[])
 	sf_oaxa(out,az,3);
 	sf_floatwrite(otm,8,out);
 
+	sf_close();
 	exit(0);
 }

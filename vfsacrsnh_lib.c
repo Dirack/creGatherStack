@@ -1,7 +1,7 @@
 /*
-	 vfsacrenh_lib.c (c)
+	 vfsacrsnh_lib.c (c)
 	 
-	 Purpose: 'Mvfsacrenh.c' library.
+	 Purpose: 'Mvfsacrsnh.c' library.
 	 	 
 	 Version 1.0
 	 
@@ -23,7 +23,7 @@
 #define Rn_MIN 0
 #define hMAX 50
 #define mMAX 50
-#define ITMAX 10000
+#define ITMAX 5000
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

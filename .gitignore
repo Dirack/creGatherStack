@@ -17,3 +17,11 @@ creGather-*
 experiments/backup/*
 experiments/generateStackedSection/*
 !experiments/generateStackedSection/SConstruct
+*.aux
+*.bbl
+*.blg
+*.lof
+*.log
+*.ltx
+*.out
+

@@ -36,6 +36,8 @@ nm0 = 160
 parametersCube = []
 creGatherCube = []
 creTimeCurveCube = []
+creGatherCubeForM0List = []
+creTimeCurveCubeForM0List = []
 creGatherIndex = 0
 
 for i in range(nm0):
@@ -128,9 +130,29 @@ for i in range(16):
 
 	tmptimelist = []
 
+	# Concatenate cre gathers for each m0
+	creGatherCubeForM0 = "creGatherCube-m0-%i" % i
+	creGatherCubeForM0List.append(creGatherCubeForM0)
+	Flow(creGatherCubeForM0,creGatherCube,
+		'''
+		rcat axis=3 ${SOURCES[1:%d]}
+		''' % nt0)
+
+	# Concatenate cre Time curves for each m0
+	creTimeCurveCubeForM0 = "creTimeCurveCube-m0-%i" % i
+	creTimeCurveCubeForM0List.append(creTimeCurveCubeForM0)
+	Flow(creTimeCurveCubeForM0,creTimeCurveCube,
+		'''
+		rcat axis=2 ${SOURCES[1:%d]}
+		'''% nt0)
+
+	creTimeCurveCube = []
+	creGatherCube = []
+
 # Get a paramters cube RN, RNIP, BETA, SEMBLANCE
 Flow('parametersCube',tmpfiles,
 	'''
+
 	rcat axis=2 ${SOURCES[1:16]} --out=stdout
 	''')
 
