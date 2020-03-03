@@ -10,7 +10,7 @@ License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
 #include <rsf.h>
 
-#define STACK_APERTURE 50
+#define STACK_APERTURE 100
 
 int main(int argc, char* argv[])
 {

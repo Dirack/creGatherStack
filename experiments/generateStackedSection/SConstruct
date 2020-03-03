@@ -18,10 +18,10 @@ Flow('stackedSection',sortedFiles,
 
 Flow('filtStackedSection','stackedSection',
 	'''
-	bandpass fhi=20
+	bandpass fhi=20 --out=stdout
 	''')
 
-Flow('slice','zeroOffsetSection',
-	'''
-	window min1=1 max1=1.5 min2=4 max2=6 --out=stdout
-	''')
+#Flow('slice','zeroOffsetSection',
+#	'''
+#	window min1=1 max1=1.5 min2=4 max2=6 --out=stdout
+#	''')

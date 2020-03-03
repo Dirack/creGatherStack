@@ -29,12 +29,12 @@ from graph_scons import *
 v0 = 1.5
 ot0 = 1.0
 dt0 = 0.004
-nt0 = 125
-om0 = 4
+nt0 = 500
+om0 = 3
 dm0 = 0.0125
-nm0 = 160
+nm0 = 320
 
-for i in range(nm0):
+for i in range(251,321):
 
 	parametersCube = []
 	creGatherCube = []
