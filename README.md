@@ -95,8 +95,8 @@ We also have many SConstruct examples in this repository in the
 * [v1.0-beta.1](https://github.com/Dirack/cre-gather-interpolation/releases/tag/creStackedSection) (Beta - In progress)
   
 * [v0.1-beta.1](https://github.com/Dirack/creGatherInterpolation/releases/tag/v0.1-beta.1) - (Instable)
-  * Interpolate the data cube to increase sampling to allow CRE gathers building.
-  * Stacking process in the CRE Gather domain.
+
+[See the complete history decription in our wiki](https://github.com/Dirack/creGatherInterpolation/wiki/Release-history)
 
 ## Meta
 
