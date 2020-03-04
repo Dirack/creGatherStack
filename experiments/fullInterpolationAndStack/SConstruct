@@ -27,6 +27,12 @@ from creStack import pefInterpolation as pefin
 kimod()
 
 # PEF interpolation of the data cube
-pefin('dataCube','interpolatedDataCube')
-
+pefin('dataCube',
+    'interpolatedDataCube',
+    nm=401,
+    dm=0.025,
+    nt=1001,
+    dt=0.004,
+    nhi=1)
+ 
 End()

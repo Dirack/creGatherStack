@@ -57,14 +57,25 @@ def kirchoffModeling(filename='dataCube'):
 def pefInterpolation(
     dataCube,
     interpolated,
+    nm,
+    dm,
+    nt,
+    dt,
     nhi=1
     ):
     '''
     PEF interpolation of the data cube
-    :param dataCube: Seismic data cube to interpolate
-    :param interpolated: Interpolated seismic data cube
-    :param nhi: Number of constant offsets gathers to interpolate
+    :param dataCube: filename, Seismic data cube to interpolate
+    :param interpolated: filename, Interpolated seismic data cube
+    :param nm: integer, number of CMPs in the seismic data cube
+    :param dm: float, CMP sampling
+    :param nt: integer, number of time samples
+    :param dt: float, time sampling
+    :param nhi: integer, number of constant offsets gathers to interpolate
     '''
+
+    # Divide CMP sampling
+    dm = dm/2
 
     # Define mask file names using input filename
     mask1 = dataCube+'-mask1'
@@ -78,16 +89,16 @@ def pefInterpolation(
 
 
     # Build a mask to interleave zero traces with original data traces
-    Flow(aa,None,'spike n1=401 d1=0.0125 o1=0')
-    Flow(bb,None,'spike n1=401 d1=0.0125 o1=0 mag=0')
+    Flow(aa,None,'spike n1=%i d1=%g o1=0' %(nm,dm))
+    Flow(bb,None,'spike n1=%i d1=%g o1=0 mag=0' % (nm,dm))
     Flow(mask1,[bb, aa],
             '''
             interleave axis=1 ${SOURCES[1]} |
             dd type=int
             ''')
 
-    Flow(a,None,'spike n1=401 d1=0.0125 o1=0')
-    Flow(b,None,'spike n1=401 d1=0.0125 o1=0 mag=0')
+    Flow(a,None,'spike n1=%i d1=%g o1=0' % (nm,dm))
+    Flow(b,None,'spike n1=%i d1=%g o1=0 mag=0' % (nm,dm))
     Flow(mask,[a, b],
             '''
             interleave axis=1 ${SOURCES[1]} |
@@ -95,17 +106,17 @@ def pefInterpolation(
             ''')
     Flow(zeroTraceGather,b,
             '''
-            spray axis=2 n=1001 d=0.0125 |
+            spray axis=2 n=%i d=%g |
             transp |
             put label2=Offset unit2=Km label1=Time unit1=s
-            ''')
+            ''' %(nt,dm))
 
     # Data Mask with double of traces in CMP (half of CMP sampling)
     # Keep the same Time and Offset original data sampling
     Flow(mask0,mask,
          '''
-         spray axis=1 n=1001 d=0.004
-         ''')
+         spray axis=1 n=%i d=%g
+         ''' %(nt,dt))
 
     totalPefIterations = 100
     totalInterpolationIterations = 20
@@ -139,8 +150,8 @@ def pefInterpolation(
             Flow(interpolatedOffsetGather, 	[resampledOffsetGather,pefCoeficients,mask0,mask1],
                     '''
                     miss4 exact=y filt=${SOURCES[1]} mask=${SOURCES[2]} niter=%g verb=y |
-                    put d2=0.0125
-                    ''' % (totalInterpolationIterations))
+                    put d2=%g
+                    ''' % (totalInterpolationIterations,dm))
 
             offsetGathers.append(interpolatedOffsetGather)
 
