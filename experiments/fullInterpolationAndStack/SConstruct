@@ -21,8 +21,12 @@ from rsf.proj import *
 
 # CRE recipe
 from creStack import kirchoffModeling as kimod
+from creStack import pefInterpolation as pefin
 
 # Generate Gaussian reflector model and data cube
 kimod()
+
+# PEF interpolation of the data cube
+pefin('dataCube','interpolatedDataCube')
 
 End()

@@ -54,4 +54,90 @@ def kirchoffModeling():
          put d2=0.0125 label3="CMP" unit3="Km" label2="Offset" unit2="Km" label1=Time unit1=s
          ''')
 
+def pefInterpolation(
+    dataCube,
+    interpolated,
+    nhi=1
+    ):
+    '''
+    PEF interpolation of the data cube
+    :param dataCube: Seismic data cube to interpolate
+    :param interpolated: Interpolated seismic data cube
+    :param nhi: Number of constant offsets gathers to interpolate
+    '''
+
+    # Build a mask to interleave zero traces with original data traces
+    Flow('aa',None,'spike n1=401 d1=0.0125 o1=0')
+    Flow('bb',None,'spike n1=401 d1=0.0125 o1=0 mag=0')
+    Flow('mask1','bb aa',
+            '''
+            interleave axis=1 ${SOURCES[1]} |
+            dd type=int
+            ''')
+
+    Flow('a',None,'spike n1=401 d1=0.0125 o1=0')
+    Flow('b',None,'spike n1=401 d1=0.0125 o1=0 mag=0')
+    Flow('mask','a b',
+            '''
+            interleave axis=1 ${SOURCES[1]} |
+            dd type=int
+            ''')
+    Flow('zeroTraceGather','b',
+            '''
+            spray axis=2 n=1001 d=0.0125 |
+            transp |
+            put label2=Offset unit2=Km label1=Time unit1=s
+            ''')
+
+    # Data Mask with double of traces in CMP (half of CMP sampling)
+    # Keep the same Time and Offset original data sampling
+    Flow('mask0','mask',
+         '''
+         spray axis=1 n=1001 d=0.004
+         ''')
+
+    totalPefIterations = 100
+    totalInterpolationIterations = 20
+
+    offsetGathers = []
+    for offsetGatherIndex in range(nhi):
+
+            offsetGather = "offsetGather-%i" % offsetGatherIndex
+            resampledOffsetGather = "resampledOffsetGather-%i" % offsetGatherIndex
+            interpolatedOffsetGather = "interpolatedOffsetGather-%i" % offsetGatherIndex
+            pefCoeficients = "pefCoeficients-%i" % offsetGatherIndex
+
+            Flow(offsetGather,dataCube,
+            '''
+            window n2=1 f2=%i
+            ''' % (offsetGatherIndex))
+            
+            Flow(resampledOffsetGather,[offsetGather,'zeroTraceGather'],
+            '''
+            interleave axis=2 ${SOURCES[1]}
+            ''')
+
+            # Calculate adaptive PEF coeficients
+            Flow(pefCoeficients,[resampledOffsetGather,'mask0'],
+                    '''
+                    apef jump=2 a=10,2 rect1=50 rect2=2 niter=%g verb=y
+                    maskin=${SOURCES[1]}
+                    ''' % (totalPefIterations))
+
+            # Interpolation
+            Flow(interpolatedOffsetGather, 	[resampledOffsetGather,pefCoeficients,'mask0','mask1'],
+                    '''
+                    miss4 exact=y filt=${SOURCES[1]} mask=${SOURCES[2]} niter=%g verb=y |
+                    put d2=0.0125
+                    ''' % (totalInterpolationIterations))
+
+            offsetGathers.append(interpolatedOffsetGather)
+
+    # Concatenate interpolated sections
+    Flow(interpolated,offsetGathers,
+            '''
+            rcat axis=3 ${SOURCES[1:%d]} |
+            transp plane=23
+            ''' % offsetGatherIndex)
+
 
