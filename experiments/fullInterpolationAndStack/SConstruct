@@ -34,5 +34,15 @@ pefin('dataCube',
     nt=1001,
     dt=0.004,
     nhi=1)
+
+# Do the PEF interpolation one more time
+# to increase the CMP sampling
+pefin('interpolatedDataCube',
+    'interpolatedDataCube2',
+    nm=802,
+    dm=0.0125,
+    nt=1001,
+    dt=0.004,
+    nhi=1)
  
 End()

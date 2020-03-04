@@ -124,10 +124,10 @@ def pefInterpolation(
     offsetGathers = []
     for offsetGatherIndex in range(nhi):
 
-            offsetGather = "offsetGather-%i" % offsetGatherIndex
-            resampledOffsetGather = "resampledOffsetGather-%i" % offsetGatherIndex
-            interpolatedOffsetGather = "interpolatedOffsetGather-%i" % offsetGatherIndex
-            pefCoeficients = "pefCoeficients-%i" % offsetGatherIndex
+            offsetGather = dataCube+"-offsetGather-%i" % offsetGatherIndex
+            resampledOffsetGather = dataCube+"-resampledGather-%i" % offsetGatherIndex
+            interpolatedOffsetGather = dataCube+"-interpolatedGather-%i" % offsetGatherIndex
+            pefCoeficients = dataCube+"-pefCoeficients-%i" % offsetGatherIndex
 
             Flow(offsetGather,dataCube,
             '''
