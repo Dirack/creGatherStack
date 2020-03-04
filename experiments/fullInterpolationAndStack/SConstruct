@@ -20,12 +20,9 @@
 from rsf.proj import *
 
 # CRE recipe
-from creStack import kirchoffModeling as km
-
-help(km)
+from creStack import kirchoffModeling as kimod
 
 # Generate Gaussian reflector model and data cube
-km()
-
+kimod()
 
 End()
