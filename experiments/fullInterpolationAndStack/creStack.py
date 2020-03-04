@@ -20,7 +20,7 @@
 # Madagascar package
 from rsf.proj import *
 
-def kirchoffModeling():
+def kirchoffModeling(filename='dataCube'):
     '''
     Modeling function of a gaussian reflector
     '''
@@ -44,7 +44,7 @@ def kirchoffModeling():
     Flow('reflectorDip','gaussianReflector','math output="2/3*(x1-5)*input" ')
 
     # Kirchoff Modeling
-    Flow('dataCube','gaussianReflector reflectorDip',
+    Flow(filename,'gaussianReflector reflectorDip',
          '''
          kirmod cmp=y dip=${SOURCES[1]} 
          nh=161 dh=0.025 h0=0
@@ -66,23 +66,34 @@ def pefInterpolation(
     :param nhi: Number of constant offsets gathers to interpolate
     '''
 
+    # Define mask file names using input filename
+    mask1 = dataCube+'-mask1'
+    mask = dataCube+'-mask'
+    aa = dataCube+'-aa'
+    bb = dataCube+'-bb'
+    a = dataCube+'-a'
+    b = dataCube+'-b'
+    zeroTraceGather = dataCube+'-zeroedGather'
+    mask0 = dataCube+'-mask0'
+
+
     # Build a mask to interleave zero traces with original data traces
-    Flow('aa',None,'spike n1=401 d1=0.0125 o1=0')
-    Flow('bb',None,'spike n1=401 d1=0.0125 o1=0 mag=0')
-    Flow('mask1','bb aa',
+    Flow(aa,None,'spike n1=401 d1=0.0125 o1=0')
+    Flow(bb,None,'spike n1=401 d1=0.0125 o1=0 mag=0')
+    Flow(mask1,[bb, aa],
             '''
             interleave axis=1 ${SOURCES[1]} |
             dd type=int
             ''')
 
-    Flow('a',None,'spike n1=401 d1=0.0125 o1=0')
-    Flow('b',None,'spike n1=401 d1=0.0125 o1=0 mag=0')
-    Flow('mask','a b',
+    Flow(a,None,'spike n1=401 d1=0.0125 o1=0')
+    Flow(b,None,'spike n1=401 d1=0.0125 o1=0 mag=0')
+    Flow(mask,[a, b],
             '''
             interleave axis=1 ${SOURCES[1]} |
             dd type=int
             ''')
-    Flow('zeroTraceGather','b',
+    Flow(zeroTraceGather,b,
             '''
             spray axis=2 n=1001 d=0.0125 |
             transp |
@@ -91,7 +102,7 @@ def pefInterpolation(
 
     # Data Mask with double of traces in CMP (half of CMP sampling)
     # Keep the same Time and Offset original data sampling
-    Flow('mask0','mask',
+    Flow(mask0,mask,
          '''
          spray axis=1 n=1001 d=0.004
          ''')
@@ -112,20 +123,20 @@ def pefInterpolation(
             window n2=1 f2=%i
             ''' % (offsetGatherIndex))
             
-            Flow(resampledOffsetGather,[offsetGather,'zeroTraceGather'],
+            Flow(resampledOffsetGather,[offsetGather,zeroTraceGather],
             '''
             interleave axis=2 ${SOURCES[1]}
             ''')
 
             # Calculate adaptive PEF coeficients
-            Flow(pefCoeficients,[resampledOffsetGather,'mask0'],
+            Flow(pefCoeficients,[resampledOffsetGather,mask0],
                     '''
                     apef jump=2 a=10,2 rect1=50 rect2=2 niter=%g verb=y
                     maskin=${SOURCES[1]}
                     ''' % (totalPefIterations))
 
             # Interpolation
-            Flow(interpolatedOffsetGather, 	[resampledOffsetGather,pefCoeficients,'mask0','mask1'],
+            Flow(interpolatedOffsetGather, 	[resampledOffsetGather,pefCoeficients,mask0,mask1],
                     '''
                     miss4 exact=y filt=${SOURCES[1]} mask=${SOURCES[2]} niter=%g verb=y |
                     put d2=0.0125
