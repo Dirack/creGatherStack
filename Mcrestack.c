@@ -10,8 +10,6 @@ License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
 #include <rsf.h>
 
-#define STACK_APERTURE 100
-
 int main(int argc, char* argv[])
 {
 
@@ -42,6 +40,7 @@ int main(int argc, char* argv[])
 	float **stackedSection; // CRE stacked section
 	int it0, im0, ih, tetai; // loop counter and indexes
 	float sumAmplitudes; // Sum of amplitudes in the stacking
+	int aperture; // Number of offsets to stack
 
 	/* RSF files I/O */  
 	sf_file in, timeCurves, out;
@@ -83,6 +82,13 @@ int main(int argc, char* argv[])
 	if(! sf_getbool("verb",&verb)) verb=0;
 	/* 1: active mode; 0: quiet mode */
 
+	if(!sf_getint("aperture",&aperture)) aperture=1;
+	/* Stacking aperture, number of offsets */
+
+	if(aperture > nh){
+		sf_error("The aperture can't be > n2\nAperture=%i n2=%i",aperture,nh);
+	}
+
 	if (verb) {
 
 		sf_warning("Active mode on!!!");
@@ -111,7 +117,7 @@ int main(int argc, char* argv[])
 
 			sumAmplitudes = 0;
 
-			for(ih=0; ih < STACK_APERTURE; ih++){
+			for(ih=0; ih < aperture; ih++){
 
 				tetai = (int) ((double)creTimeCurve[im0][it0][ih]/dt);
 				sumAmplitudes += creGatherCube[im0][it0][ih][tetai];
