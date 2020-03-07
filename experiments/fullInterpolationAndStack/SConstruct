@@ -168,4 +168,16 @@ for i in range(length):
 	string = 'creStackedTrace-m0-%i.rsf' % i
 	sortedFiles.append(string)  
 
+# Concatenate
+Flow('stackedSection',sortedFiles,
+	'''
+	rcat axis=2 ${SOURCES[1:%d]} --out=stdout
+	''' % len(files))
+
+# Bandpass filtering
+Flow('filtStackedSection','stackedSection',
+	'''
+	bandpass fhi=20 --out=stdout
+	''')
+
 End()
