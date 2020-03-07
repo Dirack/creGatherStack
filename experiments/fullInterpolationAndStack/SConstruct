@@ -19,6 +19,9 @@
 # Madagascar package
 from rsf.proj import *
 
+# Python glob library
+import glob
+
 # CRE recipe
 from creStack import kirchoffModeling as kimod
 from creStack import pefInterpolation as pefin
@@ -151,5 +154,18 @@ for i in range(nm0):
 		crestack timeCurves=${SOURCES[1]} verb=y |
 		put label1=t0 unit1=s label2=m0 unit2=Km --out=stdout
 		''')
+
+# Build CRE stacked section
+# throughout CRE stacked traces concatenation
+# list all CRE stacked traces into 'files'
+files = glob.glob('creStackedTrace-*.rsf')
+
+length = len(files)
+
+# Files list sorting 
+sortedFiles = []
+for i in range(length):
+	string = 'creStackedTrace-m0-%i.rsf' % i
+	sortedFiles.append(string)  
 
 End()
