@@ -24,18 +24,18 @@ int main(int argc, char* argv[])
 	float v0; // Near surface velocity
 	float t0; // Normal ray traveltime
 	float* p; // RNIP and BETA temporary vector
-	float RNIP;
-	float BETA;
+	float RNIP; // RNIP - CRS parameter
+	float BETA; // RN - CRS parameter
 	int np; // Number of parameters
-	bool verb;
+	bool verb; // Verbose
 	float dh; // Half offset sampling
 	float oh; // Half offset axis origin
 	int nh; // Half offset number of samples
 	int i; // loop counter
-	double c1, c2; // temporary variables
-	//double d;
-        //double a1, a2, b2, c1, Fd, Fd1, Fd2;
-
+	double c1, c2; // temporary variables of CRE approximation
+	double d; // Distance to the central CMP m0
+        double a1, a2, b2, b1, Fd, Fd1, Fd2; // temporary variables of CRS approximation
+	bool cds; // Choose the traveltime approximation CRE or CRS
 
 	/* RSF files I/O */  
 	sf_file in, out, par;
@@ -77,6 +77,9 @@ int main(int argc, char* argv[])
 	if(! sf_getbool("verb",&verb)) verb=0;
 	/* 1: active mode; 0: quiet mode */
 
+	if(! sf_getbool("cds",&cds)) cds=0;
+	/* 1: Non-hyperbolic CRS using CDS condition; 0: cre approximation */
+
 	alpha = sin(BETA)/RNIP;
 
 	if (verb) {
@@ -96,37 +99,29 @@ int main(int argc, char* argv[])
 	sf_floatread(m,nh,in);
 	t = sf_floatalloc(nh);
 
-	for(i=0;i<nh;i++){
-		h = (dh*i) + oh;
-		c1 = (m[i]-m0+h)/(RNIP);
-		c2 = (m[i]-m0-h)/(RNIP);
-		t[i] = (t0-2*RNIP/v0)+(RNIP/v0)*sqrt(1-2*alpha*(m[i]-m0+h)+c1*c1)+(RNIP/v0)*sqrt(1-2*alpha*(m[i]-m0-h)+c2*c2);
+	if(!cds){
+		/* CRE approximation */
+		for(i=0;i<nh;i++){
+			h = (dh*i) + oh;
+			c1 = (m[i]-m0+h)/(RNIP);
+			c2 = (m[i]-m0-h)/(RNIP);
+			t[i] = (t0-2*RNIP/v0)+(RNIP/v0)*sqrt(1-2*alpha*(m[i]-m0+h)+c1*c1)+(RNIP/v0)*sqrt(1-2*alpha*(m[i]-m0-h)+c2*c2);
+		}
+	}else{
+		/* Non-hyperbolic CRS approximation with CDS condition (RN=RNIP) */
+		for(i=0;i<nh;i++){
+			h = (dh*i) + oh;
+			d = m[i]-m0;
+			a1=(2*sin(BETA))/(v0);
+			a2=(2*cos(BETA)*cos(BETA)*t0)/(v0*RNIP);
+			b2=(2*cos(BETA)*cos(BETA)*t0)/(v0*RNIP);
+			b1=2*b2+a1*a1-a2;
+			Fd=(t0+a1*d)*(t0+a1*d)+a2*d*d;
+			Fd2=(t0+a1*(d-h))*(t0+a1*(d-h))+a2*(d-h)*(d-h);
+			Fd1=(t0+a1*(d+h))*(t0+a1*(d+h))+a2*(d+h)*(d+h);
+			t[i]=sqrt((Fd+b1*h*h+sqrt(Fd2*Fd1))*0.5);
+		}
 	}
-
-	/* CDS approximation
-	for(i=0;i<nh;i++){
-		h = (dh*i) + oh;
-		d = m[i]-m0;
-		c1 = (t0+(2*sin(BETA)*d)/v0)*(t0+(2*sin(BETA)*d)/v0);
-		c2 = (2*t0*cos(BETA)*cos(BETA))/(v0*RNIP);
-		t[i] =	c1 + c2 * (d*d-h*h);
-		t[i] = sqrt(t[i]);
-	}*/
-
-	/*for(i=0;i<nh;i++){
-		h = (dh*i) + oh;
-		d = m[i]-m0;
-	        a1=(2*sin(BETA))/(v0);
-        	a2=(2*cos(BETA)*cos(BETA)*t0)/(v0*RNIP);
-        	b2=(2*cos(BETA)*cos(BETA)*t0)/(v0*RNIP);
-     		c1=2*b2+a1*a1-a2;
-       		Fd=(t0+a1*d)*(t0+a1*d)+a2*d*d;
-        	Fd2=(t0+a1*(d-h))*(t0+a1*(d-h))+a2*(d-h)*(d-h);
-        	Fd1=(t0+a1*(d+h))*(t0+a1*(d+h))+a2*(d+h)*(d+h);
-        	t[i]=sqrt((Fd+c1*h*h+sqrt(Fd2*Fd1))*0.5);
-	}*/
-
-
 
 	/* axis = sf_maxa(n,o,d)*/
 	ax = sf_maxa(nh, oh, dh);
