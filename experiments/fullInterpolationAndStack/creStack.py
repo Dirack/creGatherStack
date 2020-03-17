@@ -160,6 +160,6 @@ def pefInterpolation(
             '''
             rcat axis=3 ${SOURCES[1:%d]} |
             transp plane=23
-            ''' % offsetGatherIndex)
+            ''' % nhi)
 
 
