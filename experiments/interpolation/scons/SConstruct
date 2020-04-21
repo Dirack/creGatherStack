@@ -125,8 +125,18 @@ for offsetGatherIndex in range(2):
 # Concatenate interpolated sections
 Flow('interpolatedDataCube',offsetGathers,
 	'''
-	rcat axis=3 ${SOURCES[1:%d]} |
-	transp plane=23
+	rcat axis=3 ${SOURCES[1:%d]}
 	''' % offsetGatherIndex)
+
+# Compare interpolated and original data
+Result('interpolatedDataCube',grey('Interpolated zero offset gather'))
+
+# Select a constant offset gather h=0
+Flow('zeroOffsetGather','dataCube',
+	'''
+	window n2=1 f2=0
+	''')
+
+Result('zeroOffsetGather',grey('Original zero offset gather'))
 
 End()
