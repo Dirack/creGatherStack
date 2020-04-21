@@ -45,6 +45,10 @@ all Offset and CMP positions.
 You need to have the actual Madagascar package stable release installed on your computer. Please follow the
 [Installing Madagascar page](http://www.ahay.org/wiki/Installation) in the official documentation.
 
+You also need programs sfvfsacrsnh and sfnhcrssurf from version 
+[v1.1.1 of vfsa package](https://github.com/Dirack/vfsa/tree/v1.1.1). Please
+install them in your local version of Madagascar before using this package.
+
 ## Installation
 
 After Madagascar installing process, you need to install the programs of this repository in your local Madagascar user's
@@ -66,7 +70,7 @@ with 'echo' too:
 Madagascar stores user programs in $RSFSRC/user directory. So, you can create a new directory or put this
 repository inside that directory. In this repository, such as every user's repository in Madagascar, we have a compilation 
 [SConstruct](https://github.com/Dirack/vfsa/blob/master/SConstruct) that compile the C programs.
-Run 'scons' on your $RSFSRC/user/vfsa repository to compile it:
+Run 'scons' on your $RSFSRC/user/creGatherInterpolation repository to compile it:
 
 ```shell
 ~$ scons
