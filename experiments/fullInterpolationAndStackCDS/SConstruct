@@ -4,13 +4,16 @@
 # SConstruct  (Madagascar Script)
 #
 # Purpose: Build the interpolation process twice to improve CMP sampling
-# and CRE stacking results.
+# and CRE stacking results. 
+#
+# IMPORTANT: This SConstruct uses the non-hyperbolic CRS traveltime approximation
+# with the CDS condition applied (RN=RNIP) as a stacking curve.
 #
 # Site: http://www.dirackslounge.online
 # 
 # Version 1.0
 #
-# Programer: Rodolfo A. C. Neves (Dirack) 04/03/2020
+# Programer: Rodolfo A. C. Neves (Dirack) 16/03/2020
 #
 # Email: rodolfo_profissional@hotmail.com
 #
@@ -104,7 +107,7 @@ for i in range(nm0):
 		# Calculate CRE traveltime curve t(m,h)
 		Flow(creTimeCurve,[creMcoordinate, crsParameters],
 			'''
-			getcretimecurve param=${SOURCES[1]} t0=%g m0=%g v0=%g verb=y |
+			getcretimecurve param=${SOURCES[1]} cds=y t0=%g m0=%g v0=%g verb=y |
                         put label1="Offset" unit1="Km" 
 			''' % (t0,m0,v0))
 
