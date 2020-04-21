@@ -42,8 +42,13 @@ all Offset and CMP positions.
 
 ## Development setup
 
+- Madagascar package (3.0)
+
+- Vfsa package (1.1.1)
+
 You need to have the actual Madagascar package stable release installed on your computer. Please follow the
-[Installing Madagascar page](http://www.ahay.org/wiki/Installation) in the official documentation.
+[Installing Madagascar page](http://www.ahay.org/wiki/Installation) in the official documentation. You can install
+Madagascar automatically from Shell Script using program _madagainstall_ from [Shellinclude library](https://github.com/Dirack/Shellinclude/tree/v1.2.2-beta.1).
 
 You also need programs sfvfsacrsnh and sfnhcrssurf from version 
 [v1.1.1 of vfsa package](https://github.com/Dirack/vfsa/tree/v1.1.1). Please
