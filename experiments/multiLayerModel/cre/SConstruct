@@ -23,18 +23,44 @@ from rsf.proj import *
 from creStack import kirchoffModeling as kimod
 from creStack import pefInterpolation as pefin
 from creStack import gaussianReflector as gauss
+from creStack import multiLayerModel as mlmod
+from creStack import kirchoffNewtonModeling as kinewmod
 
 # Import glob python library
 import glob
 
+xmax = 6.0
+zmax = 2.0
+
+layers = ((0.30,0.50,0.20,0.30),
+	  (1.65,1.85,1.55,1.65))
+
+velocities = (1.508,
+	      1.690,
+	      2.0)
+
+# Generate multi layer model and data cube
+mlmod(interfaces='interfaces',
+	dipsfile='interfacesDip',
+	modelfile='mod1',
+	xmax=xmax,
+	zmax=zmax,
+	layers=layers,
+	velocities=velocities)
+
+kinewmod(reflectors='interfaces',
+	reflectorsDip='interfacesDip',
+	filename='multiLayerDataCube',
+	velocities=velocities)
+
 # Generate Gaussian reflector model and data cube
-gaus(filename='gaussianReflector')
+gauss(filename='gaussianReflector')
 
 kimod(filename='dataCube',
 	reflector='gaussianReflector',
 	reflectorDip='reflectorDip',
 	nh=161,
-	dh0=025,
+	dh=0.025,
 	h0=0,
 	ns=401,
 	ds=0.025,

@@ -24,6 +24,67 @@ if __name__ == "__main__":
 # Madagascar package
 from rsf.proj import *
 
+def arr2str(array,sep=' '):
+	return string.join(map(str,array),sep)
+
+
+def multiLayerModel(
+	interfaces,
+	dipsfile,
+	modelfile,
+	xmax,
+	zmax,
+	layers,
+	velocities
+	):
+	'''
+	Generate a multi layer model
+	'''
+	vstr=arr2str(velocities,',')
+	
+	n1 = len(layers[0])
+	n2 = len(layers)
+
+	Flow('layers.asc',None,
+	     '''
+	     echo %s
+	     n1=%d n2=%d o1=0 d1=%g
+	     data_format=ascii_float in=$TARGET
+	     ''' % (string.join(map(arr2str,layers),' '),
+		    n1,n2,xmax/(n1-1)))
+	Flow('layers','layers.asc','dd form=native')
+
+	d = 0.0101 # non-round for reproducibility
+
+	Flow(interfaces,'layers',
+	     'spline o1=0 d1=%g n1=%d' % (d,int(1.5+xmax/d)))
+	Flow(dipsfile,interfaces,'deriv scale=y')
+
+	Flow(modelfile,interfaces,
+	     '''
+	     unif2 d1=%g n1=%d v00=%s
+	     ''' % (d,int(1.5+zmax/d),vstr))
+
+def kirchoffNewtonModeling(
+	reflectors, 
+	reflectorsDip,
+	filename,
+	velocities):
+	'''
+	Kirchhoff modeling for a multi layer model
+	'''	
+	vstr=arr2str(velocities,',')
+
+	# Kirchoff modeling for multi layer model
+	Flow(filename,[reflectors,reflectorsDip],
+		'''
+		kirmod_newton nt=1001 dt=0.004 freq=10
+		ns=201 ds=0.025 nh=161 dh=0.025 h0=0 s0=0 verb=y cmp=y
+		vstatus=0 velocity=%s debug=n fwdxini=y
+		xref=0 zref=0 dip=${SOURCES[1]} |
+		put d2=0.0125 label3="CMP" unit3="Km" label2="Offset" unit2="Km" label1=Time unit1=s
+		''' % (vstr))
+
 def gaussianReflector(filename='gaussianReflector'):
     '''
     Generate a gaussian reflector
@@ -49,19 +110,19 @@ def gaussianReflector(filename='gaussianReflector'):
 
 
 def kirchoffModeling(
-	filename='dataCube',
+	filename,
 	reflector,
 	reflectorDip,
 	nh,
 	dh,
-	h0=0,
+	h0,
 	ns,
 	ds,
-	s0=0,
-	freq=10,
-	dt=0.004,
-	nt=1001,
-	v0=1.5,
+	s0,
+	freq,
+	dt,
+	nt,
+	v0,
 	gradz
 	):
 	'''
