@@ -54,7 +54,7 @@ kinewmod(reflectors='interfaces',
 # PEF interpolation of the data cube
 pefin('multiLayerDataCube',
     'interpolatedDataCube',
-    nm=401,
+    nm=201,
     dm=0.025,
     nt=1001,
     dt=0.004,
@@ -64,7 +64,7 @@ pefin('multiLayerDataCube',
 # to increase the CMP sampling
 pefin('interpolatedDataCube',
     'interpolatedDataCube2',
-    nm=802,
+    nm=402,
     dm=0.0125,
     nt=1001,
     dt=0.004,
@@ -77,9 +77,10 @@ v0 = 1.5
 ot0 = 1.0
 dt0 = 0.004
 nt0 = 500
-om0 = 3
+om0 = 2
 dm0 = 0.5
-nm0 = 9
+nm0 = 6
+dataCube='multiLayerDataCube'
 
 for i in range(nm0):
 
@@ -104,7 +105,7 @@ for i in range(nm0):
 		creGatherPlot = 'crePlot-m0-%g-t0-%g' % (i,j)
 
 		# Very Fast Simulated Aneelling Global Optimization (VFSA)
-		Flow(crsParameters,'dataCube',
+		Flow(crsParameters,dataCube,
 			'''
 			vfsacrsnh m0=%g v0=%g t0=%g verb=y repeat=3
 			''' % (m0,v0,t0))
