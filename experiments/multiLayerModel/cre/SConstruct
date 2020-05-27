@@ -75,7 +75,7 @@ for i in range(nm0):
 		#Get CRE Gather from interpolated Data Cube
 		Flow([creGather,creMcoordinate],['interpolatedDataCube2',creMhCoordinates],
 			'''
-			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} |
+			getcregather aperture=5050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050 verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} |
                         put label1="Time" unit1="s" label2="Offset" unit2="km" 
 			''')
 
