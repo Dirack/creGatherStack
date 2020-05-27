@@ -21,9 +21,9 @@
 from rsf.proj import *
 
 # CRE recipe
-from creStack import pefInterpolation as pefin
-from creStack import multiLayerModel as mlmod
-from creStack import kirchoffNewtonModeling as kinewmod
+from madagascarRecipes.pefInterpolation import pefInterpolation as pefin
+from madagascarRecipes.kimodel import multiLayerModel as mlmod
+from madagascarRecipes.kimodel import kirchoffNewtonModeling as kinewmod
 
 xmax = 6.0
 zmax = 2.0
