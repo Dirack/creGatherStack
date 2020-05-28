@@ -32,7 +32,7 @@ v0 = 1.5
 ot0 = 1.0
 dt0 = 0.004
 nt0 = 500
-om0 = 2+1.5
+om0 = 2
 dm0 = 0.5
 nm0 = 6
 dataCube='multiLayerDataCube'
@@ -60,7 +60,7 @@ for i in range(nm0):
 		creGatherPlot = 'crePlot-m0-%g-t0-%g' % (i,j)
 
 		# Very Fast Simulated Aneelling Global Optimization (VFSA)
-		Flow(crsParameters,dataCube,
+		Flow(crsParameters,'interpolatedDataCube2',
 			'''
 			vfsacrsnh m0=%g v0=%g t0=%g verb=y repeat=3
 			''' % (m0,v0,t0))
