@@ -21,9 +21,9 @@
 from rsf.proj import *
 
 # CRE recipe
-from creStack import pefInterpolation as pefin
-from creStack import multiLayerModel as mlmod
-from creStack import kirchoffNewtonModeling as kinewmod
+from madagascarRecipes.pefInterpolation import pefInterpolation as pefin
+from madagascarRecipes.kimodel import multiLayerModel as mlmod
+from madagascarRecipes.kimodel import kirchoffNewtonModeling as kinewmod
 
 xmax = 6.0
 zmax = 2.0
@@ -50,13 +50,22 @@ kinewmod(reflectors='interfaces',
 	velocities=velocities)
 
 # PEF interpolation of the data cube
-pefin('multiLayerDataCube',
-    'interpolatedDataCube',
+a1=10
+a2=2
+rect1=50
+rect2=2
+
+pefin(dataCube='multiLayerDataCube',
+    interpolated='interpolatedDataCube',
     nm=201,
     dm=0.025,
     nt=1001,
     dt=0.004,
-    nhi=161)
+    nhi=161,
+    a1=a1,
+    a2=a2,
+    rect1=rect1,
+    rect2=rect2)
 
 # Do the PEF interpolation one more time
 # to increase the CMP sampling
@@ -66,6 +75,10 @@ pefin('interpolatedDataCube',
     dm=0.0125,
     nt=1001,
     dt=0.004,
-    nhi=161)
+    nhi=161,
+    a1=a1,
+    a2=a2,
+    rect1=rect1,
+    rect2=rect2)
 
 End()
