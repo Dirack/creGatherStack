@@ -40,6 +40,13 @@ def velocityAnalisys(
 	pick,
 	nmo,
 	vrms,
+	v0,
+	dv,
+	nv,
+	vel0,
+	rect1=15,
+	rect2=40,
+	rect3=3,
 	dt=0.004)
 	'''
 	Velocity analisys and automatic picking and semblance
@@ -48,6 +55,13 @@ def velocityAnalisys(
 	:out stack: RSF filename, stacked section
 	:out vrms: RSF filename, vrms velocity
 	:param dt: float, time sampling
+	:param v0: float, inicial scan velocity
+	:param dv: float, scan velocity sampling
+	:param nv: int, number of scan velocities
+	:param vel0: float, initial velocity picking 
+	:param rect1: int, smooth time radius to velocity scan
+	:param rect2: int, smooth space radius to velocity scan
+	:param rect3: int, smooth time radius post picking
 	'''
 	
 	scan = 'scan'+dataCube
@@ -63,9 +77,9 @@ def velocityAnalisys(
 	# Velocity picking
 	Flow(pick,scan,
 	     '''
-	     pick rect1=15 rect2=40 vel0=2.8 smooth=y |
-	     smooth rect1=3
-	     ''')
+	     pick rect1=%i rect2=%i vel0=%g smooth=y |
+	     smooth rect1=%i
+	     ''' %(rect1,rect2,vel0,rect3))
 
 	# NMO and stack
 	Flow(nmo,[dataCube,pick],
