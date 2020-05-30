@@ -29,12 +29,12 @@ import glob
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
 v0 = 1.5
-ot0 = 1.0
-dt0 = 0.004
-nt0 = 500
+ot0 = 0.3
+dt0 = 0.008
+nt0 = 331
 om0 = 2
-dm0 = 0.5
-nm0 = 6
+dm0 = 0.025
+nm0 = 161
 dataCube='multiLayerDataCube'
 
 for i in range(nm0):
