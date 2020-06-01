@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
 	float cre_o; // CRE Gather axis origin
 	int trac_m; // CMP sample index
 	int aperture; // Number of traces in CRE Gather
+	float mMax; // maximum CMP coordinate of the model
 
 	/* RSF files I/O */  
 	sf_file in, out, out_m, cremh;
@@ -94,11 +95,13 @@ int main(int argc, char* argv[])
 	sf_floatread(m,cre_n,cremh);
 	creGather = sf_floatalloc2(nt,aperture);
 
+	mMax = om+dm*nm;
+
 	for(i=0;i<aperture;i++){
 		trac_m = (int)((double)m[i]/dm);
 
 		for(j=0;j<nt;j++){
-			creGather[i][j] = t[trac_m][i][j];
+			creGather[i][j] = (m[i] <= mMax)? t[trac_m][i][j] : 0.;
 		}
 	}
 
