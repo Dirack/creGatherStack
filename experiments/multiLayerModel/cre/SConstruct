@@ -40,7 +40,7 @@ dm0 = 0.025
 nm0 = 161
 dataCube='multiLayerDataCube'
 
-for i in range(100,102):
+for i in range(nm0):
 
 	parametersCube = []
 	creGatherCube = []
@@ -78,7 +78,7 @@ for i in range(100,102):
 		#Get CRE Gather from interpolated Data Cube
 		Flow([creGather,creMcoordinate],['interpolatedDataCube2',creMhCoordinates],
 			'''
-			getcregather aperture=49 verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} |
+			getcregather aperture=50 verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} |
                         put label1="Time" unit1="s" label2="Offset" unit2="km" 
 			''')
 
