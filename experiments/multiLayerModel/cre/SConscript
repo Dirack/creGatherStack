@@ -20,6 +20,10 @@
 # Madagascar package
 from rsf.proj import *
 
+# Error report function
+import atexit
+from madagascarRecipes.errorReport import print_build_failures
+
 # CRE recipe
 from madagascarRecipes.pefInterpolation import pefInterpolation as pefin
 from madagascarRecipes.kimodel import multiLayerModel as mlmod
@@ -81,4 +85,16 @@ pefin('interpolatedDataCube',
     rect1=rect1,
     rect2=rect2)
 
+# Use aliases to split building
+Alias('model','multiLayerDataCube.rsf')
+Alias('pef1','interpolatedDataCube.rsf')
+Alias('pef2','interpolatedDataCube2.rsf')
+
+# Show error message if fail
+
+message = '''
+SCosncript Failed build
+'''
+
+atexit.register(print_build_failures,message)
 End()
