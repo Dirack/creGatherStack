@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 		trac_m = (int)((double)m[i]/dm);
 
 		for(j=0;j<nt;j++){
-			creGather[i][j] = t[trac_m][i][j];
+			creGather[i][j] = (trac_m <= nm)? t[trac_m][i][j] : 0.;
 		}
 	}
 
