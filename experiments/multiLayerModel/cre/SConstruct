@@ -37,7 +37,7 @@ dt0 = 0.008
 nt0 = 331
 om0 = 2
 dm0 = 0.025
-nm0 = 161
+nm0 = 108
 dataCube='multiLayerDataCube'
 
 for i in range(nm0):
