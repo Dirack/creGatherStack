@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# SConscript  (Madagascar Script)
+#
+# Purpose: Contatenate CRE stacked traces.
+#
+# Site: http://www.dirackslounge.online
+# 
+# Version 1.0
+#
+# Programer: Rodolfo A. C. Neves (Dirack) 04/03/2020
+#
+# Email: rodolfo_profissional@hotmail.com
+#
+# License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
+
+# Madagascar package
+from rsf.proj import *
+
+# Error report function
+import atexit
+from madagascarRecipes.errorReport import print_build_failures
+
+import glob
+
+# Build the cre stacked section
+# throughout cre stacked traces sorting
+files = glob.glob('creStackedTrace-*.rsf')
+length = len(files)
+
+sortedFiles = []
+for i in range(length):
+	string = 'creStackedTrace-m0-%i.rsf' % i
+	sortedFiles.append(string)  
+
+Flow('stackedSection',sortedFiles,
+	'''
+	rcat axis=2 ${SOURCES[1:%d]} --out=stdout
+	''' % len(files))
+
+Result('stackedSection','grey title="Stacked Section"')
+
+Flow('filtStackedSection','stackedSection',
+	'''
+	bandpass fhi=20 --out=stdout
+	''')
+
+Result('filtStackedSection','grey title="Filtered Stacked Section"')
+
+# Use aliases to split building
+Alias('stack',['stackedSection.rsf','filtStackedSection.rsf'])
+
+# Show error message if fail
+
+message = '''
+SCosncript Failed build
+'''
+
+atexit.register(print_build_failures,message)
+End()
