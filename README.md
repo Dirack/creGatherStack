@@ -15,12 +15,12 @@ The CRE stack process is done defining the seismic traces that belong to the CRE
 * For more theoretical details of CRE Gather stack please download and read this article:
   [The common reflecting element CRE method revisited (2000)](https://github.com/Dirack/creGatherStack/files/5213160/The_common_reflecting_element_CRE_method_revisited_cruz2000.pdf)
 
-#### Schematic representation of the CRE Gather geometry for a curved reflector:
+#### CRE stack uses VFSA global optimization and PEF interpolation:
 
-As explained above, a set of seismic traces that belong to a specific CRE trajectory form a CRE Gather.
+As explained above, a set of seismic traces that belong to a specific CRE trajectory form a CRE Gather. Those trajectories are defined for each (m0,t0) pairs in the stacked section and for a given RNIP and BETA parameters from the zero offset Common Reflection Surface (CRS) process. These parameters are extracted from the seismic data cube using Very Fast Simulated Anneling (VFSA) global optimization algorithm.
 
-for a given RNIP and BETA form a CRE Gather:
-So, CRE Gather interpolation algorithm uses Very Fast Simulated Anneling (VFSA) global optimization 
+For more details about VFSA, please check the [VFSA package repository](https://github.com/Dirack/vfsa)
+
 in order to get RNIP and BETA parameters to calculate CRE trajectory. Also increase data sampling, 
 interpolating original seismic data with adaptative preditive error filters (PEF). 
 Get all traces in the interpolated seismic data that belong to the CRE trajectory previously calculated.
