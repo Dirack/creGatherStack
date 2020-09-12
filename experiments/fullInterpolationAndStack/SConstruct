@@ -26,6 +26,11 @@ from creStack import pefInterpolation as pefin
 # Import glob python library
 import glob
 
+# Stablish building dependencies
+Depends('interpolatedDataCube.rsf','dataCube.rsf')
+Depends('interpolatedDataCube2.rsf','interpolatedDataCube.rsf')
+Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube2.rsf')
+
 # Generate Gaussian reflector model and data cube
 kimod()
 
@@ -159,6 +164,9 @@ for i in range(nm0):
 # throughout cre stacked traces sorting
 files = glob.glob('creStackedTrace-*.rsf')
 length = len(files)
+
+# Stacked section depends of the last CRE stacked trace
+Depends('stackedSection.rsf','creStackedTrace-m0-'+str(length-1)+'.rsf')
 
 sortedFiles = []
 for i in range(length):
