@@ -10,6 +10,8 @@ This is a package with several C programs and SConstructs adapted to the Madagas
 
 The CRE stack process is done defining the seismic traces that belong to the CRE trajectories in a seismic data cube (seismic data organized in CMP x Offset X Time coordinates) for each (m0, t0) pairs in the stacked section. The set of seismic traces that belong to a CRE trajectory form a CRE Gather. The stacking throughout this CRE gathers using the CRE traveltime approximation and the assignment of this amplitude summation to the (m0,t0) pairs in the stacked section is the core of the CRE stacking process.
 
+* For more theoretical details of CRE Gather stack please download and read this article:
+  [The common reflecting element CRE method revisited (2000)](https://github.com/Dirack/creGatherStack/files/5213160/The_common_reflecting_element_CRE_method_revisited_cruz2000.pdf)
 
 #### Schematic representation of the CRE Gather geometry for a curved reflector:
 
