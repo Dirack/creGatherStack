@@ -18,10 +18,6 @@
 # Madagascar package
 from rsf.proj import *
 
-# Error report function
-import atexit
-from madagascarRecipes.errorReport import print_build_failures
-
 import glob
 
 # Build the cre stacked section
@@ -51,11 +47,4 @@ Result('filtStackedSection','grey title="Filtered Stacked Section"')
 # Use aliases to split building
 Alias('stack',['stackedSection.rsf','filtStackedSection.rsf'])
 
-# Show error message if fail
-
-message = '''
-SCosncript Failed build
-'''
-
-atexit.register(print_build_failures,message)
 End()

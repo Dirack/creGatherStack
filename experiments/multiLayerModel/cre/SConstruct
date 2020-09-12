@@ -22,10 +22,6 @@ from rsf.proj import *
 # Import glob python library
 import glob
 
-# Error report function
-import atexit
-from madagascarRecipes.errorReport import print_build_failures
-
 # Call SConscript to generate input: original and interpolated data cubes
 # SConscript('SConscript')
 
@@ -155,12 +151,5 @@ Flow('filtStackedSection','stackedSection',
 	'''
 	bandpass fhi=20 --out=stdout
 	''')
-
-# Show error message if fail
-message = '''
-SConstruct Failed build when m0={m0} and t0={t0}
-'''.format(m0=(i*dm0+om0),t0=(j*dt0+ot0))
-
-atexit.register(print_build_failures,message)
 
 End()
