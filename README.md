@@ -15,21 +15,19 @@ The CRE stack process is done defining the seismic traces that belong to the CRE
 * For more theoretical details of CRE Gather stack please download and read this article:
   [The common reflecting element CRE method revisited (2000)](https://github.com/Dirack/creGatherStack/files/5213160/The_common_reflecting_element_CRE_method_revisited_cruz2000.pdf)
 
-#### CRE stack uses VFSA global optimization and PEF interpolation:
+#### CRE stack uses Very Fast Simulated Anneling (VFSA) global optimization
 
 As explained above, a set of seismic traces that belong to a specific CRE trajectory form a CRE Gather. Those trajectories are defined for each (m0,t0) pairs in the stacked section and for a given RNIP and BETA parameters from the zero offset Common Reflection Surface (CRS) process. These parameters are extracted from the seismic data cube using Very Fast Simulated Anneling (VFSA) global optimization algorithm.
 
-For more details about VFSA, please check the [VFSA package repository](https://github.com/Dirack/vfsa)
+For more details about VFSA, please look at the [VFSA package repository](https://github.com/Dirack/vfsa)
 
-in order to get RNIP and BETA parameters to calculate CRE trajectory. Also increase data sampling, 
-interpolating original seismic data with adaptative preditive error filters (PEF). 
-Get all traces in the interpolated seismic data that belong to the CRE trajectory previously calculated.
+#### CRE stack uses Predictive Adaptative Error Filters (PEF) interpolation:
 
-The CRE traveltime aproximation is derived from geometric considerations in a constant velocity model in the 
-neighborhood of a normal ray. Bellow, an schematic representation of a CRE gather geometry. Someone shold realize
-that the sources s_i and receivers r_i have different CMP's and Offset, distributed assimetrically along the aquisition
-surface caused by reflector's curvature. Though, _they have the same reflection point_ in the reflector surface and
-are associated to a normal ray with defined RNIP and BETA parameters.
+CRE stack also needs increased CMP data sampling through Predictive Adaptative Error Filters (PEF) interpolation.
+This happen because the CRE traveltime aproximation is derived from geometric considerations in a constant velocity model in the 
+neighborhood of a normal ray and the sources (s_i) and receivers (r_i) in this geometry are distributed assimetrically along the aquisition
+surface because of the reflector's curvature. Besides that, the reflection rays in the CRE gather _have the same reflection point_ and
+are associated with the same normal ray defined by RNIP and BETA parameters (look at the Figure bellow, an schematic representation of a CRE gather geometry).
 
 <img src="https://github.com/Dirack/creGatherInterpolation/blob/master/images/cre.png" width="800">
 
