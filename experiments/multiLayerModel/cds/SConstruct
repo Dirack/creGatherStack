@@ -31,6 +31,11 @@ from rsf.recipes.pefInterpolation import pefInterpolation as pef
 from rsf.recipes.kimodel import multiLayerModel as mlmod
 from rsf.recipes.kimodel import kirchoffNewtonModeling as kinewmod
 
+# Establish building dependencies
+Depends('interpolatedDataCube.rsf','multiLayerDataCube.rsf')
+Depends('interpolatedDataCube2.rsf','interpolatedDataCube.rsf')
+Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube2.rsf')
+
 xmax = 6.0
 zmax = 2.0
 
@@ -205,6 +210,9 @@ for i in range(nm0):
 # throughout cre stacked traces sorting
 files = glob.glob('creStackedTrace-*.rsf')
 length = len(files)
+
+# Stacked section depends of the last CRE stacked trace
+Depends('stackedSection.rsf','creStackedTrace-m0-'+str(length-1)+'.rsf')
 
 sortedFiles = []
 for i in range(length):
