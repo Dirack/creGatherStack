@@ -2,28 +2,26 @@
 
 [Developed to Madagascar package, version 3.0.](http://www.ahay.org/wiki/Main_Page)
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 > This process uses Pretictive Adaptative Error Filters (PEF) interpolation and Very Fast Simulated Aneeling (VFSA) global optimization.
 
-This is a package with several C programs and SConstructs adapted to the Madagascar seismic processing package. The mains objective of those programs is to obtain the zero offset section using CRE stacking. It is done in severeal usage examples with
+This is a package with several C programs and SConstructs adapted to the Madagascar seismic processing package. The mains objective of those programs is to obtain the zero offset section using CRE stacking. The main advantage of the CRE stacking is that allows to get the macrovelocity model and stacked section without the NMO velocity analisys. And it can be used in a velocity inversion process, such as tomography algorithms, in order to get the depth velocity model.
 
-model a cube of seismic data organized in CMP x Offset X Time coordinates and extract the zero offset
-CRS parameters (RN, RNIP, BETA) from it. These parameters can be used to obtain the CRE Gathers from the data cube after
-an interpolation process using PEF. With those gathers, someone can obtain the stacked section.
+The CRE stack process is done defining the seismic traces that belong to the CRE trajectories in a seismic data cube (seismic data organized in CMP x Offset X Time coordinates) for each (m0, t0) pairs in the stacked section. The set of seismic traces that belong to a CRE trajectory form a CRE Gather. The stacking throughout this CRE gathers using the CRE traveltime approximation and the assignment of this amplitude summation to the (m0,t0) pairs in the stacked section is the core of the CRE stacking process.
 
-The main advantage of the CRE stacking is that allows to get the macrovelocity model and stacked section without the NMO
-velocity analisys. And it can be used in a inversion process, such as tomography algorithms, in order to get the velocity
-model.
 
-A set of seismic traces that belong to a specific CRE trajectory, for a given RNIP and BETA form a CRE Gather:
+#### Schematic representation of the CRE Gather geometry for a curved reflector:
+
+As explained above, a set of seismic traces that belong to a specific CRE trajectory form a CRE Gather.
+
+for a given RNIP and BETA form a CRE Gather:
 So, CRE Gather interpolation algorithm uses Very Fast Simulated Anneling (VFSA) global optimization 
 in order to get RNIP and BETA parameters to calculate CRE trajectory. Also increase data sampling, 
 interpolating original seismic data with adaptative preditive error filters (PEF). 
 Get all traces in the interpolated seismic data that belong to the CRE trajectory previously calculated.
 
 ![Interpolated CRE Gather](https://github.com/Dirack/creGatherInterpolation/blob/master/images/hugeStackedSection.jpeg)
-
-
-#### Schematic representation of the CRE Gather geometry for a curved reflector:
 
 The CRE traveltime aproximation is derived from geometric considerations in a constant velocity model in the 
 neighborhood of a normal ray. Bellow, an schematic representation of a CRE gather geometry. Someone shold realize
