@@ -1,6 +1,6 @@
 # Common Reflection Element (CRE) Stack
 
-> This process uses Pretictive Adaptative Error Filters (PEF) interpolation and Very Fast Simulated Aneeling (VFSA) global optimization.
+> This package uses Pretictive Adaptative Error Filters (PEF) interpolation and Very Fast Simulated Aneeling (VFSA) global optimization.
 
 [Developed to Madagascar package, version 3.0.](http://www.ahay.org/wiki/Main_Page)
 
@@ -9,7 +9,6 @@
 ![Interpolated CRE Gather](https://github.com/Dirack/creGatherInterpolation/blob/master/images/hugeStackedSection.jpeg)
 
 ###### This an example of a CRE stacked section.
-
 
 This is a package with several C programs and SConstructs adapted to the Madagascar seismic processing package. The mains objective of those programs is to obtain the zero offset section using CRE stacking. The main advantage of the CRE stacking is that allows to get the macrovelocity model and stacked section without the NMO velocity analisys. And it can be used in a velocity inversion process, such as tomography algorithms, in order to get the depth velocity model.
 
