@@ -98,9 +98,9 @@ We also have many SConstruct examples in this repository in the
 
 ## Release History
    
-* [v1.0-beta.1](https://github.com/Dirack/cre-gather-interpolation/releases/tag/creStackedSection) (Beta - In progress)
+* [v1.0-beta.1](https://github.com/Dirack/creGatherStack/releases/tag/v1.0-beta.1) - (Beta)
   
-* [v0.1-beta.1](https://github.com/Dirack/creGatherInterpolation/releases/tag/v0.1-beta.1) - (Instable)
+* [v0.1.2-alpha.1](https://github.com/Dirack/creGatherStack/releases/tag/v0.1.2-alpha.1) - (Development)
 
 [See the complete history decription in our wiki](https://github.com/Dirack/creGatherStack/wiki/Release-history)
 
