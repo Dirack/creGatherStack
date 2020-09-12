@@ -3,12 +3,12 @@
 #
 # SConstruct  (Madagascar Script)
 #
-# Purpose: Build the interpolation process twice to improve CMP sampling
-# and CRE stacking results.
+# Purpose: Common Reflection Element (CRE) stack applied to a seismic data cube
+# from Kirchhoff Newton modeling of a multi layer velocity model.
 #
-# Site: http://www.dirackslounge.online
+# Site: https://dirack.github.io
 # 
-# Version 1.0
+# Version 2.0
 #
 # Programer: Rodolfo A. C. Neves (Dirack) 04/03/2020
 #
@@ -22,8 +22,73 @@ from rsf.proj import *
 # Import glob python library
 import glob
 
-# Call SConscript to generate input: original and interpolated data cubes
-# SConscript('SConscript')
+# Recipes
+from rsf.recipes.pefInterpolation import pefInterpolation as pef
+from rsf.recipes.kimodel import multiLayerModel as mlmod
+from rsf.recipes.kimodel import kirchoffNewtonModeling as kinewmod
+
+xmax = 6.0
+zmax = 2.0
+
+layers = ((0.30,0.50,0.20,0.30),
+	  (1.65,1.85,1.55,1.65))
+
+velocities = (1.508,
+	      1.690,
+	      2.0)
+
+# Generate multi layer model and data cube
+mlmod(interfaces='interfaces',
+	dipsfile='interfacesDip',
+	modelfile='mod1',
+	xmax=xmax,
+	zmax=zmax,
+	layers=layers,
+	velocities=velocities)
+
+# Generate a modeled data cube
+kinewmod(reflectors='interfaces',
+	reflectorsDip='interfacesDip',
+	filename='multiLayerDataCube',
+	velocities=velocities,
+	nt=1001,
+	dt=0.004,
+	ns=201,
+	ds=0.025,
+	nh=161,
+	dh=0.025)
+
+# PEF interpolation of the data cube
+a1=10
+a2=2
+rect1=50
+rect2=2
+
+pef(dataCube='multiLayerDataCube',
+    interpolated='interpolatedDataCube',
+    nm=201,
+    dm=0.025,
+    nt=1001,
+    dt=0.004,
+    nhi=161,
+    a1=a1,
+    a2=a2,
+    rect1=rect1,
+    rect2=rect2)
+
+# Do the PEF interpolation one more time
+# to increase the CMP sampling
+pef('interpolatedDataCube',
+    'interpolatedDataCube2',
+    nm=402,
+    dm=0.0125,
+    nt=1001,
+    dt=0.004,
+    nhi=161,
+    a1=a1,
+    a2=a2,
+    rect1=rect1,
+    rect2=rect2)
 
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
@@ -34,7 +99,7 @@ nt0 = 331
 om0 = 2
 dm0 = 0.025
 nm0 = 108
-dataCube='multiLayerDataCube'
+dataCube='interpolatedDataCube2'
 
 for i in range(nm0):
 
