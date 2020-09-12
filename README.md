@@ -4,6 +4,16 @@
 
 > This process uses Pretictive Adaptative Error Filters (PEF) interpolation and Very Fast Simulated Aneeling (VFSA) global optimization.
 
+This is a package with several C programs and SConstructs adapted to the Madagascar seismic processing package. The mains objective of those programs is to obtain the zero offset section using CRE stacking. It is done in severeal usage examples with
+
+model a cube of seismic data organized in CMP x Offset X Time coordinates and extract the zero offset
+CRS parameters (RN, RNIP, BETA) from it. These parameters can be used to obtain the CRE Gathers from the data cube after
+an interpolation process using PEF. With those gathers, someone can obtain the stacked section.
+
+The main advantage of the CRE stacking is that allows to get the macrovelocity model and stacked section without the NMO
+velocity analisys. And it can be used in a inversion process, such as tomography algorithms, in order to get the velocity
+model.
+
 A set of seismic traces that belong to a specific CRE trajectory, for a given RNIP and BETA form a CRE Gather:
 So, CRE Gather interpolation algorithm uses Very Fast Simulated Anneling (VFSA) global optimization 
 in order to get RNIP and BETA parameters to calculate CRE trajectory. Also increase data sampling, 
@@ -12,14 +22,6 @@ Get all traces in the interpolated seismic data that belong to the CRE trajector
 
 ![Interpolated CRE Gather](https://github.com/Dirack/creGatherInterpolation/blob/master/images/hugeStackedSection.jpeg)
 
-This is a package with several C programs adpted to the Madagascar seismic processing package. The mains objective of
-those programs is to model a cube of seismic data organized in CMP x Offset X Time coordinates and extract the zero offset
-CRS parameters (RN, RNIP, BETA) from it. These parameters can be used to obtain the CRE Gathers from the data cube after
-an interpolation process using PEF. With those gathers, someone can obtain the stacked section.
-
-The main advantage of the CRE stacking is that allows to get the macrovelocity model and stacked section without the NMO
-velocity analisys. And it can be used in a inversion process, such as tomography algorithms, in order to get the velocity
-model.
 
 #### Schematic representation of the CRE Gather geometry for a curved reflector:
 
