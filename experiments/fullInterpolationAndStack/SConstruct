@@ -3,12 +3,12 @@
 #
 # SConstruct  (Madagascar Script)
 #
-# Purpose: Build the interpolation process twice to improve CMP sampling
-# and CRE stacking results.
+# Purpose: Common Reflection Element (CRE) stack applied to a seismic data cube
+# from Kirchhoff modeling of a gaussian reflector in a linear velocity model.
 #
-# Site: http://www.dirackslounge.online
+# Site: http://diracks.github.io
 # 
-# Version 1.0
+# Version 2.0
 #
 # Programer: Rodolfo A. C. Neves (Dirack) 04/03/2020
 #
@@ -19,14 +19,14 @@
 # Madagascar package
 from rsf.proj import *
 
-# CRE recipe
-from creStack import kirchoffModeling as kimod
-from creStack import pefInterpolation as pefin
+# Recipes
+from kimodel import kirchoffModeling as kimod
+from rsf.recipes.pefInterpolation import pefInterpolation as pef
 
 # Import glob python library
 import glob
 
-# Stablish building dependencies
+# Establish building dependencies
 Depends('interpolatedDataCube.rsf','dataCube.rsf')
 Depends('interpolatedDataCube2.rsf','interpolatedDataCube.rsf')
 Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube2.rsf')
@@ -34,25 +34,42 @@ Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube2.rsf')
 # Generate Gaussian reflector model and data cube
 kimod()
 
-# PEF interpolation of the data cube
-pefin('dataCube',
-    'interpolatedDataCube',
-    nm=401,
-    dm=0.025,
-    nt=1001,
-    dt=0.004,
-    nhi=161)
+# PEF coeficients
+a1=10
+a2=2
 
-# Do the PEF interpolation one more time
-# to increase the CMP sampling
-pefin('interpolatedDataCube',
-    'interpolatedDataCube2',
-    nm=802,
-    dm=0.0125,
-    nt=1001,
-    dt=0.004,
-    nhi=161)
- 
+# PEF smooth radius
+rect1=50
+rect2
+
+# PEF interpolation
+pef('dataCube',
+	'interpolatedDataCube',
+	nm=201,
+	dm=0.025,
+	nt=1001,
+	dt=0.004,
+	nhi=161,
+	a1=a1,
+	a2=a2,
+	rect1=rect1,
+	rect2=rect2
+)
+
+# PEF interpolation
+pef('interpolatedDataCube',
+	'interpolatedDataCube2',
+	nm=401,
+	dm=0.0125,
+	nt=1001,
+	dt=0.004,
+	nhi=161,
+	a1=a1,
+	a2=a2,
+	rect1=rect1,
+	rect2=rect2
+)
+
 # CRE stacking
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
