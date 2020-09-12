@@ -151,7 +151,7 @@ for i in range(nm0):
 	# CRE stacking
 	Flow(creStackedTrace,[creGatherTrace,creTimeCurveTrace],
 		'''
-		crestack timeCurves=${SOURCES[1]} verb=y |
+		crestack timeCurves=${SOURCES[1]} verb=y aperture=10 |
 		put label1=t0 unit1=s label2=m0 unit2=Km --out=stdout
 		''')
 

@@ -30,4 +30,4 @@ backup/
 checkpoints
 *.jp2
 .ipynb_checkpoints/
-
+*.asc

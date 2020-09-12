@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 	/* 1: active mode; 0: quiet mode */
 
 	if(!sf_getint("aperture",&aperture)) aperture=1;
-	/* Stacking aperture, number of offsets */
+	/* Stacking aperture, number of offsets to stack */
 
 	if(aperture > nh){
 		sf_error("The aperture can't be > n2\nAperture=%i n2=%i",aperture,nh);

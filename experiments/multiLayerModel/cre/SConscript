@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# SConscript  (Madagascar Script)
+#
+# Purpose: Generate model and data cubes to CRE stacking process.
+# This script generates model, original and PEF interpolated data cubes.
+# It depends of the 'creStack.py' script that defines functions.
+#
+# Site: http://www.dirackslounge.online
+# 
+# Version 1.0
+#
+# Programer: Rodolfo A. C. Neves (Dirack) 04/03/2020
+#
+# Email: rodolfo_profissional@hotmail.com
+#
+# License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
+
+# Madagascar package
+from rsf.proj import *
+
+# Error report function
+import atexit
+from madagascarRecipes.errorReport import print_build_failures
+
+# CRE recipe
+from madagascarRecipes.pefInterpolation import pefInterpolation as pefin
+from madagascarRecipes.kimodel import multiLayerModel as mlmod
+from madagascarRecipes.kimodel import kirchoffNewtonModeling as kinewmod
+
+xmax = 6.0
+zmax = 2.0
+
+layers = ((0.30,0.50,0.20,0.30),
+	  (1.65,1.85,1.55,1.65))
+
+velocities = (1.508,
+	      1.690,
+	      2.0)
+
+# Generate multi layer model and data cube
+mlmod(interfaces='interfaces',
+	dipsfile='interfacesDip',
+	modelfile='mod1',
+	xmax=xmax,
+	zmax=zmax,
+	layers=layers,
+	velocities=velocities)
+
+kinewmod(reflectors='interfaces',
+	reflectorsDip='interfacesDip',
+	filename='multiLayerDataCube',
+	velocities=velocities)
+
+# PEF interpolation of the data cube
+a1=10
+a2=2
+rect1=50
+rect2=2
+
+pefin(dataCube='multiLayerDataCube',
+    interpolated='interpolatedDataCube',
+    nm=201,
+    dm=0.025,
+    nt=1001,
+    dt=0.004,
+    nhi=161,
+    a1=a1,
+    a2=a2,
+    rect1=rect1,
+    rect2=rect2)
+
+# Do the PEF interpolation one more time
+# to increase the CMP sampling
+pefin('interpolatedDataCube',
+    'interpolatedDataCube2',
+    nm=402,
+    dm=0.0125,
+    nt=1001,
+    dt=0.004,
+    nhi=161,
+    a1=a1,
+    a2=a2,
+    rect1=rect1,
+    rect2=rect2)
+
+# Use aliases to split building
+Alias('model','multiLayerDataCube.rsf')
+Alias('pef1','interpolatedDataCube.rsf')
+Alias('pef2','interpolatedDataCube2.rsf')
+
+# Show error message if fail
+
+message = '''
+SCosncript Failed build
+'''
+
+atexit.register(print_build_failures,message)
+End()

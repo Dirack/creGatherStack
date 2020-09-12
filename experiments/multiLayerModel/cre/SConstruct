@@ -4,16 +4,13 @@
 # SConstruct  (Madagascar Script)
 #
 # Purpose: Build the interpolation process twice to improve CMP sampling
-# and CRE stacking results. 
-#
-# IMPORTANT: This SConstruct uses the non-hyperbolic CRS traveltime approximation
-# with the CDS condition applied (RN=RNIP) as a stacking curve.
+# and CRE stacking results.
 #
 # Site: http://www.dirackslounge.online
 # 
 # Version 1.0
 #
-# Programer: Rodolfo A. C. Neves (Dirack) 16/03/2020
+# Programer: Rodolfo A. C. Neves (Dirack) 04/03/2020
 #
 # Email: rodolfo_profissional@hotmail.com
 #
@@ -22,45 +19,26 @@
 # Madagascar package
 from rsf.proj import *
 
-# CRE recipe
-from creStack import kirchoffModeling as kimod
-from creStack import pefInterpolation as pefin
-
 # Import glob python library
 import glob
 
-# Generate Gaussian reflector model and data cube
-kimod()
+# Error report function
+import atexit
+from madagascarRecipes.errorReport import print_build_failures
 
-# PEF interpolation of the data cube
-pefin('dataCube',
-    'interpolatedDataCube',
-    nm=401,
-    dm=0.025,
-    nt=1001,
-    dt=0.004,
-    nhi=161)
+# Call SConscript to generate input: original and interpolated data cubes
+# SConscript('SConscript')
 
-# Do the PEF interpolation one more time
-# to increase the CMP sampling
-pefin('interpolatedDataCube',
-    'interpolatedDataCube2',
-    nm=802,
-    dm=0.0125,
-    nt=1001,
-    dt=0.004,
-    nhi=161)
- 
-# CRE stacking
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
 v0 = 1.5
-ot0 = 1.0
-dt0 = 0.004
-nt0 = 500
-om0 = 3
-dm0 = 0.5
-nm0 = 9
+ot0 = 0.3
+dt0 = 0.008
+nt0 = 331
+om0 = 2
+dm0 = 0.025
+nm0 = 108
+dataCube='multiLayerDataCube'
 
 for i in range(nm0):
 
@@ -85,7 +63,7 @@ for i in range(nm0):
 		creGatherPlot = 'crePlot-m0-%g-t0-%g' % (i,j)
 
 		# Very Fast Simulated Aneelling Global Optimization (VFSA)
-		Flow(crsParameters,'dataCube',
+		Flow(crsParameters,'interpolatedDataCube2',
 			'''
 			vfsacrsnh m0=%g v0=%g t0=%g verb=y repeat=3
 			''' % (m0,v0,t0))
@@ -100,14 +78,14 @@ for i in range(nm0):
 		#Get CRE Gather from interpolated Data Cube
 		Flow([creGather,creMcoordinate],['interpolatedDataCube2',creMhCoordinates],
 			'''
-			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} |
+			getcregather aperture=50 verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} |
                         put label1="Time" unit1="s" label2="Offset" unit2="km" 
 			''')
 
 		# Calculate CRE traveltime curve t(m,h)
 		Flow(creTimeCurve,[creMcoordinate, crsParameters],
 			'''
-			getcretimecurve param=${SOURCES[1]} cds=y t0=%g m0=%g v0=%g verb=y |
+			getcretimecurve param=${SOURCES[1]} t0=%g m0=%g v0=%g verb=y |
                         put label1="Offset" unit1="Km" 
 			''' % (t0,m0,v0))
 
@@ -154,7 +132,7 @@ for i in range(nm0):
 	# CRE stacking
 	Flow(creStackedTrace,[creGatherTrace,creTimeCurveTrace],
 		'''
-		crestack timeCurves=${SOURCES[1]} verb=y aperture=10 |
+		crestack timeCurves=${SOURCES[1]} verb=y |
 		put label1=t0 unit1=s label2=m0 unit2=Km --out=stdout
 		''')
 
@@ -177,5 +155,12 @@ Flow('filtStackedSection','stackedSection',
 	'''
 	bandpass fhi=20 --out=stdout
 	''')
+
+# Show error message if fail
+message = '''
+SConstruct Failed build when m0={m0} and t0={t0}
+'''.format(m0=(i*dm0+om0),t0=(j*dt0+ot0))
+
+atexit.register(print_build_failures,message)
 
 End()

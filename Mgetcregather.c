@@ -32,10 +32,12 @@ int main(int argc, char* argv[])
 	float ot; // Time axis origin
 	int nt; // Number of time samples
 	int i,j; // loop counter
-	int cre_n; // Number of CRE Gather traces
+	int cre_n; // Number of traces in CRE vector
 	float cre_d; // CRE Gather sampling
 	float cre_o; // CRE Gather axis origin
 	int trac_m; // CMP sample index
+	int aperture; // Number of traces in CRE Gather
+	float mMax; // maximum CMP coordinate of the model
 
 	/* RSF files I/O */  
 	sf_file in, out, out_m, cremh;
@@ -64,6 +66,13 @@ int main(int argc, char* argv[])
 	if(!sf_histfloat(cremh,"d1",&cre_d)) sf_error("No d1= in cremh file");
 	if(!sf_histfloat(cremh,"o1",&cre_o)) sf_error("No o1= in cremh file");
 
+	if(!sf_getint("aperture",&aperture)) aperture=1;
+	/* Number of traces in a CRE Gather*/
+
+	if(aperture > cre_n){
+		sf_error("The aperture can't be > n1 in cremh file\naperture=%i n2=%i",aperture,cre_n);
+	}
+
 	if(! sf_getbool("verb",&verb)) verb=0;
 	/* 1: active mode; 0: quiet mode */
 
@@ -84,26 +93,28 @@ int main(int argc, char* argv[])
 	
 	m = sf_floatalloc(cre_n);
 	sf_floatread(m,cre_n,cremh);
-	creGather = sf_floatalloc2(nt,cre_n);
+	creGather = sf_floatalloc2(nt,aperture);
 
-	for(i=0;i<cre_n;i++){
+	mMax = om+dm*nm;
+
+	for(i=0;i<aperture;i++){
 		trac_m = (int)((double)m[i]/dm);
 
 		for(j=0;j<nt;j++){
-			creGather[i][j] = t[trac_m][i][j];
+			creGather[i][j] = (m[i] <= mMax)? t[trac_m][i][j] : 0.;
 		}
 	}
 
 	/* eixo = sf_maxa(n,o,d)*/
 	ax = sf_maxa(nt, ot, dt);
-	ay = sf_maxa(nh, oh, dh);
+	ay = sf_maxa(aperture, oh, dh);
 	az = sf_maxa(1, 0, 1);
 
 	/* sf_oaxa(arquivo, eixo, índice do eixo) */
 	sf_oaxa(out,ax,1);
 	sf_oaxa(out,ay,2);
 	sf_oaxa(out,az,3);
-	sf_floatwrite(creGather[0],cre_n*nt,out);
+	sf_floatwrite(creGather[0],aperture*nt,out);
 
 	/* eixo do vetor m */
 	am = sf_maxa(cre_n,oh,dh);
