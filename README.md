@@ -1,9 +1,8 @@
-# cre-gather-interpolation (Madagascar)
+# Common Reflection Element (CRE) Stack
 
-[Developed to Madagascar package, version 2.0.](http://www.ahay.org/wiki/Main_Page)
+[Developed to Madagascar package, version 3.0.](http://www.ahay.org/wiki/Main_Page)
 
-> Common Reflection Element (CRE) Gather interpolation using adaptative 
-> pretitive error filters (PEF) and Very Fast Simulated Aneeling (VFSA) global optimization.
+> This process uses Pretictive Adaptative Error Filters (PEF) interpolation and Very Fast Simulated Aneeling (VFSA) global optimization.
 
 A set of seismic traces that belong to a specific CRE trajectory, for a given RNIP and BETA form a CRE Gather:
 So, CRE Gather interpolation algorithm uses Very Fast Simulated Anneling (VFSA) global optimization 
