@@ -38,12 +38,12 @@ def after_build():
 	os.system('sfrm creTimeCurveCube-m0')
 	os.system('sfrm creGatherTrace-m0*')
 	os.system('sfrm creTimeCurveTrace-m0*')
-	os.system('sfrm creStackedTrace-m0*')	
+	os.system('sfrm creStackedTrace-m0*')
 
 # Establish building dependencies
 Depends('interpolatedDataCube.rsf','dataCube.rsf')
 Depends('interpolatedDataCube2.rsf','interpolatedDataCube.rsf')
-Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube2.rsf')
+Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube.rsf')
 
 # Generate Gaussian reflector model and data cube
 kimod()
@@ -133,7 +133,7 @@ for i in range(nm0):
 		#Get CRE Gather from interpolated Data Cube
 		Flow([creGather,creMcoordinate],['interpolatedDataCube2',creMhCoordinates],
 			'''
-			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} |
+			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=20 |
                         put label1="Time" unit1="s" label2="Offset" unit2="km" 
 			''')
 
