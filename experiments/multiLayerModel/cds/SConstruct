@@ -26,6 +26,20 @@ from rsf.proj import *
 # Import glob python library
 import glob
 
+import atexit
+import os
+
+def after_build():
+	os.system('sfrm crsParameters-m0*')
+	os.system('sfrm creMhCoordinates-m0*')
+	os.system('sfrm creMcoordinate-m0*')
+	os.system('sfrm creTimeCurveCube-m0*')	
+	os.system('sfrm creGatherCube-m0*')
+	os.system('sfrm creTimeCurveCube-m0')
+	os.system('sfrm creGatherTrace-m0*')
+	os.system('sfrm creTimeCurveTrace-m0*')
+	os.system('sfrm creStackedTrace-m0*')	
+
 # Recipes
 from rsf.recipes.pefInterpolation import pefInterpolation as pef
 from rsf.recipes.kimodel import multiLayerModel as mlmod
@@ -212,7 +226,7 @@ files = glob.glob('creStackedTrace-*.rsf')
 length = len(files)
 
 # Stacked section depends of the last CRE stacked trace
-Depends('stackedSection.rsf','creStackedTrace-m0-'+str(length-1)+'.rsf')
+Depends('stackedSection.rsf',['multiLayerDataCube.rsf','creStackedTrace-m0-'+str(nm0-1)+'.rsf'])
 
 sortedFiles = []
 for i in range(length):
@@ -228,5 +242,7 @@ Flow('filtStackedSection','stackedSection',
 	'''
 	bandpass fhi=20 --out=stdout
 	''')
+
+atexit.register(after_build)
 
 End()

@@ -30,6 +30,20 @@ from rsf.recipes.pefInterpolation import pefInterpolation as pef
 # Import glob python library
 import glob
 
+import atexit
+import os
+
+def after_build():
+	os.system('sfrm crsParameters-m0*')
+	os.system('sfrm creMhCoordinates-m0*')
+	os.system('sfrm creMcoordinate-m0*')
+	os.system('sfrm creTimeCurveCube-m0*')	
+	os.system('sfrm creGatherCube-m0*')
+	os.system('sfrm creTimeCurveCube-m0')
+	os.system('sfrm creGatherTrace-m0*')
+	os.system('sfrm creTimeCurveTrace-m0*')
+	os.system('sfrm creStackedTrace-m0*')	
+
 # Establish building dependencies
 Depends('interpolatedDataCube.rsf','dataCube.rsf')
 Depends('interpolatedDataCube2.rsf','interpolatedDataCube.rsf')
@@ -44,12 +58,12 @@ a2=2
 
 # PEF smooth radius
 rect1=50
-rect2
+rect2=2
 
 # PEF interpolation
 pef('dataCube',
 	'interpolatedDataCube',
-	nm=201,
+	nm=401,
 	dm=0.025,
 	nt=1001,
 	dt=0.004,
@@ -63,7 +77,7 @@ pef('dataCube',
 # PEF interpolation
 pef('interpolatedDataCube',
 	'interpolatedDataCube2',
-	nm=401,
+	nm=802,
 	dm=0.0125,
 	nt=1001,
 	dt=0.004,
@@ -80,10 +94,10 @@ pef('interpolatedDataCube',
 v0 = 1.5
 ot0 = 1.0
 dt0 = 0.004
-nt0 = 500
+nt0 = 3
 om0 = 3
 dm0 = 0.5
-nm0 = 9
+nm0 = 2
 
 for i in range(nm0):
 
@@ -187,7 +201,7 @@ files = glob.glob('creStackedTrace-*.rsf')
 length = len(files)
 
 # Stacked section depends of the last CRE stacked trace
-Depends('stackedSection.rsf','creStackedTrace-m0-'+str(length-1)+'.rsf')
+Depends('stackedSection.rsf',['dataCube.rsf','creStackedTrace-m0-'+str(nm0-1)+'.rsf'])
 
 sortedFiles = []
 for i in range(length):
@@ -203,5 +217,7 @@ Flow('filtStackedSection','stackedSection',
 	'''
 	bandpass fhi=20 --out=stdout
 	''')
+
+atexit.register(after_build)
 
 End()
