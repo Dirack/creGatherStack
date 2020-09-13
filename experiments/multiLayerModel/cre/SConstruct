@@ -39,12 +39,7 @@ def after_build():
 # Recipes
 from rsf.recipes.pefInterpolation import pefInterpolation as pef
 from rsf.recipes.kimodel import multiLayerModel as mlmod
-from rsf.recipes.kimodel import kirchoffNewtonModeling as kinewmod
-
-# Recipes
-from rsf.recipes.pefInterpolation import pefInterpolation as pef
-from rsf.recipes.kimodel import multiLayerModel as mlmod
-from rsf.recipes.kimodel import kirchoffNewtonModeling as kinewmod
+from rsf.recipes.kimodel import kirchhoffNewtonModeling as kinewmod
 
 # Establish building dependencies
 Depends('interpolatedDataCube.rsf','multiLayerDataCube.rsf')
@@ -119,10 +114,10 @@ pef('interpolatedDataCube',
 v0 = 1.5
 ot0 = 0.3
 dt0 = 0.008
-nt0 = 331
+nt0 = 2
 om0 = 2
 dm0 = 0.025
-nm0 = 108
+nm0 = 3
 dataCube='interpolatedDataCube2'
 
 for i in range(nm0):
