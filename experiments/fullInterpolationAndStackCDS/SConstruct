@@ -201,7 +201,10 @@ files = glob.glob('creStackedTrace-*.rsf')
 length = len(files)
 
 # Stacked section depends of the last CRE stacked trace
-Depends('stackedSection.rsf',['dataCube.rsf','creStackedTrace-m0-'+str(nm0-1)+'.rsf'])
+Depends('stackedSection.rsf',['dataCube.rsf',
+			      'creStackedTrace-m0-'+str(nm0-1)+'.rsf',
+			      'creGatherTrace-m0-'+str(nm0-1)+'.rsf'])
+
 
 sortedFiles = []
 for i in range(length):
