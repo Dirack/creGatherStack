@@ -32,8 +32,9 @@ om0 = 2
 dm0 = 0.025
 nm0 = 3
 inputDir = '../../modelingAndPEFInterpolation/'
-dataCube=inputDir+'multiLayerDataCube'
-interpolatedDataCube=inputDir+'interpolatedDataCube2'
+dataCube=inputDir+'multiLayerDataCube.rsf'
+interpolatedDataCube=inputDir+'interpolatedDataCube2.rsf'
+files = []
 
 for i in range(nm0):
 
@@ -131,15 +132,16 @@ for i in range(nm0):
 		put label1=t0 unit1=s label2=m0 unit2=Km --out=stdout
 		''')
 
-# Build the cre stacked section
-# throughout cre stacked traces sorting
-files = glob.glob('creStackedTrace-*.rsf')
-length = len(files)
+	files.append(creStackedTrace)
 
 # Stacked section depends of the last CRE stacked trace
 Depends('stackedSection.rsf',[dataCube,
 	'creStackedTrace-m0-'+str(nm0-1)+'.rsf',
 	'creGatherTrace-m0-'+str(nm0-1)+'.rsf'])
+
+# Build the cre stacked section
+# throughout cre stacked traces sorting
+length = len(files)
 
 sortedFiles = []
 for i in range(length):
