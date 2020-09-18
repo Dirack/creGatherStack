@@ -26,93 +26,6 @@ from rsf.proj import *
 # Import glob python library
 import glob
 
-import atexit
-import os
-
-def after_build():
-	os.system('sfrm crsParameters-m0*')
-	os.system('sfrm creMhCoordinates-m0*')
-	os.system('sfrm creMcoordinate-m0*')
-	os.system('sfrm creTimeCurveCube-m0*')	
-	os.system('sfrm creGatherCube-m0*')
-	os.system('sfrm creTimeCurveCube-m0')
-	os.system('sfrm creGatherTrace-m0*')
-	os.system('sfrm creTimeCurveTrace-m0*')
-	os.system('sfrm creStackedTrace-m0*')	
-
-# Recipes
-from rsf.recipes.pefInterpolation import pefInterpolation as pef
-from rsf.recipes.kimodel import multiLayerModel as mlmod
-from rsf.recipes.kimodel import kirchhoffNewtonModeling as kinewmod
-
-# Establish building dependencies
-Depends('interpolatedDataCube.rsf','multiLayerDataCube.rsf')
-Depends('interpolatedDataCube2.rsf','interpolatedDataCube.rsf')
-Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube2.rsf')
-
-xmax = 6.0
-zmax = 2.0
-
-layers = ((0.30,0.50,0.20,0.30),
-	  (1.65,1.85,1.55,1.65))
-
-velocities = (1.508,
-	      1.690,
-	      2.0)
-
-# Generate multi layer model and data cube
-mlmod(interfaces='interfaces',
-	dipsfile='interfacesDip',
-	modelfile='mod1',
-	xmax=xmax,
-	zmax=zmax,
-	layers=layers,
-	velocities=velocities)
-
-# Generate a modeled data cube
-kinewmod(reflectors='interfaces',
-	reflectorsDip='interfacesDip',
-	filename='multiLayerDataCube',
-	velocities=velocities,
-	nt=1001,
-	dt=0.004,
-	ns=201,
-	ds=0.025,
-	nh=161,
-	dh=0.025)
-
-# PEF interpolation of the data cube
-a1=10
-a2=2
-rect1=50
-rect2=2
-
-pef(dataCube='multiLayerDataCube',
-    interpolated='interpolatedDataCube',
-    nm=201,
-    dm=0.025,
-    nt=1001,
-    dt=0.004,
-    nhi=161,
-    a1=a1,
-    a2=a2,
-    rect1=rect1,
-    rect2=rect2)
-
-# Do the PEF interpolation one more time
-# to increase the CMP sampling
-pef('interpolatedDataCube',
-    'interpolatedDataCube2',
-    nm=402,
-    dm=0.0125,
-    nt=1001,
-    dt=0.004,
-    nhi=161,
-    a1=a1,
-    a2=a2,
-    rect1=rect1,
-    rect2=rect2)
-
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
 v0 = 1.5
@@ -122,7 +35,9 @@ nt0 = 2
 om0 = 2
 dm0 = 0.025
 nm0 = 3
-dataCube='interpolatedDataCube2'
+inputDir = '../../modelingAndPEFInterpolation/'
+dataCube=inputDir+'multiLayerDataCube'
+interpolatedDataCube=inputDir+'interpolatedDataCube2'
 
 for i in range(nm0):
 
@@ -147,20 +62,20 @@ for i in range(nm0):
 		creGatherPlot = 'crePlot-m0-%g-t0-%g' % (i,j)
 
 		# Very Fast Simulated Aneelling Global Optimization (VFSA)
-		Flow(crsParameters,'interpolatedDataCube2',
+		Flow(crsParameters,dataCube,
 			'''
 			vfsacrsnh m0=%g v0=%g t0=%g verb=y repeat=3
 			''' % (m0,v0,t0))
 
 		# Calculate CRE trajectory
-		Flow(creMhCoordinates,['interpolatedDataCube2',crsParameters],
+		Flow(creMhCoordinates,[interpolatedDataCube,crsParameters],
 			'''
 			cretrajec verb=y m0=%g param=${SOURCES[1]} |
 			put unit1="Offset" label1="Km"
 			''' % (m0))
 
 		#Get CRE Gather from interpolated Data Cube
-		Flow([creGather,creMcoordinate],['interpolatedDataCube2',creMhCoordinates],
+		Flow([creGather,creMcoordinate],[interpolatedDataCube,creMhCoordinates],
 			'''
 			getcregather aperture=50 verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=20 |
                         put label1="Time" unit1="s" label2="Offset" unit2="km" 
@@ -226,7 +141,7 @@ files = glob.glob('creStackedTrace-*.rsf')
 length = len(files)
 
 # Stacked section depends of the last CRE stacked trace
-Depends('stackedSection.rsf',['multiLayerDataCube.rsf',
+Depends('stackedSection.rsf',[dataCube,
 	'creStackedTrace-m0-'+str(nm0-1)+'.rsf',
 	'creGatherTrace-m0-'+str(nm0-1)+'.rsf'])
 
@@ -244,7 +159,5 @@ Flow('filtStackedSection','stackedSection',
 	'''
 	bandpass fhi=20 --out=stdout
 	''')
-
-atexit.register(after_build)
 
 End()

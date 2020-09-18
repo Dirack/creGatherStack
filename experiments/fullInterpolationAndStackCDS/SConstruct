@@ -10,7 +10,7 @@
 # traveltime approximation as stacking curve, with CDS condition (RNIP=RN) applied.
 # Instead of conventional CRE traveltime approximation.
 #
-# Site: http://diracks.github.io
+# Site: https://dirack.github.io
 # 
 # Version 2.0
 #
@@ -23,70 +23,8 @@
 # Madagascar package
 from rsf.proj import *
 
-# Recipes
-from kimodel import kirchoffModeling as kimod
-from rsf.recipes.pefInterpolation import pefInterpolation as pef
-
 # Import glob python library
 import glob
-
-import atexit
-import os
-
-def after_build():
-	os.system('sfrm crsParameters-m0*')
-	os.system('sfrm creMhCoordinates-m0*')
-	os.system('sfrm creMcoordinate-m0*')
-	os.system('sfrm creTimeCurveCube-m0*')	
-	os.system('sfrm creGatherCube-m0*')
-	os.system('sfrm creTimeCurveCube-m0')
-	os.system('sfrm creGatherTrace-m0*')
-	os.system('sfrm creTimeCurveTrace-m0*')
-	os.system('sfrm creStackedTrace-m0*')	
-
-# Establish building dependencies
-Depends('interpolatedDataCube.rsf','dataCube.rsf')
-Depends('interpolatedDataCube2.rsf','interpolatedDataCube.rsf')
-Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube2.rsf')
-
-# Generate Gaussian reflector model and data cube
-kimod()
-
-# PEF coeficients
-a1=10
-a2=2
-
-# PEF smooth radius
-rect1=50
-rect2=2
-
-# PEF interpolation
-pef('dataCube',
-	'interpolatedDataCube',
-	nm=401,
-	dm=0.025,
-	nt=1001,
-	dt=0.004,
-	nhi=161,
-	a1=a1,
-	a2=a2,
-	rect1=rect1,
-	rect2=rect2
-)
-
-# PEF interpolation
-pef('interpolatedDataCube',
-	'interpolatedDataCube2',
-	nm=802,
-	dm=0.0125,
-	nt=1001,
-	dt=0.004,
-	nhi=161,
-	a1=a1,
-	a2=a2,
-	rect1=rect1,
-	rect2=rect2
-)
 
 # CRE stacking
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
@@ -98,6 +36,9 @@ nt0 = 3
 om0 = 3
 dm0 = 0.5
 nm0 = 2
+inputDir = '../modelingAndPEFInterpolation/'
+datacube = inputdir+'dataCube'
+interpolatedDataCube = inputDir+'interpolatedDataCube2'
 
 for i in range(nm0):
 
@@ -122,20 +63,20 @@ for i in range(nm0):
 		creGatherPlot = 'crePlot-m0-%g-t0-%g' % (i,j)
 
 		# Very Fast Simulated Aneelling Global Optimization (VFSA)
-		Flow(crsParameters,'dataCube',
+		Flow(crsParameters,dataCube,
 			'''
 			vfsacrsnh m0=%g v0=%g t0=%g verb=y repeat=3
 			''' % (m0,v0,t0))
 
 		# Calculate CRE trajectory
-		Flow(creMhCoordinates,['interpolatedDataCube2',crsParameters],
+		Flow(creMhCoordinates,[interpolatedDataCube,crsParameters],
 			'''
 			cretrajec verb=y m0=%g param=${SOURCES[1]} |
 			put unit1="Offset" label1="Km"
 			''' % (m0))
 
 		#Get CRE Gather from interpolated Data Cube
-		Flow([creGather,creMcoordinate],['interpolatedDataCube2',creMhCoordinates],
+		Flow([creGather,creMcoordinate],[interpolatedDataCube,creMhCoordinates],
 			'''
 			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=20 |
                         put label1="Time" unit1="s" label2="Offset" unit2="km" 
@@ -201,10 +142,9 @@ files = glob.glob('creStackedTrace-*.rsf')
 length = len(files)
 
 # Stacked section depends of the last CRE stacked trace
-Depends('stackedSection.rsf',['dataCube.rsf',
+Depends('stackedSection.rsf',[dataCube.rsf,
 			      'creStackedTrace-m0-'+str(nm0-1)+'.rsf',
 			      'creGatherTrace-m0-'+str(nm0-1)+'.rsf'])
-
 
 sortedFiles = []
 for i in range(length):
@@ -220,7 +160,5 @@ Flow('filtStackedSection','stackedSection',
 	'''
 	bandpass fhi=20 --out=stdout
 	''')
-
-atexit.register(after_build)
 
 End()
