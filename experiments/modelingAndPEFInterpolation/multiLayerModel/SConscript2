@@ -91,4 +91,6 @@ pef('interpolatedDataCube',
     rect1=rect1,
     rect2=rect2)
 
+AddPostAction('interpolatedDataCube2.rsf',"./clean.sh")
+
 End()
