@@ -33,9 +33,9 @@ logging.basicConfig(filename=logfile,level=logging.INFO,
 
 logging.info('PSTA ***[Experiment Started]***')
 
-experiments = ['fullInterpolationAndStack',
-		'fullInterpolationAndStackCDS',
-		'multiLayerModel/cds',
+#experiments = ['fullInterpolationAndStack',
+#		'fullInterpolationAndStackCDS',
+experiments = [	'multiLayerModel/cds',
 		'multiLayerModel/cre']
 sconscripts = filter(os.path.isfile,map(lambda e: str(e)+'/SConstruct',experiments))
 

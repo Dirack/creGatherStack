@@ -28,10 +28,10 @@ import glob
 v0 = 1.5
 ot0 = 1.0
 dt0 = 0.004
-nt0 = 3
+nt0 = 500 
 om0 = 3
 dm0 = 0.5
-nm0 = 2
+nm0 = 9
 inputDir = '../modelingAndPEFInterpolation/gaussianModel/'
 dataCube = inputDir+'dataCube.rsf'
 interpolatedDataCube = inputDir+'interpolatedDataCube2.rsf'

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# SConscript  (Madagascar Script)
+# SConstruct  (Madagascar Script)
 #
 # Purpose: Kirchhoff Newton modeling of a multi layer velocity model.
 #

@@ -31,10 +31,10 @@ import glob
 v0 = 1.5
 ot0 = 0.3
 dt0 = 0.008
-nt0 = 2
+nt0 = 331
 om0 = 2
-dm0 = 0.025
-nm0 = 3
+dm0 = 0.25
+nm0 = 8
 inputDir = '../../modelingAndPEFInterpolation/multiLayerModel/'
 dataCube=inputDir+'multiLayerDataCube.rsf'
 interpolatedDataCube=inputDir+'interpolatedDataCube2.rsf'

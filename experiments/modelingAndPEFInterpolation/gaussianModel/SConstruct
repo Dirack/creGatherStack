@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# SConscript  (Madagascar Script)
+# SConstruct  (Madagascar Script)
 #
 # Purpose: Kirchhoff modeling of a gaussian reflector in a linear velocity model
 # and PEF interpolation of the seismic data cube (Time x Offset x CMP) to increase
