@@ -14,10 +14,12 @@
 # 
 # License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
-TMP='gaussianReflector.rsf reflectorDip.rsf multiLayerDataCube-offsetGather-* multiLayerDataCube-interpolatedGather-* multiLayerDataCube-pefCoeficients-* multiLayerDataCube-resampledGather-* interpolatedDataCube-offsetGather-* interpolatedDataCube-interpolatedGather-* interpolatedDataCube-pefCoeficients-* interpolatedDataCube-resampledGather-* multiLayerDataCube-a* multiLayerDataCube-b* *-mask* interpolatedDataCube-a* interpolatedDataCube-b* *-zeroedGather*'
+TMP='interfaces.rsf interfacesDip.rsf mod1.rsf layers.rsf multiLayerDataCube-offsetGather-* multiLayerDataCube-interpolatedGather-* multiLayerDataCube-pefCoeficients-* multiLayerDataCube-resampledGather-* interpolatedDataCube-offsetGather-* interpolatedDataCube-interpolatedGather-* interpolatedDataCube-pefCoeficients-* interpolatedDataCube-resampledGather-* multiLayerDataCube-a* multiLayerDataCube-b* *-mask* interpolatedDataCube-a* interpolatedDataCube-b* *-zeroedGather*'
 
 for i in $TMP
 do
 	$RSFROOT/bin/sfrm "$i"
 	#echo "$i"
 done
+
+rm layers.asc
