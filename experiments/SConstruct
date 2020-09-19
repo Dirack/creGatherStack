@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+#
+# coding: utf-8
+#
+# SConstruct (Madagascar Script)
+# 
+# Purpose: Tracked build of the experiments in this directory and
+# automatic report.
+# 
+# Site: https://dirack.github.io
+# 
+# Version 1.0
+# 
+# Programer: Rodolfo A C Neves (Dirack) 10/09/2020
+# 
+# Email: rodolfo_profissional@hotmail.com
+# 
+# License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
+
+from rsf.tex import *
+from rsf.proj import Flow
+import os
+import logging
+import tempfile
+
+env =  Environment(ENV=os.environ)
+env.AlwaysBuild('paper.tex')
+
+logfile = tempfile.mkstemp(suffix='.log')[1]
+
+logging.basicConfig(filename=logfile,level=logging.INFO,
+			format='%(asctime)s - %(levelname)s - %(message)s')
+
+logging.info('PSTA ***[Experiment Started]***')
+
+experiments = ['fullInterpolationAndStack',
+		'fullInterpolationAndStackCDS',
+		'multiLayerModel/cds',
+		'multiLayerModel/cre']
+sconscripts = filter(os.path.isfile,map(lambda e: str(e)+'/SConstruct',experiments))
+
+logging.debug('experiments = %s' % experiments)
+logging.debug('sconscripts = %s' % sconscripts)
+
+succed=0
+fail=0
+total=len(experiments)
+
+for i in sconscripts:
+	try:
+		SConscript(i,exports='env')
+		logging.info("Experiment %s Succed!",i)
+		succed = succed + 1
+	except:
+		logging.error("PERR Experiment %s Failed!",i)
+		fail = fail + 1
+		currentExperimentDir = os.path.dirname(i)
+		logging.warning(
+		'''Experiment Failed - Show files list\n\t Files=> %s
+		''', str(os.listdir(currentExperimentDir)))
+		
+		if os.path.isdir(currentExperimentDir+'/'+'Fig'):
+			logging.warning(
+			'''Experiment Failed - Show Fig list\n\t Fig=> %s
+			''', str(os.listdir(currentExperimentDir+'/'+'Fig')))
+		
+		# Try to run a BUGSCRIPT (This is a SConscript with another name
+		# to allow the experiment to do a set of commands if the build fails)
+		if os.path.isfile(currentExperimentDir+'/BUGSCRIPT'):
+			try:
+				SConscript(currentExperimentDir+'/BUGSCRIPT')
+			except:
+				logging.warning("BUGSCRIPT failed!")
+
+logging.info('PEND Total of '+str(fail+succed)+'/'+str(total)+' experiments executed, '+str(fail)+' failed and '+str(succed)+' succed')
+
+logging.disable(logging.CRITICAL)
+Flow('paper.tex',None,
+	'''
+	./log2tex %s
+	''' %(logfile))
+
+End(options='reproduce',
+	     include=r'''
+	     \usepackage[utf8]{inputenc}
+	     \usepackage{microtype}
+	     \usepackage{listings}
+	     \usepackage[left=2.5cm,top=2.5cm,right=2.5cm,bottom=2.5cm]{geometry}
+	     \setlength{\parindent}{1.3cm}
+	     \usepackage{color}
+	     \definecolor{mygray}{rgb}{0.8,0.8,0.8}
+	     \lstset{backgroundcolor=\color{mygray},breaklines=true}
+	     ''')
