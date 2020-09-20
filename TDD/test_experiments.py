@@ -19,6 +19,13 @@
 
 import unittest
 import subprocess
+import os
+
+# Change to modeling directory
+currentDir = os.getcwd()
+path = os.path.join(currentDir,os.pardir)
+path = os.path.abspath(path)+'/experiments/'
+os.chdir(path)
 
 class TestScons(unittest.TestCase):
 	'''
