@@ -10,4 +10,3 @@ jobs:
   - script: ./tes_travis_docker.sh test_multiLayerModelBuild
   - stage: deploy
     script: echo "TODO deploy"
-
