@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# test_modelBuild.py (Python)
+# test_multiLayerModelBuild.py (Python)
 #
 # Purpose: Test model building with SCons.
 # 
-# Rum with: python -m unittest test_modelBuild
+# Rum with: python -m unittest test_multiLayerModelBuild
 #
 # Site: https://dirack.github.io
 # 
 # Version 2.0
 #
-# Programer: Rodolfo A. C. Neves (Dirack) 04/03/2020
+# Programer: Rodolfo A. C. Neves (Dirack) 20/09/2020
 #
 # Email: rodolfo_profissional@hotmail.com
 #
@@ -29,25 +29,8 @@ os.chdir(path)
 
 class TestScons(unittest.TestCase):
 	'''
-	Unit tests of the model building
+	Unit tests of the multi layer model building
 	'''
-
-	def test_gaussianReflectorModeling(self):
-		'''
-		Test the building of the gaussian reflector in
-		a linear velocity model
-		'''
-		result = subprocess.call('cd gaussianModel && scons dataCube.rsf',shell=True)
-		self.assertEqual(result,0,'FAILED: gaussian reflector modeling failed!')
-
-
-	def test_gaussianReflectorPefInterpolation(self):
-		'''
-		Test of the PEF interpolation step of the seismic data cube
-		modeled with the gaussian reflector linear velocity model.
-		'''
-		result = subprocess.call('cd gaussianModel && scons -j3',shell=True)
-		self.assertEqual(result,0,'FAILED: gaussian reflector PEF interpolation failed!')
 
 	def test_multiLayerModeling(self):
 		'''
