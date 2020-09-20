@@ -59,11 +59,15 @@ kinewmod(reflectors='interfaces',
 	nh=161,
 	dh=0.025)
 
-# PEF interpolation of the data cube
-a1=10
-a2=2
-rect1=50
-rect2=2
+# Use default value or pass through command line
+# PEF coeficients and PEF Smooth radius
+a1=ARGUMENTS.get('a1',10)
+a2=ARGUMENTS.get('a2',2)
+rect1=ARGUMENTS.get('rect1',50)
+rect2=ARGUMENTS.get('rect2',2)
+
+# Number of offsets to interpolate
+nhi=ARGUMENTS.get('nhi',1)
 
 pef(dataCube='multiLayerDataCube',
     interpolated='interpolatedDataCube',
@@ -71,7 +75,7 @@ pef(dataCube='multiLayerDataCube',
     dm=0.025,
     nt=1001,
     dt=0.004,
-    nhi=3,
+    nhi=nhi,
     a1=a1,
     a2=a2,
     rect1=rect1,
@@ -85,7 +89,7 @@ pef('interpolatedDataCube',
     dm=0.0125,
     nt=1001,
     dt=0.004,
-    nhi=3,
+    nhi=nhi,
     a1=a1,
     a2=a2,
     rect1=rect1,

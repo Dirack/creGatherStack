@@ -44,5 +44,5 @@ class TestScons(unittest.TestCase):
 		Test of the PEF interpolation step of the seimic data cube
 		modeled with the multi layer model
 		'''
-		result = subprocess.call('cd multiLayerModel && scons -j3',shell=True) 
+		result = subprocess.call('cd multiLayerModel && scons -j3 nhi=1',shell=True) 
 		self.assertEqual(result,0,'FAILED: multi layer PEF interpolation failed!')
