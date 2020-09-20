@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# SConscript  (Madagascar Script)
+# SConstruct  (Madagascar Script)
 #
-# Purpose: Generate model and data cubes to CRE stacking process.
-# This script generates model, original and PEF interpolated data cubes.
-# It depends of the 'creStack.py' script that defines functions.
+# Purpose: Kirchhoff Newton modeling of a multi layer velocity model.
 #
-# Site: http://www.dirackslounge.online
+# Site: https://dirack.github.io
 # 
-# Version 1.0
+# Version 2.0
 #
 # Programer: Rodolfo A. C. Neves (Dirack) 04/03/2020
 #
@@ -20,10 +18,15 @@
 # Madagascar package
 from rsf.proj import *
 
-# CRE recipe
-from madagascarRecipes.pefInterpolation import pefInterpolation as pefin
-from madagascarRecipes.kimodel import multiLayerModel as mlmod
-from madagascarRecipes.kimodel import kirchoffNewtonModeling as kinewmod
+# Recipes
+from rsf.recipes.pefInterpolation import pefInterpolation as pef
+from rsf.recipes.kimodel import multiLayerModel as mlmod
+from rsf.recipes.kimodel import kirchhoffNewtonModeling as kinewmod
+
+# Establish building dependencies
+Depends('interpolatedDataCube.rsf','multiLayerDataCube.rsf')
+Depends('interpolatedDataCube2.rsf','interpolatedDataCube.rsf')
+Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube2.rsf')
 
 xmax = 6.0
 zmax = 2.0
@@ -44,10 +47,17 @@ mlmod(interfaces='interfaces',
 	layers=layers,
 	velocities=velocities)
 
+# Generate a modeled data cube
 kinewmod(reflectors='interfaces',
 	reflectorsDip='interfacesDip',
 	filename='multiLayerDataCube',
-	velocities=velocities)
+	velocities=velocities,
+	nt=1001,
+	dt=0.004,
+	ns=201,
+	ds=0.025,
+	nh=161,
+	dh=0.025)
 
 # PEF interpolation of the data cube
 a1=10
@@ -55,13 +65,13 @@ a2=2
 rect1=50
 rect2=2
 
-pefin(dataCube='multiLayerDataCube',
+pef(dataCube='multiLayerDataCube',
     interpolated='interpolatedDataCube',
     nm=201,
     dm=0.025,
     nt=1001,
     dt=0.004,
-    nhi=161,
+    nhi=21,
     a1=a1,
     a2=a2,
     rect1=rect1,
@@ -69,16 +79,18 @@ pefin(dataCube='multiLayerDataCube',
 
 # Do the PEF interpolation one more time
 # to increase the CMP sampling
-pefin('interpolatedDataCube',
+pef('interpolatedDataCube',
     'interpolatedDataCube2',
     nm=402,
     dm=0.0125,
     nt=1001,
     dt=0.004,
-    nhi=161,
+    nhi=21,
     a1=a1,
     a2=a2,
     rect1=rect1,
     rect2=rect2)
+
+AddPostAction('interpolatedDataCube2.rsf',"./clean.sh")
 
 End()
