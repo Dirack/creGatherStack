@@ -6,9 +6,8 @@ branches:
 jobs:
  include:
   - stage: modeling
-    env:
-      - TEST_SUITE=test_gaussianModelBuild
-      - TESTE_SUITE=test_multiLayerModelBuild
-    script: ./test_travis_docker.sh $TEST_SUITE
+    script: ./test_travis_docker.sh test_gaussianModelBuild
+  - script: ./tes_travis_docker.sh test_multiLayerModelBuild
   - stage: deploy
     script: echo "TODO deploy"
+
