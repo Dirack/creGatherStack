@@ -3,7 +3,9 @@ branches:
     - master
     - /^develop.*$/
     - teste
-
+stage:
+  - modeling
+  - deploy
 jobs:
   include:
     - stage: modeling
