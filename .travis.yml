@@ -3,15 +3,12 @@ branches:
     - master
     - /^develop.*$/
     - teste
-stage:
-  - modeling
-  - deploy
 jobs:
-  include:
-    - stage: modeling
-      env:
+ include:
+  - stage: modeling
+    env:
       - TEST_SUITE=test_gaussianModelBuild
-      - TEST_SUITE=test_multiLayerModelBuild
-      script: ./test_travis_docker.sh $TEST_SUITE
-    - stage: deploy
-      script: echo "TODO: Deploy"
+      - TESTE_SUITE=test_multiLayerModelBuild
+    script: ./test_travis_docker.sh $TEST_SUITE
+  - stage: deploy
+    script: echo "TODO deploy"
