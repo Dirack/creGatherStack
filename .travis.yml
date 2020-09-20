@@ -8,5 +8,5 @@ services:
   - docker
 
 script:
-  - docker run -t -v $PWD:/root/madagascar-3.0/user/creGatherStack dirack/ambientemadagascar:1.0 bash -c 'RSFROOT=/root/madagascar RSFSRC=/root/madagascar-3.0 CREROOT=/root/madagascar-3.0/user/creGatherStack && cd $RSFSRC && source env.sh && cd $CREROOT && scons && cd $RSFSRC && scons install && cd $CREROOT/TDD/ && python -m unittest test_modelBuild && python -m unittest test_experiments'
+  - docker run -t -v $PWD:/root/madagascar-3.0/user/creGatherStack dirack/ambientemadagascar:1.0 bash -c 'RSFROOT=/root/madagascar RSFSRC=/root/madagascar-3.0 CREROOT=/root/madagascar-3.0/user/creGatherStack && cd $RSFSRC && source env.sh && cd $CREROOT && ./install_recipes.sh && scons && cd $RSFSRC && scons install && cd $CREROOT/TDD/ && python -m unittest test_modelBuild && python -m unittest test_experiments'
 
