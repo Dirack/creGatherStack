@@ -16,5 +16,5 @@
 # License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
 docker run -t -v $PWD:/root/madagascar-3.0/user/creGatherStack \
-dirack/ambientemadagascar:1.0 bash -c 'RSFROOT=/root/madagascar RSFSRC=/root/madagascar-3.0 CREROOT=/root/madagascar-3.0/user/creGatherStack && cd $RSFSRC && source env.sh && cd $CREROOT && ./install_recipes.sh && scons && cd $RSFSRC && scons install && cd $CREROOT/TDD/ && python -m unittest '$1
+docker.pkg.github.com/dirack/vfsa/vfsa:1.1.1 bash -c 'RSFROOT=/root/madagascar RSFSRC=/root/madagascar-3.0 CREROOT=/root/madagascar-3.0/user/creGatherStack && cd $RSFSRC && source env.sh && cd $CREROOT && ./install_recipes.sh && scons && cd $RSFSRC && scons install && cd $CREROOT/TDD/ && python -m unittest '$1
       
