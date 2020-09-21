@@ -37,6 +37,7 @@ nt0 = int(ARGUMENTS.get('nt0',500))
 om0 = float(ARGUMENTS.get('om0',3))
 dm0 = float(ARGUMENTS.get('dm0',0.5))
 nm0 = int(ARGUMENTS.get('nm0',9))
+aperture = int(ARGUMENTS.get('aperture',1))
 inputDir = '../modelingAndPEFInterpolation/gaussianModel/'
 dataCube = inputDir+'dataCube.rsf'
 interpolatedDataCube = inputDir+'interpolatedDataCube2.rsf'
@@ -80,9 +81,9 @@ for i in range(nm0):
 		#Get CRE Gather from interpolated Data Cube
 		Flow([creGather,creMcoordinate],[interpolatedDataCube,creMhCoordinates],
 			'''
-			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=20 |
+			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=%i |
                         put label1="Time" unit1="s" label2="Offset" unit2="km" 
-			''')
+			''' % (aperture))
 
 		# Calculate CRE traveltime curve t(m,h)
 		Flow(creTimeCurve,[creMcoordinate, crsParameters],
@@ -134,9 +135,9 @@ for i in range(nm0):
 	# CRE stacking
 	Flow(creStackedTrace,[creGatherTrace,creTimeCurveTrace],
 		'''
-		crestack timeCurves=${SOURCES[1]} verb=y aperture=10 |
+		crestack timeCurves=${SOURCES[1]} verb=y aperture=%i |
 		put label1=t0 unit1=s label2=m0 unit2=Km --out=stdout
-		''')
+		''' % (aperture))
 
 	files.append(creStackedTrace)
 
