@@ -67,7 +67,7 @@ rect1=int(ARGUMENTS.get('rect1',50))
 rect2=int(ARGUMENTS.get('rect2',2))
 
 # Number of offsets to interpolate
-nhi=ARGUMENTS.get('nhi',1)
+nhi=int(ARGUMENTS.get('nhi',1))
 
 pef(dataCube='multiLayerDataCube',
     interpolated='interpolatedDataCube',
