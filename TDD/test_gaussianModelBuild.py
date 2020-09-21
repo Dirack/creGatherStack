@@ -21,6 +21,9 @@ import unittest
 import subprocess
 import os
 
+# Do not allow test order sorting
+unittest.TestLoader.sortTestMethodsUsing = None
+
 # Change to modeling directory
 currentDir = os.getcwd()
 path = os.path.join(currentDir,os.pardir)
