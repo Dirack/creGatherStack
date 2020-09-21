@@ -3,12 +3,12 @@
 #
 # SConstruct  (Madagascar Script)
 #
-# Purpose: Build the interpolation process twice to improve CMP sampling
-# and CRE stacking results.
+# Purpose: Common Reflection Element (CRE) stack applied to a seismic data cube
+# from Kirchhoff Newton modeling of a multi layer velocity model.
 #
-# Site: http://www.dirackslounge.online
+# Site: https://dirack.github.io
 # 
-# Version 1.0
+# Version 2.0
 #
 # Programer: Rodolfo A. C. Neves (Dirack) 04/03/2020
 #
@@ -22,23 +22,20 @@ from rsf.proj import *
 # Import glob python library
 import glob
 
-# Error report function
-import atexit
-from madagascarRecipes.errorReport import print_build_failures
-
-# Call SConscript to generate input: original and interpolated data cubes
-# SConscript('SConscript')
-
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
 v0 = 1.5
-ot0 = 0.3
-dt0 = 0.008
-nt0 = 331
-om0 = 2
-dm0 = 0.025
-nm0 = 108
-dataCube='multiLayerDataCube'
+ot0 = float(ARGUMENTS.get('ot0',0.3))
+dt0 = float(ARGUMENTS.get('dt0',0.008))
+nt0 = int(ARGUMENTS.get('nt0',331))
+om0 = float(ARGUMENTS.get('om0',2))
+dm0 = float(ARGUMENTS.get('dm0',0.25))
+nm0 = int(ARGUMENTS.get('nm0',8))
+aperture = int(ARGUMENTS.get('aperture',1))
+inputDir= '../../modelingAndPEFInterpolation/multiLayerModel/'
+dataCube=inputDir+'multiLayerDataCube.rsf'
+interpolatedDataCube=inputDir+'interpolatedDataCube2.rsf'
+files = []
 
 for i in range(nm0):
 
@@ -63,24 +60,24 @@ for i in range(nm0):
 		creGatherPlot = 'crePlot-m0-%g-t0-%g' % (i,j)
 
 		# Very Fast Simulated Aneelling Global Optimization (VFSA)
-		Flow(crsParameters,'interpolatedDataCube2',
+		Flow(crsParameters,dataCube,
 			'''
 			vfsacrsnh m0=%g v0=%g t0=%g verb=y repeat=3
 			''' % (m0,v0,t0))
 
 		# Calculate CRE trajectory
-		Flow(creMhCoordinates,['interpolatedDataCube2',crsParameters],
+		Flow(creMhCoordinates,[interpolatedDataCube,crsParameters],
 			'''
 			cretrajec verb=y m0=%g param=${SOURCES[1]} |
 			put unit1="Offset" label1="Km"
 			''' % (m0))
 
 		#Get CRE Gather from interpolated Data Cube
-		Flow([creGather,creMcoordinate],['interpolatedDataCube2',creMhCoordinates],
+		Flow([creGather,creMcoordinate],[interpolatedDataCube,creMhCoordinates],
 			'''
-			getcregather aperture=50 verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=20 |
-                        put label1="Time" unit1="s" label2="Offset" unit2="km" 
-			''')
+			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=%i |
+      put label1="Time" unit1="s" label2="Offset" unit2="km" 
+			''' % (aperture))
 
 		# Calculate CRE traveltime curve t(m,h)
 		Flow(creTimeCurve,[creMcoordinate, crsParameters],
@@ -132,13 +129,19 @@ for i in range(nm0):
 	# CRE stacking
 	Flow(creStackedTrace,[creGatherTrace,creTimeCurveTrace],
 		'''
-		crestack timeCurves=${SOURCES[1]} verb=y |
+		crestack timeCurves=${SOURCES[1]} verb=y aperture=%i |
 		put label1=t0 unit1=s label2=m0 unit2=Km --out=stdout
-		''')
+		''' % (aperture))
+
+	files.append(creStackedTrace)
+
+# Stacked section depends of the last CRE stacked trace
+Depends('stackedSection.rsf',[dataCube,
+	'creStackedTrace-m0-'+str(nm0-1)+'.rsf',
+	'creGatherTrace-m0-'+str(nm0-1)+'.rsf'])
 
 # Build the cre stacked section
 # throughout cre stacked traces sorting
-files = glob.glob('creStackedTrace-*.rsf')
 length = len(files)
 
 sortedFiles = []
@@ -155,12 +158,5 @@ Flow('filtStackedSection','stackedSection',
 	'''
 	bandpass fhi=20 --out=stdout
 	''')
-
-# Show error message if fail
-message = '''
-SConstruct Failed build when m0={m0} and t0={t0}
-'''.format(m0=(i*dm0+om0),t0=(j*dt0+ot0))
-
-atexit.register(print_build_failures,message)
 
 End()

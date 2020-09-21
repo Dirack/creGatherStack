@@ -4,7 +4,7 @@
 
 [Developed to Madagascar package, version 3.0.](http://www.ahay.org/wiki/Main_Page)
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Build Status](https://travis-ci.org/Dirack/creGatherStack.svg?branch=master)](https://travis-ci.org/Dirack/creGatherStack)
 
 ![Interpolated CRE Gather](https://github.com/Dirack/creGatherInterpolation/blob/master/images/hugeStackedSection.jpeg)
 

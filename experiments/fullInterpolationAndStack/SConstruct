@@ -3,12 +3,12 @@
 #
 # SConstruct  (Madagascar Script)
 #
-# Purpose: Build the interpolation process twice to improve CMP sampling
-# and CRE stacking results.
+# Purpose: Common Reflection Element (CRE) stack applied to a seismic data cube
+# from Kirchhoff modeling of a gaussian reflector in a linear velocity model.
 #
-# Site: http://www.dirackslounge.online
+# Site: https://dirack.github.io
 # 
-# Version 1.0
+# Version 2.0
 #
 # Programer: Rodolfo A. C. Neves (Dirack) 04/03/2020
 #
@@ -19,45 +19,24 @@
 # Madagascar package
 from rsf.proj import *
 
-# CRE recipe
-from creStack import kirchoffModeling as kimod
-from creStack import pefInterpolation as pefin
-
 # Import glob python library
 import glob
 
-# Generate Gaussian reflector model and data cube
-kimod()
-
-# PEF interpolation of the data cube
-pefin('dataCube',
-    'interpolatedDataCube',
-    nm=401,
-    dm=0.025,
-    nt=1001,
-    dt=0.004,
-    nhi=161)
-
-# Do the PEF interpolation one more time
-# to increase the CMP sampling
-pefin('interpolatedDataCube',
-    'interpolatedDataCube2',
-    nm=802,
-    dm=0.0125,
-    nt=1001,
-    dt=0.004,
-    nhi=161)
- 
 # CRE stacking
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
 v0 = 1.5
-ot0 = 1.0
-dt0 = 0.004
-nt0 = 500
-om0 = 3
-dm0 = 0.5
-nm0 = 9
+ot0 = float(ARGUMENTS.get('ot0',1.0))
+dt0 = float(ARGUMENTS.get('dt0',0.004))
+nt0 = int(ARGUMENTS.get('nt0',500))
+om0 = float(ARGUMENTS.get('om0',3))
+dm0 = float(ARGUMENTS.get('dm0',0.5))
+nm0 = int(ARGUMENTS.get('nm0',9))
+aperture = int(ARGUMENTS.get('aperture',1))
+inputDir = '../modelingAndPEFInterpolation/gaussianModel/'
+dataCube = inputDir+'dataCube.rsf'
+interpolatedDataCube = inputDir+'interpolatedDataCube2.rsf'
+files = []
 
 for i in range(nm0):
 
@@ -82,30 +61,30 @@ for i in range(nm0):
 		creGatherPlot = 'crePlot-m0-%g-t0-%g' % (i,j)
 
 		# Very Fast Simulated Aneelling Global Optimization (VFSA)
-		Flow(crsParameters,'dataCube',
+		Flow(crsParameters,dataCube,
 			'''
 			vfsacrsnh m0=%g v0=%g t0=%g verb=y repeat=3
 			''' % (m0,v0,t0))
 
 		# Calculate CRE trajectory
-		Flow(creMhCoordinates,['interpolatedDataCube2',crsParameters],
+		Flow(creMhCoordinates,[interpolatedDataCube,crsParameters],
 			'''
 			cretrajec verb=y m0=%g param=${SOURCES[1]} |
 			put unit1="Offset" label1="Km"
 			''' % (m0))
 
 		#Get CRE Gather from interpolated Data Cube
-		Flow([creGather,creMcoordinate],['interpolatedDataCube2',creMhCoordinates],
+		Flow([creGather,creMcoordinate],[interpolatedDataCube,creMhCoordinates],
 			'''
-			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=20 |
-                        put label1="Time" unit1="s" label2="Offset" unit2="km" 
-			''')
+			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=%i |
+      put label1="Time" unit1="s" label2="Offset" unit2="km" 
+			''' %(aperture))
 
 		# Calculate CRE traveltime curve t(m,h)
 		Flow(creTimeCurve,[creMcoordinate, crsParameters],
 			'''
 			getcretimecurve param=${SOURCES[1]} t0=%g m0=%g v0=%g verb=y |
-                        put label1="Offset" unit1="Km" 
+      put label1="Offset" unit1="Km" 
 			''' % (t0,m0,v0))
 
 		parametersCube.append(crsParameters)
@@ -151,13 +130,19 @@ for i in range(nm0):
 	# CRE stacking
 	Flow(creStackedTrace,[creGatherTrace,creTimeCurveTrace],
 		'''
-		crestack timeCurves=${SOURCES[1]} verb=y aperture=10 |
+		crestack timeCurves=${SOURCES[1]} verb=y aperture=%i |
 		put label1=t0 unit1=s label2=m0 unit2=Km --out=stdout
-		''')
+		''' %(aperture))
+
+	files.append(creStackedTrace)
+
+# Stacked section depends of the last CRE stacked trace
+Depends('stackedSection.rsf',[dataCube,
+			      'creStackedTrace-m0-'+str(nm0-1)+'.rsf',
+			      'creGatherTrace-m0-'+str(nm0-1)+'.rsf'])
 
 # Build the cre stacked section
 # throughout cre stacked traces sorting
-files = glob.glob('creStackedTrace-*.rsf')
 length = len(files)
 
 sortedFiles = []

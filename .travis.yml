@@ -1,0 +1,14 @@
+git:
+  depth: 1
+branches:
+  only:
+    - master
+    - /^develop.*$/
+    - teste
+jobs:
+ include:
+  - stage: modeling
+    script: ./test_travis_docker.sh test_gaussianModelBuild
+  - script: ./test_travis_docker.sh test_multiLayerModelBuild
+  - stage: deploy
+    script: echo "TODO deploy"
