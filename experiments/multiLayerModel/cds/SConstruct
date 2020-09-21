@@ -29,12 +29,12 @@ import glob
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
 v0 = 1.5
-ot0 = 0.3
-dt0 = 0.008
-nt0 = 331
-om0 = 2
-dm0 = 0.25
-nm0 = 8
+ot0 = float(ARGUMENTS.get('ot0',0.3))
+dt0 = float(ARGUMENTS.get('dt0',0.008))
+nt0 = int(ARGUMENTS.get('nt0',331))
+om0 = float(ARGUMENTS.get('om0',2))
+dm0 = float(ARGUMENTS.get('dm0',0.25))
+nm0 = int(ARGUMENTS.get('nm0',8))
 inputDir = '../../modelingAndPEFInterpolation/multiLayerModel/'
 dataCube=inputDir+'multiLayerDataCube.rsf'
 interpolatedDataCube=inputDir+'interpolatedDataCube2.rsf'

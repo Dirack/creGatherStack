@@ -31,12 +31,12 @@ import glob
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
 v0 = 1.5
-ot0 = 1.0
-dt0 = 0.004
-nt0 = 500
-om0 = 3
-dm0 = 0.5
-nm0 = 9
+ot0 = float(ARGUMENTS.get('ot0',1.0))
+dt0 = float(ARGUMENTS.get('dt0',0.004))
+nt0 = int(ARGUMENTS.get('nt0',500))
+om0 = float(ARGUMENTS.get('om0',3))
+dm0 = float(ARGUMENTS.get('dm0',0.5))
+nm0 = int(ARGUMENTS.get('nm0',9))
 inputDir = '../modelingAndPEFInterpolation/gaussianModel/'
 dataCube = inputDir+'dataCube.rsf'
 interpolatedDataCube = inputDir+'interpolatedDataCube2.rsf'

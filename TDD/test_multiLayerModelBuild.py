@@ -24,7 +24,7 @@ import os
 # Change to modeling directory
 currentDir = os.getcwd()
 path = os.path.join(currentDir,os.pardir)
-path = os.path.abspath(path)+'/experiments/modelingAndPEFInterpolation/'
+path = os.path.abspath(path)+'/experiments/'
 os.chdir(path)
 
 class TestScons(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestScons(unittest.TestCase):
 		'''
 		Test of the building of the multi layer model
 		'''
-		result = subprocess.call('cd multiLayerModel && scons multiLayerDataCube.rsf',shell=True)
+		result = subprocess.call('cd modelingAndPEFInterpolation/multiLayerModel && scons multiLayerDataCube.rsf',shell=True)
 		self.assertEqual(result,0,'FAILED: multi Layer modeling failed!')
 
 	def test_multiLayerPefInterpolation(self):
@@ -44,5 +44,19 @@ class TestScons(unittest.TestCase):
 		Test of the PEF interpolation step of the seimic data cube
 		modeled with the multi layer model
 		'''
-		result = subprocess.call('cd multiLayerModel && scons -j3 nhi=1',shell=True) 
+		result = subprocess.call('cd modelingAndPEFInterpolation/multiLayerModel && scons -j3 nhi=1',shell=True) 
 		self.assertEqual(result,0,'FAILED: multi layer PEF interpolation failed!')
+
+	def test_multiLayerModel(self):
+		'''
+		Unit test of the multiLayerModel experiment
+		'''
+		result = subprocess.call('cd multiLayerModel/cre && scons -j3 nm0=2 nt0=3',shell=True)		
+		self.assertEqual(result,0,'FAILED: experiment multiLayerModel failed!')
+
+	def test_multiLayerModelCDS(self):
+		'''
+		Unit test of the multiLayerModel CDS experiment
+		'''
+		result = subprocess.call('cd multiLayerModel/cds && scons -j3 nm0=2 nt0=3',shell=True)
+		self.assertEqual(result,0,'FAILED: experiment multiLayerModel CDS failed!')
