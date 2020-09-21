@@ -80,7 +80,7 @@ for i in range(nm0):
 		Flow([creGather,creMcoordinate],[interpolatedDataCube,creMhCoordinates],
 			'''
 			getcregather aperture=50 verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=%i |
-                        put label1="Time" unit1="s" label2="Offset" unit2="km" 
+      put label1="Time" unit1="s" label2="Offset" unit2="km" 
 			''' % (aperture))
 
 		# Calculate CRE traveltime curve t(m,h)
