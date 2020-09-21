@@ -21,9 +21,6 @@ import unittest
 import subprocess
 import os
 
-# Do not allow test order sorting
-unittest.TestLoader.sortTestMethodsUsing = None
-
 # Change to modeling directory
 currentDir = os.getcwd()
 path = os.path.join(currentDir,os.pardir)
@@ -35,14 +32,14 @@ class TestScons(unittest.TestCase):
 	Unit tests of the multi layer model building
 	'''
 
-	def test_multiLayerModeling(self):
+	def test_a_multiLayerModeling(self):
 		'''
 		Test of the building of the multi layer model
 		'''
 		result = subprocess.call('cd modelingAndPEFInterpolation/multiLayerModel && scons multiLayerDataCube.rsf',shell=True)
 		self.assertEqual(result,0,'FAILED: multi Layer modeling failed!')
 
-	def test_multiLayerPefInterpolation(self):
+	def test_b_multiLayerPefInterpolation(self):
 		'''
 		Test of the PEF interpolation step of the seimic data cube
 		modeled with the multi layer model

@@ -21,9 +21,6 @@ import unittest
 import subprocess
 import os
 
-# Do not allow test order sorting
-unittest.TestLoader.sortTestMethodsUsing = None
-
 # Change to modeling directory
 currentDir = os.getcwd()
 path = os.path.join(currentDir,os.pardir)
@@ -35,7 +32,7 @@ class TestScons(unittest.TestCase):
 	Unit tests of the gaussian model building
 	'''
 
-	def test_gaussianReflectorModeling(self):
+	def test_a_gaussianReflectorModeling(self):
 		'''
 		Test the building of the gaussian reflector in
 		a linear velocity model
@@ -44,7 +41,7 @@ class TestScons(unittest.TestCase):
 		self.assertEqual(result,0,'FAILED: gaussian reflector modeling failed!')
 
 
-	def test_gaussianReflectorPefInterpolation(self):
+	def test_b_gaussianReflectorPefInterpolation(self):
 		'''
 		Test of the PEF interpolation step of the seismic data cube
 		modeled with the gaussian reflector linear velocity model.
