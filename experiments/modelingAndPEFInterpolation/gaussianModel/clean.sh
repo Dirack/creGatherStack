@@ -21,3 +21,5 @@ do
 	$RSFROOT/bin/sfrm "$i"
 	#echo "$i"
 done
+
+exit 0

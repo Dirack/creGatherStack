@@ -23,3 +23,5 @@ do
 done
 
 rm layers.asc
+
+exit 0
