@@ -97,7 +97,9 @@ We also have many SConstruct examples in this repository in the
 [experiments directory](https://github.com/Dirack/creGatherStack/tree/master/experiments)
 
 ## Release History
-   
+
+* [v2.0](https://github.com/Dirack/creGatherStack/releases/tag/v2.0) - (Stable)
+
 * [v1.0-beta.1](https://github.com/Dirack/creGatherStack/releases/tag/v1.0-beta.1) - (Beta)
   
 * [v0.1.2-alpha.1](https://github.com/Dirack/creGatherStack/releases/tag/v0.1.2-alpha.1) - (Development)
