@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <rsf.h>
 /*^*/
 
 float** calculateVrmsSectionForRnipVector( float* rnip, /* Vector rnip, nm0*nt0 dimension*/
@@ -30,7 +31,7 @@ float** calculateVrmsSectionForRnipVector( float* rnip, /* Vector rnip, nm0*nt0 
 	int i, j;
 	float t0;
 
-	vrmsSection = (float**) malloc(nm0*nt0*sizeof(float));
+	vrmsSection = sf_floatalloc2(nt0,nm0);
 
 	for(j=0;j<nm0;j++){
 		for(i=0;i<nt0;i++){
