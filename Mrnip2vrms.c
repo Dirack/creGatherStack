@@ -1,6 +1,6 @@
 /* Version 1.0 - Estimate root mean square velocity (VRMS) from RNIP
 
- This program is based on multifocus formula that allow to estimate
+ This program is based on multifocus formula that allows to estimate
  VRMS from RNIP: vrms = sqrt(2*RNIP*v0/t0)
 
  Reference: Diffraction imaging by multifocusing, Berkovitch A.,
@@ -13,14 +13,13 @@
  License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 */
 
-#include <math.h>
+#include "rnip2vrms_lib.h"
 #include <rsf.h>
 /*^*/
 
 int main(int argc,char* argv[]){
 	
 	bool verb; // Verbose parameter
-	float t0; // t0 sample in stacked section
 	int nt0; // Number of t0's in stacked section
 	float dt0; // Time sampling in stacked section
 	float ot0; // Origin of the time axis in stacked section
@@ -31,7 +30,6 @@ int main(int argc,char* argv[]){
 	float v0; // Near surface velocity
 	float* rnip; // rnip vector
 	float** vrmsSection; // VRMS Section (t0,m0,vrms)
-	int i, j; // loop counter
 
 	sf_file in,rnip_file,out;
 	sf_init(argc,argv);
@@ -77,14 +75,7 @@ int main(int argc,char* argv[]){
 	vrmsSection = sf_floatalloc2(nt0,nm0);
 
 	/* Calculate VRMS from RNIP */
-	for(j=0;j<nm0;j++){
-		
-		for(i=0;i<nt0;i++){
-			
-			t0 = nt0*i+ot0;
-			vrmsSection[j][i]=sqrt((2*rnip[(j*nt0)+i]*v0)/t0);
-		}
-	}
+	vrmsSection = calculateVrmsSectionForRnipVector(rnip,nm0,nt0,om0,ot0,v0);
 
 	/* Output the VRMS section */
 	sf_floatwrite(vrmsSection[0],nt0*nm0,out);
