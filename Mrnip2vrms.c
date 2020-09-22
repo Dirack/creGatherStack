@@ -75,7 +75,7 @@ int main(int argc,char* argv[]){
 	vrmsSection = sf_floatalloc2(nt0,nm0);
 
 	/* Calculate VRMS from RNIP */
-	vrmsSection = calculateVrmsSectionForRnipVector(rnip,nm0,nt0,om0,ot0,v0);
+	vrmsSection = calculateVrmsSectionForRnipVector(rnip,nt0,ot0,nm0,om0,v0);
 
 	/* Output the VRMS section */
 	sf_floatwrite(vrmsSection[0],nt0*nm0,out);

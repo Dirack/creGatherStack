@@ -21,7 +21,15 @@ void setUp(){};
 void tearDown(){};
 
 void test_calculateVrmsSectionForRnipVector(){
-	TEST_ASSERT_EQUAL(0,0);
+
+	float rnip[6]={1,2,3,4,5,6};
+	int nm0=2,nt0=3,v0=1.5;
+	float ot0,om0;
+	float** vrmsSection = (float**) malloc(nm0*nt0*sizeof(float));
+
+	/* Test for one value */
+	vrmsSection = calculateVrmsSectionForRnipVector(rnip,nt0,ot0,nm0,om0,v0);
+	TEST_ASSERT_EQUAL(1,vrmsSection[0]);
 }
 
 int main(void){

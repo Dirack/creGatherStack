@@ -19,11 +19,11 @@
 /*^*/
 
 float** calculateVrmsSectionForRnipVector( float* rnip, /* Vector rnip, nm0*nt0 dimension*/
-		    			    int nm0, /* Number of CMPS samples */
-		    			    int nt0, /* Number of time samples */
-		    			    float om0, /* CMPs axis origin */
-		    			    float ot0, /* Time axis origin */
-		    			    float v0 /* Near surface velocity */
+		    			   int nt0, /* Number of time samples */
+		    			   float ot0, /* Time axis origin */
+		    			   int nm0, /* Number of CMPS samples */
+		    			   float om0, /* CMPs axis origin */
+		    			   float v0 /* Near surface velocity */
 ){
 /*< Return the VRMS section for a RNIP vector given >*/
 	float** vrmsSection;
