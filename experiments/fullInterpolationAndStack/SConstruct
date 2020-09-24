@@ -170,9 +170,10 @@ Flow('filtStackedSection','stackedSection',
 	''')
 
 #Build the parameters cube
-Flow('parametersCube',parametersCubeForM0,
+Flow('parametersCube',parametersCubeForM0List,
 	'''
-	rcat axis=3 ${SOURCES[1:%d]} --out=stdout
-	''' % len(parametersCubeForM0List))
+	rcat axis=3 ${SOURCES[1:%d]} --out=stdout |
+	put label2=t0 unit2=s label3=m0 unit3=Km d2=%g o2=%g d3=%g o3=%g
+	''' % (len(parametersCubeForM0List),dt0,ot0,dm0,om0))
 
 End()
