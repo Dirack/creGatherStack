@@ -36,8 +36,9 @@ aperture = int(ARGUMENTS.get('aperture',1))
 inputDir = '../modelingAndPEFInterpolation/gaussianModel/'
 dataCube = inputDir+'dataCube.rsf'
 interpolatedDataCube = inputDir+'interpolatedDataCube2.rsf'
-files = []
 
+files = []
+parametersCubeForM0List = []
 for i in range(nm0):
 
 	parametersCube = []
@@ -91,6 +92,14 @@ for i in range(nm0):
 		creGatherCube.append(creGather)
 		creTimeCurveCube.append(creTimeCurve)
 		creGatherIndex = creGatherIndex + 1
+	
+	# Concatenate crs Parameters for each m0
+	parametersCubeForM0 = "crsParameters-m0-%i" % i
+	parametersCubeForM0List.append(parametersCubeForM0)
+	Flow(parametersCubeForM0,parametersCube,
+		'''
+		rcat axis=2 ${SOURCES[1:%d]}
+		''' % nt0)
 
 	# Concatenate cre gathers for each m0
 	creGatherCubeForM0 = "creGatherCube-m0-%i" % i
@@ -111,6 +120,7 @@ for i in range(nm0):
 	# Stack one m0 per turn
 	creTimeCurveCube = []
 	creGatherCube = []
+	parametersCube = []
 	creGatherTrace = "creGatherTrace-m0-%i" % i
 	creTimeCurveTrace = "creTimeCurveTrace-m0-%i" % i
 	creStackedTrace = "creStackedTrace-m0-%i" % i
@@ -144,7 +154,6 @@ Depends('stackedSection.rsf',[dataCube,
 # Build the cre stacked section
 # throughout cre stacked traces sorting
 length = len(files)
-
 sortedFiles = []
 for i in range(length):
 	string = 'creStackedTrace-m0-%i.rsf' % i
@@ -160,4 +169,23 @@ Flow('filtStackedSection','stackedSection',
 	bandpass fhi=20 --out=stdout
 	''')
 
+#Build the parameters cube
+Flow('parametersCube',parametersCubeForM0List,
+	'''
+	rcat axis=3 ${SOURCES[1:%d]} --out=stdout |
+	put label2=t0 unit2=s label3=m0 unit3=Km d2=%g o2=%g d3=%g o3=%g
+	''' % (len(parametersCubeForM0List),dt0,ot0,dm0,om0))
+
+# Cut only RNIP vector from parameters cube
+Flow('rnip','parametersCube',
+	'''
+	window n1=1 f1=1 |
+	put n1=%i n2=1 n3=1
+	''' % (nt0*nm0))
+
+# Estimate VRMS from RNIP using multifocus formula
+Flow('vrms','stackedSection rnip',
+	'''
+	rnip2vrms rnip=${SOURCES[1]} verb=y
+	''')
 End()
