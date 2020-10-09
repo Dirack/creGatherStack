@@ -1,5 +1,5 @@
 # Makefile
-# 
+#
 # Purpose: Run c test with Unity Unity.
 # 
 # Site: https://dirack.github.io
@@ -17,3 +17,4 @@ all:	Test_rnip2vrms_lib.x
 %.x:	%.c
 	gcc -I/home/dirack/madagascar-3.0/include -L/home/dirack/madagascar-3.0/lib $< ../rnip2vrms_lib.c Unity/unity.c -o $@ -lm -lrsf
 	./$@
+	rm $@
