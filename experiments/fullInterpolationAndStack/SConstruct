@@ -180,7 +180,7 @@ Flow('parametersCube',parametersCubeForM0List,
 Flow('rnip','parametersCube',
 	'''
 	window n1=1 f1=1
-	''' % (nt0*nm0))
+	''')
 
 # Estimate VRMS from RNIP using multifocus formula
 Flow('vrms','rnip',
