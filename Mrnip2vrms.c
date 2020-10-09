@@ -58,7 +58,7 @@ int main(int argc,char* argv[]){
 	if(verb){
 		sf_warning("Input file (Stacked Section)");
 		sf_warning("nt0=%f dt0=%f ot0=%f",nt0,dt0,ot0);
-		sf_warning("nm0=%f dm0=%f ot0=%f",nm0,dm0,om0);
+		sf_warning("nm0=%f dm0=%f om0=%f",nm0,dm0,om0);
 		sf_warning("RNIP's file");
 		sf_warning("n1=%f",nrnip);
 		sf_warning("Command line parameters");
