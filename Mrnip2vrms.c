@@ -26,16 +26,14 @@ int main(int argc,char* argv[]){
 	int nm0; // Number of CMP's in stacked section
 	float dm0; // CMP sampling in stacked section
 	float om0; // Origin of the CMP axis in stacked section
-	int nrnip; // Number of samples in rnip vector
 	float v0; // Near surface velocity
-	float* rnip; // rnip vector
-	float** vrmsSection; // VRMS Section (t0,m0,vrms)
+	float** rnip; // (t0,m0,rnip) section
+	float** vrmsSection; // (t0,m0,VRMS) section
 
-	sf_file in,rnip_file,out;
+	sf_file in,out;
 	sf_init(argc,argv);
 
 	in = sf_input("in");
-	rnip_file = sf_input("rnip");
 	out = sf_output("out");
 
 	/* Read coordinates of the stacked section file */
@@ -46,9 +44,6 @@ int main(int argc,char* argv[]){
 	if(!sf_histfloat(in,"d2",&dm0)) sf_error("No d2= in input");
 	if(!sf_histfloat(in,"o2",&om0)) sf_error("No o2= in input");
 
-	/* Read the coordinates of RNIP values file */
-	if(!sf_histint(rnip_file,"n1",&nrnip)) sf_error("No n1= in rnips file");
-
 	if(!sf_getbool("verb",&verb)) verb=0;
 	/*1: verbose; 0: quiet*/
 
@@ -56,22 +51,16 @@ int main(int argc,char* argv[]){
 	/* Near surface velocity (Km/s) */
 	
 	if(verb){
-		sf_warning("Input file (Stacked Section)");
+		sf_warning("Input file (Rnip Section)");
 		sf_warning("nt0=%f dt0=%f ot0=%f",nt0,dt0,ot0);
 		sf_warning("nm0=%f dm0=%f om0=%f",nm0,dm0,om0);
-		sf_warning("RNIP's file");
-		sf_warning("n1=%f",nrnip);
 		sf_warning("Command line parameters");
 		sf_warning("v0=%f",v0);
 	}
 
-	/* Assure that each (t0,m0) pair has a rnip value */
-	if(!((nm0*nt0)==nrnip))
-	sf_error("Dimension n1 of rnip vector should be equal n1*n2 in stacked section");
-
 	/* Load rnip values */
-	rnip = sf_floatalloc(nm0*nt0);
-	sf_floatread(rnip,nm0*nt0,rnip_file);
+	rnip = sf_floatalloc2(nt0,nm0);
+	sf_floatread(rnip[0],nm0*nt0,in);
 	vrmsSection = sf_floatalloc2(nt0,nm0);
 
 	/* Calculate VRMS from RNIP */

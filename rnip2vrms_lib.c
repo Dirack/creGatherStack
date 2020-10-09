@@ -19,7 +19,7 @@
 #include <rsf.h>
 /*^*/
 
-float** calculateVrmsSectionForRnipVector( float* rnip, /* Vector rnip, nm0*nt0 dimension*/
+float** calculateVrmsSectionForRnipVector( float** rnip, /* Vector rnip, nm0*nt0 dimension*/
 		    			   int nt0, /* Number of time samples */
 		    			   float ot0, /* Time axis origin */
 		    			   float dt0, /* Time sampling */
@@ -36,7 +36,7 @@ float** calculateVrmsSectionForRnipVector( float* rnip, /* Vector rnip, nm0*nt0 
 	for(j=0;j<nm0;j++){
 		for(i=0;i<nt0;i++){
 			t0 = dt0*i+ot0;
-			vrmsSection[j][i]=sqrt((2*rnip[(j*nt0)+i]*v0)/t0);
+			vrmsSection[j][i]=sqrt((2*rnip[j][i]*v0)/t0);
 		}
 	}
 

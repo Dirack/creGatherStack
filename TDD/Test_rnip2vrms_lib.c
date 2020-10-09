@@ -26,11 +26,22 @@
 
 /* Table of values of rnip and vrms */
 float rnip[]={1.,2.5,3.3,4.2,5.1,0.};
+float** rnipSection;
 const float v[]={3.16,3.53,3.31,6.48,5.05,0.};
 float** vrmsSection;
 
 void setUp(){
+
+	int i, j;
+
 	vrmsSection = sf_floatalloc2(nt0,nm0);
+	rnipSection = sf_floatalloc2(nt0,nm0);
+
+	for(i=0;i<nm0;i++){
+		for(j=0;j<nt0;j++){
+			rnipSection[i][j]=rnip[j+i*nt0];
+		}
+	}
 };
 void tearDown(){};
 
@@ -40,7 +51,7 @@ void test_calculateVrmsSectionForRnipVector(){
 	float t0;
 
 	/* Test funtion for a set of rnip values */
-	vrmsSection = calculateVrmsSectionForRnipVector(rnip,nt0,ot0,dt0,om0,v0);
+	vrmsSection = calculateVrmsSectionForRnipVector(rnipSection,nt0,ot0,dt0,om0,v0);
 	for(i=0;i<nm0;i++){
 		for(j=0;j<nt0;j++){
 			t0 = nt0*j+ot0;
