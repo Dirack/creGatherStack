@@ -19,13 +19,14 @@
 #include <rsf.h>
 #define nm0 2
 #define nt0 3
+#define dt0 0.3
 #define ot0 0.3
 #define om0 2
 #define v0 1.5
 
 /* Table of values of rnip and vrms */
-float rnip[]={1.,2.,3.,4.,5.,0.};
-const float v[]={3.16,1.35,1.19,6.32,2.13,0.};
+float rnip[]={1.,2.5,3.3,4.2,5.1,0.};
+const float v[]={3.16,3.53,3.31,6.48,5.05,0.};
 float** vrmsSection;
 
 void setUp(){
@@ -39,7 +40,7 @@ void test_calculateVrmsSectionForRnipVector(){
 	float t0;
 
 	/* Test funtion for a set of rnip values */
-	vrmsSection = calculateVrmsSectionForRnipVector(rnip,nt0,ot0,nm0,om0,v0);
+	vrmsSection = calculateVrmsSectionForRnipVector(rnip,nt0,ot0,dt0,om0,v0);
 	for(i=0;i<nm0;i++){
 		for(j=0;j<nt0;j++){
 			t0 = nt0*j+ot0;
