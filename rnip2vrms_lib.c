@@ -22,8 +22,8 @@
 float** calculateVrmsSectionForRnipVector( float* rnip, /* Vector rnip, nm0*nt0 dimension*/
 		    			   int nt0, /* Number of time samples */
 		    			   float ot0, /* Time axis origin */
-		    			   int nm0, /* Number of CMPS samples */
-		    			   float om0, /* CMPs axis origin */
+		    			   float dt0, /* Time sampling */
+		    			   float nm0, /* Number of CMP samples */
 		    			   float v0 /* Near surface velocity */
 ){
 /*< Return the VRMS section for a RNIP vector given >*/
@@ -35,9 +35,8 @@ float** calculateVrmsSectionForRnipVector( float* rnip, /* Vector rnip, nm0*nt0 
 
 	for(j=0;j<nm0;j++){
 		for(i=0;i<nt0;i++){
-			t0 = nt0*i+ot0;
+			t0 = dt0*i+ot0;
 			vrmsSection[j][i]=sqrt((2*rnip[(j*nt0)+i]*v0)/t0);
-			sf_warning("rnip=%f vrms=%f t0=%f nt0=%d i=%d ot0=%d",rnip[j*nt0+i],vrmsSection[j][i],t0,nt0,i,ot0);
 		}
 	}
 
