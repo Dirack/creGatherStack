@@ -2,7 +2,7 @@
 #
 # install_recipes.sh (Shell Script)
 # 
-# Purpose: Install Madagascar recipes in the local version 
+# Purpose: Download Madagascar recipes in the local version 
 # of the Madagascar package.
 # 
 # Site: https://dirack.github.io

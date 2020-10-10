@@ -1,3 +1,9 @@
+env:
+  global:
+    - UNIT_TEST=true
+    - MODELING_GAUSS=true
+    - MODELING_MULTI=true
+    - DEPLOY=false
 git:
   depth: 1
 branches:
@@ -7,8 +13,18 @@ branches:
     - teste
 jobs:
  include:
-  - stage: modeling
-    script: ./test_travis_docker.sh test_gaussianModelBuild
-  - script: ./test_travis_docker.sh test_multiLayerModelBuild
-  - stage: deploy
+  - stage: Unit test
+    name: Unit test
+    if: env(UNIT_TEST)=true
+    script: ./test_travis_docker.sh 'make' 
+  - stage: Modeling
+    name: Gaussian Reflector
+    if: env(MODELING_GAUSS)=true
+    script: ./test_travis_docker.sh 'python -m unittest test_gaussianModelBuild'
+  - if: env(MODELING_MULTI)=true
+    script: ./test_travis_docker.sh 'python -m unittest test_multiLayerModelBuild'
+    name: Multi Layer
+  - stage: Deploy
+    name: Deploy
+    if: env(DEPLOY)=true
     script: echo "TODO deploy"

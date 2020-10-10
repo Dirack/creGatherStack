@@ -36,6 +36,13 @@ float** calculateVrmsSectionForRnipVector( float** rnip, /* Vector rnip, nm0*nt0
 
 	for(j=0;j<nm0;j++){
 		for(i=0;i<nt0;i++){
+
+			/* Return 0 for negative values of rnip */
+			if(rnip[j][i]<=0){
+				vrmsSection[j][i]=0;
+				continue;
+			}
+
 			t0 = dt0*i+ot0;
 			vrmsSection[j][i]=sqrt((2*rnip[j][i]*v0)/t0);
 			#ifdef LOGGING

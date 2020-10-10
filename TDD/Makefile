@@ -15,6 +15,6 @@
 all:	Test_rnip2vrms_lib.x
 
 %.x:	%.c
-	gcc -I/home/dirack/madagascar-3.0/include -L/home/dirack/madagascar-3.0/lib $< ../rnip2vrms_lib.c Unity/unity.c -o $@ -lm -lrsf
+	gcc -I$$RSFSRC/include -L$$RSFSRC/lib $< ../rnip2vrms_lib.c Unity/unity.c -o $@ -lm -lrsf
 	./$@
 	rm $@
