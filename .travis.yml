@@ -10,19 +10,19 @@ branches:
   only:
     - master
     - /^develop.*$/
-    - teste
+    - test
 jobs:
  include:
   - stage: Unit test
     name: Unit test
     if: env(UNIT_TEST)=true
-    script: ./test_travis_docker.sh 'make' 
+    script: ./TDD/test_travis_docker.sh 'make' 
   - stage: Modeling
     name: Gaussian Reflector
     if: env(MODELING_GAUSS)=true
-    script: ./test_travis_docker.sh 'python -m unittest test_gaussianModelBuild'
+    script: ./TDD/test_travis_docker.sh 'python -m unittest test_gaussianModelBuild'
   - if: env(MODELING_MULTI)=true
-    script: ./test_travis_docker.sh 'python -m unittest test_multiLayerModelBuild'
+    script: ./TDD/test_travis_docker.sh 'python -m unittest test_multiLayerModelBuild'
     name: Multi Layer
   - stage: Deploy
     name: Deploy

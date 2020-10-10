@@ -27,6 +27,8 @@
 # 
 # License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
+cd $RSFSRC/user/creGatherStack/TDD
+
 docker run -t -v $PWD:/root/madagascar-3.0/user/creGatherStack \
 dirack/cregatherstack:1.0.0 bash -c 'CREROOT=/root/madagascar-3.0/user/creGatherStack && cd $RSFSRC && source env.sh && cd $CREROOT && scons && cd $RSFSRC && scons install && cd $CREROOT/TDD/ && '"$@"
       
