@@ -30,5 +30,5 @@
 cd $RSFSRC/user/creGatherStack/TDD
 
 docker run -t -v $PWD:/root/madagascar-3.0/user/creGatherStack \
-dirack/cregatherstack:1.0.0 bash -c 'CREROOT=/root/madagascar-3.0/user/creGatherStack && cd $RSFSRC && source env.sh && cd $CREROOT && scons && cd $RSFSRC && scons install && cd $CREROOT/TDD/ && '"$@"
+ghcr.io/dirack/ambientetestecregatherstack:1.0.0 bash -c 'CREROOT=/root/madagascar-3.0/user/creGatherStack && cd $RSFSRC && source env.sh && cd $CREROOT && scons && cd $RSFSRC && scons install && cd $CREROOT/TDD/ && '"$@"
       
