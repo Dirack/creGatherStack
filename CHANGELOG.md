@@ -7,9 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## UNRELEASED - Contribute with the next version
 
-## [v2.1.0](https://github.com/Dirack/creGatherStack/compare/v2.0...develop/2.1) - 2020-09-21
+## [v2.2.0](https://github.com/Dirack/creGatherStack/compare/v2.1.0-beta.1...develop/2.2) - 2020-10-11
 
 ## RELEASED
+
+## [v2.1.0-beta.1](https://github.com/Dirack/creGatherStack/releases/tag/v2.1.0-beta.1) (Beta) - 2020-10-11
+
+## Added
+
+- New program rnip2vmrs to estimate VRMS from RNIP values Resolve [#54](https://github.com/Dirack/creGatherStack/issues/54) [25136ea](https://github.com/Dirack/creGatherStack/commit/25136ea) [6a7b0c9](https://github.com/Dirack/creGatherStack/commit/6a7b0c9)
+
+- Use sfrnip2vrms program in all experiments [#55](https://github.com/Dirack/creGatherStack/issues/55) [e031436](https://github.com/Dirack/creGatherStack/commit/e031436)
+
+## Modified
+
+- CRE Gather stack is now a function of creGatherStack.py recipe, and allow CDS option Resolve [#59](https://github.com/Dirack/creGatherStack/issues/59) [af9c8db](https://github.com/Dirack/creGatherStack/commit/af9c8db)
+
+- Unit test directory: TDD directory [39eace3](https://github.com/Dirack/creGatherStack/commit/39eace3)
+
+## Changed
+
+- Update README with references to the changelog and wiki instead of the release history section [475e679](https://github.com/Dirack/creGatherStack/commit/475e679)
 
 ## [v2.0.0](https://github.com/Dirack/creGatherStack/releases/tag/v2.0) (Stable) - 2020-09-21
 
