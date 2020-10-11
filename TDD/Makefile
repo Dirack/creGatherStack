@@ -12,9 +12,18 @@
 # 
 # License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
+# Uncomment the line below to run on a CENTOS system. Or call make as 'make CENTOS=1'
+#CENTOS=1 
+
 all:	Test_rnip2vrms_lib.x
 
 %.x:	%.c
-	gcc -I/home/dirack/madagascar-3.0/include -L/home/dirack/madagascar-3.0/lib $< ../rnip2vrms_lib.c Unity/unity.c -o $@ -lm -lrsf
+ifdef CENTOS
+	gcc -I$$RSFSRC/include -I/usr/include/openblas -L$$RSFSRC/lib $< ../rnip2vrms_lib.c Unity/unity.c -o $@ -lm -lrsf -lopenblas -g
 	./$@
 	rm $@
+else
+	gcc -I$$RSFSRC/include -L$$RSFSRC/lib $< ../rnip2vrms_lib.c Unity/unity.c -o $@ -lm -lrsf 
+	./$@
+	rm $@
+endif

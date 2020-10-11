@@ -36,7 +36,7 @@ inputDir= '../../modelingAndPEFInterpolation/multiLayerModel/'
 dataCube=inputDir+'multiLayerDataCube.rsf'
 interpolatedDataCube=inputDir+'interpolatedDataCube2.rsf'
 files = []
-
+parametersCubeForM0List = []
 for i in range(nm0):
 
 	parametersCube = []
@@ -91,6 +91,14 @@ for i in range(nm0):
 		creTimeCurveCube.append(creTimeCurve)
 		creGatherIndex = creGatherIndex + 1
 
+	# Concatenate crs Parameters for each m0
+	parametersCubeForM0 = "crsParameters-m0-%i" % i
+	parametersCubeForM0List.append(parametersCubeForM0)
+	Flow(parametersCubeForM0,parametersCube,
+		'''
+		rcat axis=2 ${SOURCES[1:%d]}
+		''' % nt0)
+	
 	# Concatenate cre gathers for each m0
 	creGatherCubeForM0 = "creGatherCube-m0-%i" % i
 	creGatherCubeForM0List.append(creGatherCubeForM0)
@@ -110,6 +118,7 @@ for i in range(nm0):
 	# Stack one m0 per turn
 	creTimeCurveCube = []
 	creGatherCube = []
+	parametersCube = []
 	creGatherTrace = "creGatherTrace-m0-%i" % i
 	creTimeCurveTrace = "creTimeCurveTrace-m0-%i" % i
 	creStackedTrace = "creStackedTrace-m0-%i" % i
@@ -159,4 +168,22 @@ Flow('filtStackedSection','stackedSection',
 	bandpass fhi=20 --out=stdout
 	''')
 
+#Build the parameters cube
+Flow('parametersCube',parametersCubeForM0List,
+	'''
+	rcat axis=3 ${SOURCES[1:%d]} --out=stdout |
+	put label2=t0 unit2=s label3=m0 unit3=Km d2=%g o2=%g d3=%g o3=%g
+	''' % (len(parametersCubeForM0List),dt0,ot0,dm0,om0))
+
+# Cut only RNIP vector from parameters cube
+Flow('rnip','parametersCube',
+	'''
+	window n1=1 f1=1
+	''')
+
+# Estimate VRMS from RNIP using multifocus formula
+Flow('vrms','rnip',
+	'''
+	rnip2vrms verb=y
+	''')
 End()

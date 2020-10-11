@@ -179,13 +179,12 @@ Flow('parametersCube',parametersCubeForM0List,
 # Cut only RNIP vector from parameters cube
 Flow('rnip','parametersCube',
 	'''
-	window n1=1 f1=1 |
-	put n1=%i n2=1 n3=1
-	''' % (nt0*nm0))
+	window n1=1 f1=1
+	''')
 
 # Estimate VRMS from RNIP using multifocus formula
-Flow('vrms','stackedSection rnip',
+Flow('vrms','rnip',
 	'''
-	rnip2vrms rnip=${SOURCES[1]} verb=y
+	rnip2vrms verb=y
 	''')
 End()
