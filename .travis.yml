@@ -3,10 +3,10 @@ os: linux
 dist: xenial
 env:
   global:
-    - UNIT_TEST=false
-    - MODELING_GAUSS=false
-    - MODELING_MULTI=false
-    - DEPLOY=true
+    - UNIT_TEST=true
+    - MODELING_GAUSS=true
+    - MODELING_MULTI=true
+    - DEPLOY=false
 git:
   depth: 1
 branches:
@@ -29,21 +29,22 @@ jobs:
     name: Multi Layer
   - stage: Deploy
     name: Deploy
-    if: env(DEPLOY)=true #AND type = push #AND branch = master
+    if: env(DEPLOY)=true
     script: echo "Deploy"
     before_deploy:
       - git config --local user.name "dirack"
       - git config --local user.email "rodolfo_profissional@hotmail.com"
       - export TRAVIS_TAG=$(cat VERSION.md)
-      - ./deploy/build_tag_message.sh > tag.deploy
+      - deploy/build_tag_message.sh
       - git tag -a $TRAVIS_TAG -F tag.deploy
     deploy:
       provider: releases
       token: $GITHUB_TOKEN
-      cleanup: true
+      skip_cleanup: true
       draft: true
+      script: 'git push --tag'
       on:
         repo: Dirack/creGatherStack
         branch:
           - master
-	  - test
+          - test

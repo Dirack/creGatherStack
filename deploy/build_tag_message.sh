@@ -11,19 +11,19 @@ PREVIOUS_TAG=$(git tag | sort -n -r | head -1)
 CURRENT_TAG=$(cat VERSION.md)
 
 # TAG HEADER
-echo "VERSION $CURRENT_TAG"
+echo "VERSION $CURRENT_TAG" > tag.deploy
 
 # TAG MESSAGE 
-echo "## Added"
-git log HEAD..."$PREVIOUS_TAG" --grep='^\[ADD\]' --pretty='format:(%h) %s%n%b%n'
-echo "## Changed"
-git log HEAD..."$PREVIOUS_TAG" --grep='^\[CHA\]' --pretty='format:(%h) %s%n%b%n'
-echo "## Deprecated"
-git log HEAD..."$PREVIOUS_TAG" --grep='^\[DEP\]' --pretty='format:(%h) %s%n%b%n'
-echo "## Removed"
-git log HEAD..."$PREVIOUS_TAG" --grep='^\[REM\]' --pretty='format:(%h) %s%n%b%n'
-echo "## Fixed"
-git log HEAD..."$PREVIOUS_TAG" --grep='^\[FIX\]' --pretty='format:(%h) %s%n%b%n'
-echo "## Security"
-git log HEAD..."$PREVIOUS_TAG" --grep='^\[SEC\]' --pretty='format:(%h) %s%n%b%n'
+echo "## Added" >> tag.deploy
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[ADD\]' --pretty='format:(%h) %s%n%b%n' >> tag.deploy
+echo "## Changed" >> tag.deploy
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[CHA\]' --pretty='format:(%h) %s%n%b%n' >> tag.deploy
+echo "## Deprecated" >> tag.deploy
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[DEP\]' --pretty='format:(%h) %s%n%b%n' >> tag.deploy
+echo "## Removed" >> tag.deploy
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[REM\]' --pretty='format:(%h) %s%n%b%n' >> tag.deploy
+echo "## Fixed" >> tag.deploy
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[FIX\]' --pretty='format:(%h) %s%n%b%n' >> tag.deploy
+echo "## Security" >> tag.deploy
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[SEC\]' --pretty='format:(%h) %s%n%b%n' >> tag.deploy
 
