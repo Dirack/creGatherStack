@@ -1,9 +1,12 @@
+language: bash
+os: linux
+dist: xenial
 env:
   global:
-    - UNIT_TEST=true
-    - MODELING_GAUSS=true
-    - MODELING_MULTI=true
-    - DEPLOY=false
+    - UNIT_TEST=false
+    - MODELING_GAUSS=false
+    - MODELING_MULTI=false
+    - DEPLOY=true
 git:
   depth: 1
 branches:
@@ -26,5 +29,20 @@ jobs:
     name: Multi Layer
   - stage: Deploy
     name: Deploy
-    if: env(DEPLOY)=true
-    script: echo "TODO deploy"
+    if: env(DEPLOY)=true AND branch = test
+    script: echo "Deploy"
+    before_deploy:
+      - git config --local user.name "dirack"
+      - git config --local user.email "rodolfo_profissional@hotmail.com"
+      - export TRAVIS_TAG=$(cat VERSION.md)
+      - git tag $TRAVIS_TAG
+    deploy:
+      provider: releases
+      token: $GITHUB_TOKEN
+      cleanup: true
+      draft: true
+      on:
+        repo: Dirack/creGatherStack
+        branch:
+          - master
+          - test
