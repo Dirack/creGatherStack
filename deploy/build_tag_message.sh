@@ -14,10 +14,16 @@ CURRENT_TAG=$(cat VERSION.md)
 echo "VERSION $CURRENT_TAG"
 
 # TAG MESSAGE 
-git log HEAD..."$PREVIOUS_TAG" --grep='\[ADD\]' --pretty='format:(%h) %s%n%b'
-git log HEAD..."$PREVIOUS_TAG" --grep='\[CHA\]' --pretty='format:(%h) %s%n%b'
-git log HEAD..."$PREVIOUS_TAG" --grep='\[DEP\]' --pretty='format:(%h) %s%n%b'
-git log HEAD..."$PREVIOUS_TAG" --grep='\[REM\]' --pretty='format:(%h) %s%n%b'
-git log HEAD..."$PREVIOUS_TAG" --grep='\[FIX\]' --pretty='format:(%h) %s%n%b'
-git log HEAD..."$PREVIOUS_TAG" --grep='\[SEC\]' --pretty='format:(%h) %s%n%b'
+echo "## Added"
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[ADD\]' --pretty='format:(%h) %s%n%b%n'
+echo "## Changed"
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[CHA\]' --pretty='format:(%h) %s%n%b%n'
+echo "## Deprecated"
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[DEP\]' --pretty='format:(%h) %s%n%b%n'
+echo "## Removed"
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[REM\]' --pretty='format:(%h) %s%n%b%n'
+echo "## Fixed"
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[FIX\]' --pretty='format:(%h) %s%n%b%n'
+echo "## Security"
+git log HEAD..."$PREVIOUS_TAG" --grep='^\[SEC\]' --pretty='format:(%h) %s%n%b%n'
 

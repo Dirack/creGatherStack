@@ -4,7 +4,7 @@
 
 [Developed to Madagascar package, version 3.0.](http://www.ahay.org/wiki/Main_Page)
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Build Status](https://travis-ci.org/Dirack/creGatherStack.svg?branch=master)](https://travis-ci.org/Dirack/creGatherStack)
+[![Github release](https://img.shields.io/github/v/release/Dirack/creGatherStack)](https://github.com/Dirack/creGatherStack/releases/latest) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Madagascar](https://img.shields.io/badge/Madagascar-v3.0-blue)](https://github.com/ahay/src/tree/master) [![Build Status](https://travis-ci.org/Dirack/creGatherStack.svg?branch=master)](https://travis-ci.org/Dirack/creGatherStack)
 
 ![Interpolated CRE Gather](https://github.com/Dirack/creGatherInterpolation/blob/master/images/hugeStackedSection.jpeg)
 
@@ -96,30 +96,27 @@ _For more examples and details, please refer to the [Wiki](https://github.com/Di
 We also have many SConstruct examples in this repository in the
 [experiments directory](https://github.com/Dirack/creGatherStack/tree/master/experiments)
 
-## Release History
+## Release History and Versions
 
-* [v2.0](https://github.com/Dirack/creGatherStack/releases/tag/v2.0) - (Stable)
-
-* [v1.0-beta.1](https://github.com/Dirack/creGatherStack/releases/tag/v1.0-beta.1) - (Beta)
-  
-* [v0.1.2-alpha.1](https://github.com/Dirack/creGatherStack/releases/tag/v0.1.2-alpha.1) - (Development)
-
-[See the complete history decription in our wiki](https://github.com/Dirack/creGatherStack/wiki/Release-history)
+This package version is referenced in VERSION.md file, and you can see the [complete release history in our wiki](https://github.com/Dirack/creGatherStack/wiki/Release-history) or in the CHANGELOG.md file.
 
 ## Meta
+
+[main page](https://github.com/Dirack/creGatherStack)
 
 Rodolfo Dirack – [@dirack](https://github.com/Dirack) – rodolfo_profissional@hotmail.com
 
 Distributed under the GPL3 license. See ``LICENSE`` for more information.
 
-[creGatherStack main page](https://github.com/Dirack/creGatherStack)
-
 ## Contributing
 
-1. Fork it (<https://github.com/Dirack/creGatherStack/fork>)
-2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Commit your changes (`git commit -am 'Add some fooBar'`)
-4. Push to the branch (`git push origin feature/fooBar`)
-5. Create a new Pull Request
+In order to contribute with this project you should follow the list of steps bellow, please check out ["How to contribute with this project?"](https://github.com/Dirack/creGatherStack/wiki/Contribute) in our Wiki for more details. 
 
-###### Important contribution tip: The commit history should be clear, with commit mesages around one or two paraghraps describing your modifications. Pull Requests with unsatisfactory commit history will be rejected.
+1. Create an issue to your request or choose an issue already defined
+2. Fork this project in https://github.com/Dirack/creGatherStack/fork 
+3. Create a branch for your contribution (name it using gitflow)
+4. Do clear _commit_ messages (a title with 50 characters and two paragraphs of text)
+5. _Push_ your contribution to this repository
+6. Create a new Pull Request with a clear description of your contribution
+
+###### Important: The commit history should be clear, with commit mesages around one or two paraghraps describing your modifications. Pull Requests with unsatisfactory commit history will be rejected.
