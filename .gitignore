@@ -32,3 +32,4 @@ checkpoints
 .ipynb_checkpoints/
 *.asc
 *.x
+*.deploy

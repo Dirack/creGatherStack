@@ -6,7 +6,7 @@ env:
     - UNIT_TEST=false
     - MODELING_GAUSS=false
     - MODELING_MULTI=false
-    - DEPLOY=true
+    - DEPLOY=false
 git:
   depth: 1
 branches:
@@ -29,7 +29,7 @@ jobs:
     name: Multi Layer
   - stage: Deploy
     name: Deploy
-    if: env(DEPLOY)=true AND branch = test
+    if: env(DEPLOY)=true AND branch = /^develop.*$/
     script: echo "Deploy"
     before_deploy:
       - git config --local user.name "dirack"
@@ -44,5 +44,4 @@ jobs:
       on:
         repo: Dirack/creGatherStack
         branch:
-          - master
-          - test
+          - /^develop.*$/
