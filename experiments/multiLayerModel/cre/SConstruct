@@ -19,12 +19,19 @@
 # Madagascar package
 from rsf.proj import *
 
-# Import glob python library
-import glob
+# CRE Gather Stack Recipe
+from creGatherStack import creGatherStack
 
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
-v0 = 1.5
+stackedSection='stackedSection'
+parametersCube='parametersCube'
+inputDir= '../../modelingAndPEFInterpolation/multiLayerModel/'
+dataCube=inputDir+'multiLayerDataCube.rsf'
+interpolatedDataCube=inputDir+'interpolatedDataCube2.rsf'
+
+# Parameters
+v0 = float(ARGUMENTS.get('v0',1.5))
 ot0 = float(ARGUMENTS.get('ot0',0.3))
 dt0 = float(ARGUMENTS.get('dt0',0.008))
 nt0 = int(ARGUMENTS.get('nt0',331))
@@ -32,151 +39,32 @@ om0 = float(ARGUMENTS.get('om0',2))
 dm0 = float(ARGUMENTS.get('dm0',0.25))
 nm0 = int(ARGUMENTS.get('nm0',8))
 aperture = int(ARGUMENTS.get('aperture',1))
-inputDir= '../../modelingAndPEFInterpolation/multiLayerModel/'
-dataCube=inputDir+'multiLayerDataCube.rsf'
-interpolatedDataCube=inputDir+'interpolatedDataCube2.rsf'
-files = []
-parametersCubeForM0List = []
-for i in range(nm0):
+cds = bool(ARGUMENTS.get('cds',False))
 
-	parametersCube = []
-	creGatherCube = []
-	creTimeCurveCube = []
-	creGatherCubeForM0List = []
-	creTimeCurveCubeForM0List = []
-	creGatherIndex = 0
+creGatherStack(
+	stackedSection,
+	parametersCube,
+	dataCube,
+	interpolatedDataCube,
+	aperture,
+	cds,
+	nm0,
+	om0,
+	dm0,
+	nt0,
+	ot0,
+	dt0,
+	v0
+	)
 
-	m0 = om0 + (i * dm0)
-
-	for j in range(nt0):
-
-		t0 = ot0 + (dt0 * j)
-
-		crsParameters = 'crsParameters-m0-%g-t0-%g' % (i,j)
-		creMhCoordinates = 'creMhCoordinates-m0-%g-t0-%g' % (i,j)
-		creGather = 'creGather-m0-%g-t0-%g' % (i,j)
-		creMcoordinate = 'creMcoordinate-m0-%g-t0-%g' % (i,j)
-		creTimeCurve = 'creTimeCurve-m0-%g-t0-%g' % (i,j)
-		creGatherPlot = 'crePlot-m0-%g-t0-%g' % (i,j)
-
-		# Very Fast Simulated Aneelling Global Optimization (VFSA)
-		Flow(crsParameters,dataCube,
-			'''
-			vfsacrsnh m0=%g v0=%g t0=%g verb=y repeat=3
-			''' % (m0,v0,t0))
-
-		# Calculate CRE trajectory
-		Flow(creMhCoordinates,[interpolatedDataCube,crsParameters],
-			'''
-			cretrajec verb=y m0=%g param=${SOURCES[1]} |
-			put unit1="Offset" label1="Km"
-			''' % (m0))
-
-		#Get CRE Gather from interpolated Data Cube
-		Flow([creGather,creMcoordinate],[interpolatedDataCube,creMhCoordinates],
-			'''
-			getcregather verb=y cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=%i |
-      put label1="Time" unit1="s" label2="Offset" unit2="km" 
-			''' % (aperture))
-
-		# Calculate CRE traveltime curve t(m,h)
-		Flow(creTimeCurve,[creMcoordinate, crsParameters],
-			'''
-			getcretimecurve param=${SOURCES[1]} t0=%g m0=%g v0=%g verb=y |
-                        put label1="Offset" unit1="Km" 
-			''' % (t0,m0,v0))
-
-		parametersCube.append(crsParameters)
-		creGatherCube.append(creGather)
-		creTimeCurveCube.append(creTimeCurve)
-		creGatherIndex = creGatherIndex + 1
-
-	# Concatenate crs Parameters for each m0
-	parametersCubeForM0 = "crsParameters-m0-%i" % i
-	parametersCubeForM0List.append(parametersCubeForM0)
-	Flow(parametersCubeForM0,parametersCube,
-		'''
-		rcat axis=2 ${SOURCES[1:%d]}
-		''' % nt0)
-	
-	# Concatenate cre gathers for each m0
-	creGatherCubeForM0 = "creGatherCube-m0-%i" % i
-	creGatherCubeForM0List.append(creGatherCubeForM0)
-	Flow(creGatherCubeForM0,creGatherCube,
-		'''
-		rcat axis=3 ${SOURCES[1:%d]}
-		''' % nt0)
-
-	# Concatenate cre Time curves for each m0
-	creTimeCurveCubeForM0 = "creTimeCurveCube-m0-%i" % i
-	creTimeCurveCubeForM0List.append(creTimeCurveCubeForM0)
-	Flow(creTimeCurveCubeForM0,creTimeCurveCube,
-		'''
-		rcat axis=2 ${SOURCES[1:%d]}
-		'''% nt0)
-
-	# Stack one m0 per turn
-	creTimeCurveCube = []
-	creGatherCube = []
-	parametersCube = []
-	creGatherTrace = "creGatherTrace-m0-%i" % i
-	creTimeCurveTrace = "creTimeCurveTrace-m0-%i" % i
-	creStackedTrace = "creStackedTrace-m0-%i" % i
-
-	# Get cre Gathers organized by t0 and m0
-	Flow(creGatherTrace,creGatherCubeForM0List,
-		'''
-		put n4=1 d4=%g o4=%g d3=%g o3=%g label3=t0 unit3=s label4=m0 unit4=Km
-		''' % (dm0,m0,dt0,ot0))
-
-	# Get all the traveltime curves organized by t0 and m0
-	Flow(creTimeCurveTrace,creTimeCurveCubeForM0List,
-		'''
-		put label3="m0" unit3="Km" label2="t0" unit2="s" d2=%g o2=%g d3=%g o3=%g
-		''' % (dt0,ot0,dm0,m0))
-
-	# CRE stacking
-	Flow(creStackedTrace,[creGatherTrace,creTimeCurveTrace],
-		'''
-		crestack timeCurves=${SOURCES[1]} verb=y aperture=%i |
-		put label1=t0 unit1=s label2=m0 unit2=Km --out=stdout
-		''' % (aperture))
-
-	files.append(creStackedTrace)
-
-# Stacked section depends of the last CRE stacked trace
-Depends('stackedSection.rsf',[dataCube,
-	'creStackedTrace-m0-'+str(nm0-1)+'.rsf',
-	'creGatherTrace-m0-'+str(nm0-1)+'.rsf'])
-
-# Build the cre stacked section
-# throughout cre stacked traces sorting
-length = len(files)
-
-sortedFiles = []
-for i in range(length):
-	string = 'creStackedTrace-m0-%i.rsf' % i
-	sortedFiles.append(string)  
-
-Flow('stackedSection',sortedFiles,
-	'''
-	rcat axis=2 ${SOURCES[1:%d]} --out=stdout
-	''' % len(files))
-
-Flow('filtStackedSection','stackedSection',
+# Bandpass filter applied to CRE stacked section
+Flow('filtStackedSection',stackedSection,
 	'''
 	bandpass fhi=20 --out=stdout
 	''')
 
-#Build the parameters cube
-Flow('parametersCube',parametersCubeForM0List,
-	'''
-	rcat axis=3 ${SOURCES[1:%d]} --out=stdout |
-	put label2=t0 unit2=s label3=m0 unit3=Km d2=%g o2=%g d3=%g o3=%g
-	''' % (len(parametersCubeForM0List),dt0,ot0,dm0,om0))
-
 # Cut only RNIP vector from parameters cube
-Flow('rnip','parametersCube',
+Flow('rnip',parametersCube,
 	'''
 	window n1=1 f1=1
 	''')
@@ -186,4 +74,5 @@ Flow('vrms','rnip',
 	'''
 	rnip2vrms verb=y
 	''')
+
 End()
