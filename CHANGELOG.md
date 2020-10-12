@@ -62,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Test of the CRE stacking using CRE traveltime approximation [#26](https://github.com/Dirack/creGatherStack/issues/26) [1a0e765](https://github.com/Dirack/vfsa/commit/1a0e765)
 
-## [v0.1.1-alpha.1](https://github.com/Dirack/creGatherStack/releases/tag/v0.1.2-alpha.1) (Development) - 2020-04-21
+## [v0.1.1-alpha.1](https://github.com/Dirack/creGatherStack/releases/tag/v0.1.1-alpha.1) (Development) - 2020-04-21
 
 ## Added
 
@@ -76,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove vfsa programs from package, establish them as a dependency Resolve [#22](https://github.com/Dirack/creGatherStack/issues/22) [d2f9ddf](https://github.com/Dirack/vfsa/commit/d2f9ddf)
 
-## [v0.1.0-alpha.1](https://github.com/Dirack/creGatherStack/releases/tag/v0.1.2-alpha.1) (Development) - 2020-04-21
+## [v0.1.0-alpha.1](https://github.com/Dirack/creGatherStack/releases/tag/v0.1.0-alpha.1) (Development) - 2020-04-21
 
 ## Added
 
