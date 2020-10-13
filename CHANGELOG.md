@@ -101,4 +101,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 
 - Correct bug in alpha parameter bounds in the program Mcretrajec.c [699f169](https://github.com/Dirack/creGatherStack/commit/699f169)
-

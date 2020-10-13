@@ -3,12 +3,10 @@ os: linux
 dist: xenial
 env:
   global:
-    - UNIT_TEST=true
-    - MODELING_GAUSS=true
-    - MODELING_MULTI=true
-    - DEPLOY=false
-git:
-  depth: 1
+    - UNIT_TEST=false
+    - MODELING_GAUSS=false
+    - MODELING_MULTI=false
+    - DEPLOY=true
 branches:
   only:
     - master
@@ -35,16 +33,22 @@ jobs:
       - git config --local user.name "dirack"
       - git config --local user.email "rodolfo_profissional@hotmail.com"
       - export TRAVIS_TAG=$(cat VERSION.md)
-      - deploy/build_tag_message.sh
+      - ./deploy/build_release_message.sh
+      - ./deploy/build_changelog_update.sh
+      - ./deploy/build_dockerfile.sh
       - git tag -a $TRAVIS_TAG -F tag.deploy
     deploy:
       provider: releases
       token: $GITHUB_TOKEN
       skip_cleanup: true
       draft: true
-      script: 'git push --tag'
+      file:
+        - tag.deploy
+        - Dockerfile.deploy
+        - CHANGELOG.deploy
       on:
         repo: Dirack/creGatherStack
         branch:
           - master
           - test
+          - /^develop.*$/
