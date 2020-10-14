@@ -6,7 +6,7 @@ env:
     - UNIT_TEST=false
     - MODELING_GAUSS=false
     - MODELING_MULTI=false
-    - DEPLOY=false
+    - DEPLOY=true
 branches:
   only:
     - master
