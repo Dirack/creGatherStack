@@ -6,7 +6,7 @@ env:
     - UNIT_TEST=false
     - MODELING_GAUSS=false
     - MODELING_MULTI=false
-    - DEPLOY=true
+    - DEPLOY=false
 branches:
   only:
     - master
@@ -51,4 +51,3 @@ jobs:
         branch:
           - master
           - test
-          - /^develop.*$/
