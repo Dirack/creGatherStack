@@ -5,8 +5,6 @@
 * 
 * Site: https://dirack.github.io
 * 
-* Version 1.0
-* 
 * Programer: Rodolfo A C Neves (Dirack) 22/09/2020
 * 
 * Email: rodolfo_profissional@hotmail.com
@@ -14,7 +12,7 @@
 * License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 */
 
-//#define LOGGING 1 /*< Comment/uncomment this line to use/not use debug option >*/
+//#define LOGGING 1 /*< Comment/uncomment this line to use/not use logging option >*/
 #include <stdlib.h>
 #include <math.h>
 #include <rsf.h>

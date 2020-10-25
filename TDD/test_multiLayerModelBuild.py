@@ -8,8 +8,6 @@
 # Rum with: python -m unittest test_multiLayerModelBuild
 #
 # Site: https://dirack.github.io
-# 
-# Version 2.0
 #
 # Programer: Rodolfo A. C. Neves (Dirack) 20/09/2020
 #

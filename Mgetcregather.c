@@ -1,4 +1,4 @@
-/* Version 1.0 - Build CRE gather given m,h CRE trajectory coordinates and interpolated data cube
+/* Build CRE gather given m,h CRE trajectory coordinates and interpolated data cube
 
 This program searches for the closest trace for each m,h pair given in the interpolated data cube. 
 

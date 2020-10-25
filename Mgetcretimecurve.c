@@ -1,4 +1,4 @@
-/* Version 1.0 - Calculate CRE traveltime curve t(m,h) given CRS zero offset parameters (RN, RNIP, BETA)
+/* Calculate CRE traveltime curve t(m,h) given CRS zero offset parameters (RN, RNIP, BETA)
 
 Programer: Rodolfo A. C. Neves (Dirack) 14/09/2019
 

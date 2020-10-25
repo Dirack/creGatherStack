@@ -1,4 +1,4 @@
-/* Version 1.0 - cre stacking
+/* Common Reflection Element (CRE) stacking
 
 Programer: Rodolfo A. C. Neves (Dirack) 06/10/2019
 

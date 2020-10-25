@@ -19,8 +19,6 @@
 # 
 # Site: https://dirack.github.io
 # 
-# Version 1.0
-# 
 # Programer: Rodolfo A C Neves (Dirack) 20/09/2020
 # 
 # Email: rodolfo_profissional@hotmail.com

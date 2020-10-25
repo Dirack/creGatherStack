@@ -1,4 +1,4 @@
-/* Version 1.0 - Estimate root mean square velocity (VRMS) from RNIP
+/* Estimate root mean square velocity (VRMS) from RNIP parameter
 
  This program is based on multifocus formula that allows to estimate
  VRMS from RNIP: vrms = sqrt(2*RNIP*v0/t0)
