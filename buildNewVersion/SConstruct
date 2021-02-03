@@ -29,9 +29,8 @@ from rsf.proj import *
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
 stackedSection='stackedSection'
 parametersCube='parametersCube'
-inputDir= '../experiments/modelingAndPEFInterpolation/multiLayerModel/'
-dataCube=inputDir+'multiLayerDataCube.rsf'
-interpolatedDataCube=inputDir+'interpolatedDataCube2.rsf'
+dataCube='multiLayerDataCube.rsf'
+interpolatedDataCube='interpolatedDataCube2.rsf'
 
 # Parameters
 v0 = float(ARGUMENTS.get('v0',1.5))
