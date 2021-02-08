@@ -6,6 +6,10 @@
 # Purpose: Common Reflection Element (CRE) stack applied to a seismic data cube
 # from Kirchhoff Newton modeling of a multi layer velocity model.
 #
+# IMPORTANT: This is a modified version adapted for VFSA 2.0 package                      
+# that is incompatible with the previous VFSA package versions. It also
+# uses the new version of creGatherStack.py module in the lib directory.
+#
 # Site: https://dirack.github.io
 # 
 # Version 2.0
@@ -18,6 +22,10 @@
 
 # Madagascar package
 from rsf.proj import *
+
+# lib directory keeps the creGatherStack module
+import sys
+sys.path.insert(0,'../../lib')
 
 # CRE Gather Stack Recipe
 from creGatherStack import creGatherStack
@@ -38,6 +46,7 @@ nt0 = int(ARGUMENTS.get('nt0',331))
 om0 = float(ARGUMENTS.get('om0',2))
 dm0 = float(ARGUMENTS.get('dm0',0.25))
 nm0 = int(ARGUMENTS.get('nm0',8))
+repeat = int(ARGUMENTS.get('repeat',2))
 aperture = int(ARGUMENTS.get('aperture',1))
 cds = bool(ARGUMENTS.get('cds',False))
 
@@ -46,6 +55,7 @@ creGatherStack(
 	parametersCube,
 	dataCube,
 	interpolatedDataCube,
+	repeat,
 	aperture,
 	cds,
 	nm0,
