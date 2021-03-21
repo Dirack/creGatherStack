@@ -29,8 +29,8 @@ Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube2.rsf')
 xmax = 6.0
 zmax = 4.0
 
-layers = ((1.10,1.30,1.00,1.10),
-	  (2.25,2.25,2.25,2.25))
+layers = ((1.00,1.20,0.90,1.00),
+	  (1.85,1.85,1.85,1.85))
 
 velocities = (1.508,
 	      1.690,
@@ -52,7 +52,7 @@ kinewmod(reflectors='interfaces',
 	velocities=velocities,
 	nt=1001,
 	dt=0.004,
-	ns=201,
+	ns=241,
 	ds=0.025,
 	nh=161,
 	dh=0.025)
