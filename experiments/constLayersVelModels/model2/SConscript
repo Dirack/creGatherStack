@@ -49,16 +49,23 @@ mlmod(interfaces='interfaces',
 Plot('model','grey color=j scalebar=y label1=Depth unit1=km label2=Position unit2=km barlabel=Velocity barunit=km/s barreverse=y bias=1.0 title="Velocity Model" allpos=y')
 
 # Generate a modeled data cube
+nt=1001
+dt=0.004
+nm=241
+dm=0.025
+nh=161
+dh=0.025
+
 kinewmod(reflectors='interfaces',
 	reflectorsDip='interfacesDip',
 	filename='multiLayerDataCube',
 	velocities=velocities,
-	nt=1001,
-	dt=0.004,
-	ns=241,
-	ds=0.025,
-	nh=161,
-	dh=0.025)
+	nt=nt,
+	dt=dt,
+	ns=nm,
+	ds=dm,
+	nh=nh,
+	dh=dh)
 
 # Use default value or pass through command line
 # PEF coeficients and PEF Smooth radius
@@ -72,10 +79,10 @@ nhi=int(ARGUMENTS.get('nhi',1))
 
 pef(dataCube='multiLayerDataCube',
     interpolated='interpolatedDataCube',
-    nm=201,
-    dm=0.025,
-    nt=1001,
-    dt=0.004,
+    nm=nm,
+    dm=dm,
+    nt=nt,
+    dt=dt,
     nhi=nhi,
     a1=a1,
     a2=a2,
@@ -86,16 +93,14 @@ pef(dataCube='multiLayerDataCube',
 # to increase the CMP sampling
 pef('interpolatedDataCube',
     'interpolatedDataCube2',
-    nm=402,
-    dm=0.0125,
-    nt=1001,
-    dt=0.004,
+    nm=2*nm,
+    dm=dm/2.0,
+    nt=nt,
+    dt=dt,
     nhi=nhi,
     a1=a1,
     a2=a2,
     rect1=rect1,
     rect2=rect2)
-
-#AddPostAction('interpolatedDataCube2.rsf',"./clean.sh")
 
 End()

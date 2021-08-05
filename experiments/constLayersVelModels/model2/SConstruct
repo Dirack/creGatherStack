@@ -34,18 +34,18 @@ interpolatedDataCube='interpolatedDataCube2.rsf'
 
 # Parameters
 v0 = float(ARGUMENTS.get('v0',1.5))
-ot0 = float(ARGUMENTS.get('ot0',0.3))
+ot0 = float(ARGUMENTS.get('ot0',1.0))
 dt0 = float(ARGUMENTS.get('dt0',0.008))
-nt0 = int(ARGUMENTS.get('nt0',331))
-om0 = float(ARGUMENTS.get('om0',2))
-dm0 = float(ARGUMENTS.get('dm0',0.25))
-nm0 = int(ARGUMENTS.get('nm0',8))
-aperture = int(ARGUMENTS.get('aperture',1))
+nt0 = int(ARGUMENTS.get('nt0',251))
+om0 = float(ARGUMENTS.get('om0',1.5))
+dm0 = float(ARGUMENTS.get('dm0',0.025))
+nm0 = int(ARGUMENTS.get('nm0',121))
+aperture = int(ARGUMENTS.get('aperture',30))
 cds = bool(ARGUMENTS.get('cds',False))
 
 Flow(parametersCube,dataCube,
 	'''
-	vfsacrsnh nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g v0=%g repeat=2 
+	vfsacrsnh nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g v0=%g repeat=10 
 	'''%(nm0,om0,dm0,nt0,ot0,dt0,v0))
 
 Flow('creTrajectories',[dataCube,parametersCube],
