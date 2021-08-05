@@ -40,7 +40,7 @@ nt0 = int(ARGUMENTS.get('nt0',251))
 om0 = float(ARGUMENTS.get('om0',1.5))
 dm0 = float(ARGUMENTS.get('dm0',0.025))
 nm0 = int(ARGUMENTS.get('nm0',121))
-aperture = int(ARGUMENTS.get('aperture',30))
+aperture = int(ARGUMENTS.get('aperture',1))
 cds = bool(ARGUMENTS.get('cds',False))
 
 Flow(parametersCube,dataCube,
