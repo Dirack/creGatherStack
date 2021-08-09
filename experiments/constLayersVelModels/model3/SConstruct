@@ -34,12 +34,12 @@ interpolatedDataCube='interpolatedDataCube2.rsf'
 
 # Parameters
 v0 = float(ARGUMENTS.get('v0',1.5))
-ot0 = float(ARGUMENTS.get('ot0',0.3))
+ot0 = float(ARGUMENTS.get('ot0',1.0))
 dt0 = float(ARGUMENTS.get('dt0',0.008))
-nt0 = int(ARGUMENTS.get('nt0',331))
-om0 = float(ARGUMENTS.get('om0',2))
-dm0 = float(ARGUMENTS.get('dm0',0.25))
-nm0 = int(ARGUMENTS.get('nm0',8))
+nt0 = int(ARGUMENTS.get('nt0',251))
+om0 = float(ARGUMENTS.get('om0',1.5))
+dm0 = float(ARGUMENTS.get('dm0',0.025))
+nm0 = int(ARGUMENTS.get('nm0',121))
 aperture = int(ARGUMENTS.get('aperture',1))
 cds = bool(ARGUMENTS.get('cds',False))
 
@@ -55,10 +55,10 @@ Flow('creTrajectories',[dataCube,parametersCube],
 
 Flow(['cregathers','mhCoordinates'],[dataCube,'creTrajectories'],
 	'''
-	getcregather cremh=${SOURCES[1]} m=${TARGETS[1]} nm0=%g nt0=%g aperture=10 |
+	getcregather cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=%d nm0=%g nt0=%g |
 	put label1=Time unit1=s label2=Offset unit2=Km label3=t0 unit3=s
 	label4=m0 unit4=Km n3=%d d3=%g o3=%g n4=%d d4=%g o4=%g
-	''' % (nm0,nt0,nt0,dt0,ot0,nm0,dm0,om0))
+	''' % (aperture,nm0,nt0,nt0,dt0,ot0,nm0,dm0,om0))
 
 Flow('cretimecurves',['mhCoordinates',parametersCube],
 	'''
@@ -69,8 +69,8 @@ Flow('cretimecurves',['mhCoordinates',parametersCube],
 
 Flow(stackedSection,['cregathers','cretimecurves'],
 	'''
-	crestack aperture=2 verb=y timeCurves=${SOURCES[1]} |
+	crestack aperture=%d verb=y timeCurves=${SOURCES[1]} |
 	put label1=t0 unit1=s label2=m0 unit2=Km
-	''')
+	''' %(aperture))
 
 End()

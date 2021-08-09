@@ -55,10 +55,10 @@ Flow('creTrajectories',[dataCube,parametersCube],
 
 Flow(['cregathers','mhCoordinates'],[dataCube,'creTrajectories'],
 	'''
-	getcregather cremh=${SOURCES[1]} m=${TARGETS[1]} nm0=%g nt0=%g aperture=10 |
+	getcregather cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=%d nm0=%g nt0=%g |
 	put label1=Time unit1=s label2=Offset unit2=Km label3=t0 unit3=s
 	label4=m0 unit4=Km n3=%d d3=%g o3=%g n4=%d d4=%g o4=%g
-	''' % (nm0,nt0,nt0,dt0,ot0,nm0,dm0,om0))
+	''' % (aperture,nm0,nt0,nt0,dt0,ot0,nm0,dm0,om0))
 
 Flow('cretimecurves',['mhCoordinates',parametersCube],
 	'''
@@ -69,8 +69,8 @@ Flow('cretimecurves',['mhCoordinates',parametersCube],
 
 Flow(stackedSection,['cregathers','cretimecurves'],
 	'''
-	crestack aperture=2 verb=y timeCurves=${SOURCES[1]} |
+	crestack aperture=%d verb=y timeCurves=${SOURCES[1]} |
 	put label1=t0 unit1=s label2=m0 unit2=Km
-	''')
+	''' %(aperture))
 
 End()
