@@ -13,11 +13,9 @@
 # Licença: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
 all:
-	scons -f SConscript -j 4 nhi=30
-	scons -j 4 aperture=30
+	scons -j 4 aperture=30 nhi=30
 
 clean:
-	scons -f SConscript -c
 	scons -c
 	rm *.rsf
 

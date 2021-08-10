@@ -1,17 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # SConstruct  (Madagascar Script)
 #
-# Purpose: Common Reflection Element (CRE) stack applied to a seismic data cube
-# from Kirchhoff Newton modeling of a multi layer velocity model.
-#
-# IMPORTANT: This experiment uses the new version of creGatherStack programs
-# adapted to the new version of the VFSA package (2.0).
+# Purpose: Kirchhoff Newton modeling of a multi layer velocity model.
 #
 # Site: https://dirack.github.io
-# 
-# Version 2.0
 #
 # Programer: Rodolfo A. C. Neves (Dirack) 04/08/2021
 #
@@ -22,9 +16,95 @@
 # Madagascar package
 from rsf.proj import *
 
-# CRE Gather Stack Recipe
-#from creGatherStack import creGatherStack
+# Recipes
+from rsf.recipes.pefInterpolation import pefInterpolation as pef
+from rsf.recipes.kimodel import multiLayerModel as mlmod
+from rsf.recipes.kimodel import kirchhoffNewtonModeling as kinewmod
+from rsf.recipes.creGatherStack import creStack
 
+# Establish building dependencies
+Depends('interpolatedDataCube.rsf','multiLayerDataCube.rsf')
+Depends('interpolatedDataCube2.rsf','interpolatedDataCube.rsf')
+Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube2.rsf')
+
+xmax = 6.0
+zmax = 4.0
+
+layers = ((1.00,1.20,0.90,1.00),
+	  (1.85,1.85,1.85,1.85))
+
+velocities = (1.508,
+	      1.690,
+	      2.0)
+
+# Generate multi layer model and data cube
+mlmod(interfaces='interfaces',
+	dipsfile='interfacesDip',
+	modelfile='model',
+	xmax=xmax,
+	zmax=zmax,
+	layers=layers,
+	velocities=velocities)
+
+# plot the model
+Plot('model','grey color=j scalebar=y label1=Depth unit1=km label2=Position unit2=km barlabel=Velocity barunit=km/s barreverse=y bias=1.0 title="Velocity Model" allpos=y')
+
+# Generate a modeled data cube
+nt=1001
+dt=0.004
+nm=241
+dm=0.025
+nh=161
+dh=0.025
+
+kinewmod(reflectors='interfaces',
+	reflectorsDip='interfacesDip',
+	filename='multiLayerDataCube',
+	velocities=velocities,
+	nt=nt,
+	dt=dt,
+	ns=nm,
+	ds=dm,
+	nh=nh,
+	dh=dh)
+
+# Use default value or pass through command line
+# PEF coeficients and PEF Smooth radius
+a1=int(ARGUMENTS.get('a1',10))
+a2=int(ARGUMENTS.get('a2',2))
+rect1=int(ARGUMENTS.get('rect1',50))
+rect2=int(ARGUMENTS.get('rect2',2))
+
+# Number of offsets to interpolate
+nhi=int(ARGUMENTS.get('nhi',1))
+
+pef(dataCube='multiLayerDataCube',
+    interpolated='interpolatedDataCube',
+    nm=nm,
+    dm=dm,
+    nt=nt,
+    dt=dt,
+    nhi=nhi,
+    a1=a1,
+    a2=a2,
+    rect1=rect1,
+    rect2=rect2)
+
+# Do the PEF interpolation one more time
+# to increase the CMP sampling
+pef('interpolatedDataCube',
+    'interpolatedDataCube2',
+    nm=2*nm,
+    dm=dm/2.0,
+    nt=nt,
+    dt=dt,
+    nhi=nhi,
+    a1=a1,
+    a2=a2,
+    rect1=rect1,
+    rect2=rect2)
+
+# CRE Stacking
 # It uses Very Fast Simulated Aneeling and non hyperbolic CRS
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
 stackedSection='stackedSection'
@@ -42,35 +122,20 @@ dm0 = float(ARGUMENTS.get('dm0',0.025))
 nm0 = int(ARGUMENTS.get('nm0',121))
 aperture = int(ARGUMENTS.get('aperture',1))
 cds = bool(ARGUMENTS.get('cds',False))
+repeat = int(ARGUMENTS.get('repeat',10))
 
-Flow(parametersCube,dataCube,
-	'''
-	vfsacrsnh nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g v0=%g repeat=10 
-	'''%(nm0,om0,dm0,nt0,ot0,dt0,v0))
-
-Flow('creTrajectories',[dataCube,parametersCube],
-	'''
-	cretrajec param=${SOURCES[1]} nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g verb=y 
-	'''%(nm0,om0,dm0,nt0,ot0,dt0))
-
-Flow(['cregathers','mhCoordinates'],[dataCube,'creTrajectories'],
-	'''
-	getcregather cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=%d nm0=%g nt0=%g |
-	put label1=Time unit1=s label2=Offset unit2=Km label3=t0 unit3=s
-	label4=m0 unit4=Km n3=%d d3=%g o3=%g n4=%d d4=%g o4=%g
-	''' % (aperture,nm0,nt0,nt0,dt0,ot0,nm0,dm0,om0))
-
-Flow('cretimecurves',['mhCoordinates',parametersCube],
-	'''
-	getcretimecurve param=${SOURCES[1]} nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g verb=y v0=%g |
-	put label1=Offset unit1=Km label2=t0 unit2=s label3=m0 unit3=Km
-	n2=%d d2=%g o2=%g n3=%d d3=%g o3=%g
-	'''%(nm0,om0,dm0,nt0,ot0,dt0,v0,nt0,dt0,ot0,nm0,dm0,om0))
-
-Flow(stackedSection,['cregathers','cretimecurves'],
-	'''
-	crestack aperture=%d verb=y timeCurves=${SOURCES[1]} |
-	put label1=t0 unit1=s label2=m0 unit2=Km
-	''' %(aperture))
+creStack(parametersCube,
+         dataCube,
+         interpolatedDataCube,
+         stackedSection,
+         nm0,
+         om0,
+         dm0,
+         nt0,
+         ot0,
+         dt0,
+         v0,
+         repeat,
+         aperture)
 
 End()
