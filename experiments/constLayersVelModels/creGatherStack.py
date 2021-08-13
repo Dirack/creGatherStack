@@ -1,4 +1,38 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# creGatherStack.py  (Madagascar Recipe)
+#
+# Purpose: Recipe to CRE stacking.
+# 
+# Important!: It should be called from a SConstruct 
+#
+# Site: https://dirack.github.io
+# 
+# Version 1.0
+#
+# Programmer: Rodolfo A. C. Neves (Dirack) 04/03/2020
+#
+# Email: rodolfo_profissional@hotmail.com
+#
+# License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
+
+# Selfdoc string
+'''
+Madagascar recipe to CRE stacking
+
+Define functions to generate the Zero-offset section using CRE stacking
+'''
+
+if __name__ == "__main__":
+	print(__doc__)
+	exit()
+
+# Madagascar package
 from rsf.proj import *
+
+__author__="Rodolfo Dirack <rodolfo_profissional@hotmail.com>"
+__version__="1.0"
 
 def creStack(parametersCube,
             dataCube,
@@ -16,6 +50,21 @@ def creStack(parametersCube,
             ):
     '''
 
+    CRE stacking
+
+    :out parametersCube: RSF file, RN, RNIP and BETA
+    :param dataCube: RSf file, seismic data cube
+    :param interpolatedDataCube: RSF file, interpolated seismic data cube
+    :out stackedSection: RSF file, stacked section
+    :param nm0: int, number of m0s
+    :param om0: float, m0s axis origin
+    :param dm0: float, m0s sampling
+    :param nt0: int, number of t0s
+    :param ot0: float, t0s axis origin
+    :param dt0: float, t0s sampling
+    :param v0: float, near surface velocity
+    :param repeat: int, how many times to run VFSA
+    :param aperture: int, number of offsets to stack
     '''
     Flow(parametersCube,dataCube,
             '''
