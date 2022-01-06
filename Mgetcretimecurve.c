@@ -1,6 +1,6 @@
-/* Calculate CRE traveltime curve t(m,h) given CRS zero offset parameters (RN, RNIP, BETA)
+/* Calculate CRE traveltime curve t(m,h) given CRS zero-offset parameters (RN, RNIP, BETA)
 
-Programer: Rodolfo A. C. Neves (Dirack) 14/09/2019
+Programmer: Rodolfo A. C. Neves (Dirack) 14/09/2019
 
 Email:  rodolfo_profissional@hotmail.com 
 
@@ -20,19 +20,19 @@ int main(int argc, char* argv[])
 	float** t; // CRE traveltime curve
 	float h; // Half offset
 	double alpha; // Assymetry parameter
-	float m0;
-	float t0;
+	float m0; // m0 coordinate
+	float t0; // t0 coordinate
 	int nm0; // central CMP
-	float om0;
-	float dm0;
+	float om0; // m0s axis origin
+	float dm0; // m0s sampling
 	float v0; // Near surface velocity
 	int nt0; // Normal ray traveltime
-	float ot0;
-	float dt0;
-	int ni;
+	float ot0; // t0s axis origin
+	float dt0; // t0s sampling
+	int ni; // Number of m0s x t0s pairs
 	float** p; // RNIP and BETA temporary vector
 	int np1; // Number of parameters
-	int np2;
+	int np2; // Number of m0s x t0s pairs
 	bool verb; // Verbose
 	float dh; // Half offset sampling
 	float oh; // Half offset axis origin

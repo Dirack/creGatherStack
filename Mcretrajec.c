@@ -1,6 +1,6 @@
-/* Calculate CRE trajectory on m,h plane given zero offset CRS parameters (RN, RNIP, BETA)
+/* Calculate CRE trajectory on CMP x Offset plane given zero-offset CRS parameters (RN, RNIP, BETA)
 
-Programer: Rodolfo A. C. Neves (Dirack) 31/08/2019
+Programmer: Rodolfo A. C. Neves (Dirack) 31/08/2019
 
 Email:  rodolfo_profissional@hotmail.com 
 
@@ -18,18 +18,18 @@ int main(int argc, char* argv[])
 
 	float** m; // CMP
 	float h; // Half offset
-	float m0;
+	float m0; // Central CMP
 	double alpha; // Assymetry parameter
-	float om0;
-	float dm0;
-	int nm0;
-	float ot0;
-	float dt0;
-	int nt0;
+	float om0; // m0's axis origin
+	float dm0; // m0's sampling
+	int nm0; // Number of m0s
+	float ot0; // t0's axis origin
+	float dt0; // t0's sampling
+	int nt0; // Number of t0's
 	float** p; // RNIP and BETA parameters temporary vector
 	int np1; // Number of parameters in parameters file
 	int np2; // Number of (t0, m0) pairs in parameters file
-	bool verb;
+	bool verb; // Verbose parameter
 	float dm; // CMP sampling
 	float om; // CMP axis origin
 	int nm; // Number of CMP samples
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 	float dt; // Time sampling
 	float ot; // Time axis origin
 	int nt; // Number of time samples
-	int i,l,k; // counter
+	int i,l,k; // counters
 
 	/* RSF files I/O */  
 	sf_file in, out, par;
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 
 	in = sf_input("in"); // Data cube A(m,h,t)
 	par = sf_input("param"); // RNIP and BETA parameters
-	out = sf_output("out"); // m(h) vector
+	out = sf_output("out"); // m(h) vector CRE coordinates
 
 	if (!sf_getint("nm0",&nm0)) sf_error("Need nm0");
 	/* Number of central CMPs in parameters file */

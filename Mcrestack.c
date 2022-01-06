@@ -1,6 +1,6 @@
 /* Common Reflection Element (CRE) stacking
 
-Programer: Rodolfo A. C. Neves (Dirack) 06/10/2019
+Programmer: Rodolfo A. C. Neves (Dirack) 06/10/2019
 
 Email:  rodolfo_profissional@hotmail.com
 
@@ -22,18 +22,18 @@ int main(int argc, char* argv[])
 	int nt; // Number of time samples
 	float ot; // Time axis origin
 	float dt; // Time sampling
-	int nt0;
-	float ot0;
-	float dt0;
+	int nt0; // Number of t0s in stacked section
+	float ot0; // t0s axis origin
+	float dt0; // t0s sampling
 	float om0t; // CMP axis origin
 	float dm0t; // CMP sampling
 	int nm0t; // Number of CMP's
 	float oht; // Offset axis origin
 	float dht; // Offset sampling
 	int nht; // Number of Offsets
-	int nt0t;
-	float ot0t;
-	float dt0t;
+	int nt0t; // Number of samples in CRE stacking curve 
+	float ot0t; // Axis origin of CRE stacking curve
+	float dt0t; // Sampling in CRE stacking curve
 	bool verb; // Key to turn On/Off active mode
 	float ***creTimeCurve; // CRE traveltime curves
 	float ****creGatherCube; // CRE Data cube A(m0,t0,h,t)
@@ -122,8 +122,6 @@ int main(int argc, char* argv[])
 				tetai = (int) ((double)creTimeCurve[im0][it0][ih]/dt);
 				sumAmplitudes += creGatherCube[im0][it0][ih][tetai];
 				
-				//sf_warning("%i, %f, %f",tetai,creTimeCurve[im0][it0][ih],sumAmplitudes);
-
 			} /* loop over h*/
 
 			stackedSection[im0][it0] = sumAmplitudes;

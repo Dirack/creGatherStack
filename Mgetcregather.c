@@ -1,8 +1,8 @@
-/* Build CRE gather given m,h CRE trajectory coordinates and interpolated data cube
+/* Build CRE gather given CMP X Offset CRE trajectory coordinates and interpolated data cube
 
-This program searches for the closest trace for each m,h pair given in the interpolated data cube. 
+This program searches for the closest trace to the CRE trajectory to build the CRE Gather for each (m, h) pair given in the interpolated data cube. 
 
-Programer: Rodolfo A. C. Neves (Dirack) 04/09/2019
+Programmer: Rodolfo A. C. Neves (Dirack) 04/09/2019
 
 Email:  rodolfo_profissional@hotmail.com  
 
@@ -19,9 +19,9 @@ int main(int argc, char* argv[])
 {
 
 	float*** t; // Data cube A(m,h,t)
-	float*** creGather;
-	float** m; // CMP
-	bool verb;
+	float*** creGather; // CRE gathers
+	float** m; // CMPs
+	bool verb; // Verbose parameters
 	float dm; // CMP sampling
 	float om; // CMP axis origin
 	int nm; // Number of CMP samples
@@ -35,12 +35,12 @@ int main(int argc, char* argv[])
 	int cn1; // Number of traces in CRE vector
 	float cd1; // CRE Gather sampling
 	float co1; // CRE Gather axis origin
-	int cn2;
+	int cn2; // Number of m0s x t0s pairs
 	int trac_m; // CMP sample index
 	int aperture; // Number of traces in CRE Gather
 	float mMax; // maximum CMP coordinate of the model
-	int nm0;
-	int nt0;
+	int nm0; // Number of m0s
+	int nt0; // Number of t0s
 
 	/* RSF files I/O */  
 	sf_file in, out, out_m, cremh;
