@@ -39,6 +39,7 @@ int main(int argc, char* argv[])
 	int trac_m; // CMP sample index
 	int aperture; // Number of traces in CRE Gather
 	float mMax; // maximum CMP coordinate of the model
+	float mMin; // maximum CMP coordinate of the model
 	int nm0; // Number of m0s
 	int nt0; // Number of t0s
 
@@ -108,16 +109,18 @@ int main(int argc, char* argv[])
 	creGather = sf_floatalloc3(nt,aperture,cn2);
 
 	mMax = om+dm*nm;
+	mMin = om;
 	
 	for(l=0;l<nm0;l++){
 
 		for(k=0;k<nt0;k++){
 			for(i=0;i<aperture;i++){
 				trac_m = (int)((double)m[(l*nt0)+k][i]/dm);
+				if(verb) sf_warning("m=%f h=%d trac_m=%d",m[l*nt0+k][i],i,trac_m);
 
 				for(j=0;j<nt;j++){
 					creGather[(l*nt0)+k][i][j] = 
-					(m[(l*nt0)+k][i] <= mMax)?
+					(m[(l*nt0)+k][i] <= mMax && m[(l*nt0)+k][i] >= mMin)?
 					t[trac_m][i][j] : 0.;
 				}
 			}
