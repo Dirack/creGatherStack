@@ -5,7 +5,7 @@ import bldutil
 # Put your name programs in progs variable 
 # without 'M' preffix and '.c' extension
 progs = '''
-crestack cretrajec getcregather getcretimecurve rnip2vrms
+crestack cretrajec getcregather getcretimecurve rnip2vrms getcreandstack
 '''
 
 try:  # distributed version
