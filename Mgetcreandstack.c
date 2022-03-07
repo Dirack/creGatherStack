@@ -43,7 +43,11 @@ int main(int argc, char* argv[])
 	float mMax; // maximum CMP coordinate of the model
 	float mMin; // maximum CMP coordinate of the model
 	int nm0; // Number of m0s
+	float om0; // m0's origin
+	float dm0; // m0's sampling
 	int nt0; // Number of t0s
+	float ot0; // t0's origin
+	float dt0; // t0's sampling
 	int nt0t, nm0t, nht; // CRE time curves dimension
 	float dt0t, dm0t, dht; // CRE time curves sampling
 	float ot0t, om0t, oht; // CRE time curves origin
@@ -54,7 +58,7 @@ int main(int argc, char* argv[])
 	sf_file in, out, timeCurves, cremh;
 
 	/* RSF files axis */
-	sf_axis ax,ay,az,am1,am2;
+	sf_axis ax,ay,az;
 
 	sf_init(argc,argv);
 
@@ -93,8 +97,16 @@ int main(int argc, char* argv[])
 
 	if(!sf_getint("nm0",&nm0)) sf_error("Need nm0");
 	/* Number of central CMPs in cremh file */
+	if(!sf_getfloat("om0",&om0)) sf_error("Need om0");
+	/* central CMPs origin */
+	if(!sf_getfloat("dm0",&dm0)) sf_error("Need dm0");
+	/* central CMPs sampling */
 	if(!sf_getint("nt0",&nt0)) sf_error("Need nt0");
 	/* Number of t0s in cremh file */
+	if(!sf_getfloat("ot0",&ot0)) sf_error("Need ot0");
+	/* t0s origin */
+	if(!sf_getfloat("dt0",&dt0)) sf_error("Need dt0");
+	/* t0s sampling */
 	if(!sf_getint("aperture",&aperture)) aperture=1;
 	/* Number of traces to put in a CRE Gather*/
 
@@ -167,10 +179,9 @@ int main(int argc, char* argv[])
 
 	}/* loop over m0 */
 
-	// TODO pass dm0, dt0, om0 and ot0 through cmd
 	/* axis = sf_maxa(n,o,d)*/
-	ax = sf_maxa(nt0, 0.3, 0.004);
-	ay = sf_maxa(nm0, 1.5, 0.00625);
+	ax = sf_maxa(nt0, ot0, dt0);
+	ay = sf_maxa(nm0, om0, dm0);
 	az = sf_maxa(1, 0, 1);
 
 	/* sf_oaxa(file, axis, axis index) */

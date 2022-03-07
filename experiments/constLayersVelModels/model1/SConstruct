@@ -76,7 +76,7 @@ rect1=int(ARGUMENTS.get('rect1',50))
 rect2=int(ARGUMENTS.get('rect2',2))
 
 # Number of offsets to interpolate
-nhi=int(ARGUMENTS.get('nhi',1))
+nhi=int(ARGUMENTS.get('nhi',10))
 
 pef(dataCube='multiLayerDataCube',
     interpolated='interpolatedDataCube',
@@ -114,15 +114,15 @@ interpolatedDataCube='interpolatedDataCube2.rsf'
 
 # Parameters
 v0 = float(ARGUMENTS.get('v0',1.5))
-ot0 = float(ARGUMENTS.get('ot0',1.0))
-dt0 = float(ARGUMENTS.get('dt0',0.008))
-nt0 = int(ARGUMENTS.get('nt0',251))
-om0 = float(ARGUMENTS.get('om0',1.5))
-dm0 = float(ARGUMENTS.get('dm0',0.025))
-nm0 = int(ARGUMENTS.get('nm0',121))
-aperture = int(ARGUMENTS.get('aperture',1))
+ot0 = float(ARGUMENTS.get('ot0',1.4))
+dt0 = float(ARGUMENTS.get('dt0',0.0125))
+nt0 = int(ARGUMENTS.get('nt0',40))
+om0 = float(ARGUMENTS.get('om0',2.0))
+dm0 = float(ARGUMENTS.get('dm0',0.0125))
+nm0 = int(ARGUMENTS.get('nm0',40))
+aperture = int(ARGUMENTS.get('aperture',10))
 cds = bool(ARGUMENTS.get('cds',False))
-repeat = int(ARGUMENTS.get('repeat',10))
+repeat = int(ARGUMENTS.get('repeat',2))
 
 creStack(parametersCube,
          dataCube,
@@ -137,5 +137,10 @@ creStack(parametersCube,
          v0,
          repeat,
          aperture)
+
+Plot('stackedSection',
+	'''
+	wiggle transp=y yreverse=y title="CRE Stacked Section" poly=y
+	''')
 
 End()

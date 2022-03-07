@@ -13,7 +13,7 @@
 # 
 # Version 2.0
 #
-# Programer: Rodolfo A. C. Neves (Dirack) 04/08/2021
+# Programmer: Rodolfo A. C. Neves (Dirack) 04/08/2021
 #
 # Email: rodolfo_profissional@hotmail.com
 #
@@ -29,7 +29,7 @@ from rsf.proj import *
 # to get zero offset CRS parameters (RN, RNIP and BETA) from data cube
 stackedSection='stackedSection'
 parametersCube='parametersCube'
-dataCube='multiLayerDataCube.rsf'
+dataCube='noiseDataCube.rsf'
 interpolatedDataCube='interpolatedDataCube2.rsf'
 
 # Parameters
@@ -45,7 +45,7 @@ cds = bool(ARGUMENTS.get('cds',False))
 
 Flow(parametersCube,dataCube,
 	'''
-	vfsacrsnh nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g v0=%g repeat=2 
+	vfsacrsnh nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g v0=%g repeat=2 verb=y
 	'''%(nm0,om0,dm0,nt0,ot0,dt0,v0))
 
 Flow('creTrajectories',[dataCube,parametersCube],

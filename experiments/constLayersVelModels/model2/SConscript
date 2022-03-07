@@ -67,6 +67,8 @@ kinewmod(reflectors='interfaces',
 	nh=nh,
 	dh=dh)
 
+Flow('noiseDataCube','multiLayerDataCube','noise seed=2011 range=0.01')
+
 # Use default value or pass through command line
 # PEF coeficients and PEF Smooth radius
 a1=int(ARGUMENTS.get('a1',10))
@@ -77,7 +79,7 @@ rect2=int(ARGUMENTS.get('rect2',2))
 # Number of offsets to interpolate
 nhi=int(ARGUMENTS.get('nhi',1))
 
-pef(dataCube='multiLayerDataCube',
+pef(dataCube='noiseDataCube',
     interpolated='interpolatedDataCube',
     nm=nm,
     dm=dm,
