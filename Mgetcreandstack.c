@@ -55,9 +55,9 @@ int main(int argc, char* argv[])
 	int nt0; // Number of t0s
 	float ot0; // t0's origin
 	float dt0; // t0's sampling
-	int nt0t, nm0t, nht; // CRE time curves dimension
-	float dt0t, dm0t, dht; // CRE time curves sampling
-	float ot0t, om0t, oht; // CRE time curves origin
+	int nht; // Number of offsets
+	float dht; // Offsets sampling
+	float oht; // Offsets axis origin
 	float sumAmplitudes; // Amplitudes sum
 	int tetai; // Time sample index
         TRACE trace; // A seismic trace
@@ -97,25 +97,13 @@ int main(int argc, char* argv[])
 	if (!sf_histint(timeCurves,"n1",&nht)) sf_error("No n1= in timeCurves input");
 	if (!sf_histfloat(timeCurves,"d1",&dht)) sf_error("No d1= in timeCurves input");
 	if (!sf_histfloat(timeCurves,"o1",&oht)) sf_error("No o1= in timeCurves input");
-	if (!sf_histint(timeCurves,"n2",&nt0t)) sf_error("No n2= in timeCurves input");
-	if (!sf_histfloat(timeCurves,"d2",&dt0t)) sf_error("No d2= timeCurves in input");
-	if (!sf_histfloat(timeCurves,"o2",&ot0t)) sf_error("No o2= timeCurves in input");
-	if (!sf_histint(timeCurves,"n3",&nm0t)) sf_error("No n3= in timeCurves input");
-	if (!sf_histfloat(timeCurves,"d3",&dm0t)) sf_error("No d3= in timeCurves input");
-	if (!sf_histfloat(timeCurves,"o3",&om0t)) sf_error("No o3= in timeCurves input");
+	if (!sf_histint(timeCurves,"n2",&nt0)) sf_error("No n2= in timeCurves input");
+	if (!sf_histfloat(timeCurves,"d2",&dt0)) sf_error("No d2= timeCurves in input");
+	if (!sf_histfloat(timeCurves,"o2",&ot0)) sf_error("No o2= timeCurves in input");
+	if (!sf_histint(timeCurves,"n3",&nm0)) sf_error("No n3= in timeCurves input");
+	if (!sf_histfloat(timeCurves,"d3",&dm0)) sf_error("No d3= in timeCurves input");
+	if (!sf_histfloat(timeCurves,"o3",&om0)) sf_error("No o3= in timeCurves input");
 
-	if(!sf_getint("nm0",&nm0)) sf_error("Need nm0");
-	/* Number of central CMPs in cremh file */
-	if(!sf_getfloat("om0",&om0)) sf_error("Need om0");
-	/* central CMPs origin */
-	if(!sf_getfloat("dm0",&dm0)) sf_error("Need dm0");
-	/* central CMPs sampling */
-	if(!sf_getint("nt0",&nt0)) sf_error("Need nt0");
-	/* Number of t0s in cremh file */
-	if(!sf_getfloat("ot0",&ot0)) sf_error("Need ot0");
-	/* t0s origin */
-	if(!sf_getfloat("dt0",&dt0)) sf_error("Need dt0");
-	/* t0s sampling */
 	if(!sf_getint("aperture",&aperture)) aperture=1;
 	/* Number of traces to put in a CRE Gather*/
 
@@ -132,6 +120,10 @@ int main(int argc, char* argv[])
 		sf_warning("CRE gather coordinates m(h) (cremh file): ");
 		sf_warning("n1=%d d1=%f o1=%f",cn1,cd1,co1);
 		sf_warning("n2=%d",cn2);
+		sf_warning("CRE time curves: ");
+		sf_warning("n1=%d d1=%f o1=%f",nht,dht,oht);
+		sf_warning("n2=%d d2=%f o2=%f",nt0,dt0,ot0);
+		sf_warning("n3=%d d3=%f o3=%f",nm0,dm0,om0);
 		sf_warning("Input file dimensions: ");
 		sf_warning("n1=%d d1=%f o1=%f",nt,dt,ot);
 		sf_warning("n2=%d d2=%f o2=%f",nh,dh,oh);
@@ -139,8 +131,8 @@ int main(int argc, char* argv[])
 	}
 
 	/* Read CRE time curves */
-	creTimeCurve = sf_floatalloc3(nht,nt0t,nm0t);
-	sf_floatread(creTimeCurve[0][0],nm0t*nt0t*nht,timeCurves);
+	creTimeCurve = sf_floatalloc3(nht,nt0,nm0);
+	sf_floatread(creTimeCurve[0][0],nm0*nt0*nht,timeCurves);
 
 	/* Read data cube */
 	t=sf_floatalloc3(nt,nh,nm);
