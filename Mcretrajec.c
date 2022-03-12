@@ -26,9 +26,8 @@ int main(int argc, char* argv[])
 	float ot0; // t0's axis origin
 	float dt0; // t0's sampling
 	int nt0; // Number of t0's
-	float** p; // RNIP and BETA parameters temporary vector
-	int np1; // Number of parameters in parameters file
-	int np2; // Number of (t0, m0) pairs in parameters file
+	float*** p; // RN, RNIP and BETA parameters vector
+	int np; // Parameter index "RN, RNIP, BETA, Semblance, C0, Temp0, t0, m0"
 	bool verb; // Verbose parameter
 	float dm; // CMP sampling
 	float om; // CMP axis origin
@@ -53,28 +52,14 @@ int main(int argc, char* argv[])
 	par = sf_input("param"); // RNIP and BETA parameters
 	out = sf_output("out"); // m(h) vector CRE coordinates
 
-	if (!sf_getint("nm0",&nm0)) sf_error("Need nm0");
-	/* Number of central CMPs in parameters file */
-	if (!sf_getfloat("om0",&om0)) sf_error("Need om0");
-	/* First central CMP coordinate in parameters file (Km) */
-	if (!sf_getfloat("dm0",&dm0)) sf_error("Need dm0");
-	/* Central CMPs sampling in parameters file (Km) */
-	if (!sf_getint("nt0",&nt0)) sf_error("Need nt0");
-	/* Number of t0s in parameters file */
-	if (!sf_getfloat("ot0",&ot0)) sf_error("Need ot0");
-	/* First t0 coordinate in parameters file (s) */
-	if (!sf_getfloat("dt0",&dt0)) sf_error("Need dt0"); 
-	/* t0s sampling in parameters file (s) */
-
 	/* Parameters file */
-	if (!sf_histint(par,"n1",&np1)) sf_error("No n1= in parameters file");
-	if (!sf_histint(par,"n2",&np2)) sf_error("No n2= in parameters file");
-
-	/* Check dimensions and input */
-	if ((nm0*nt0) != np2) 
-		sf_error("nm0*nt0 should be equal to n2 in parameters file!");
-	if(np1 < 3) 
-		sf_error("It should have at least 3 parameters in parameters file!");
+	if (!sf_histint(par,"n1",&nt0)) sf_error("No n1= in parameters file");
+	if (!sf_histfloat(par,"d1",&dt0)) sf_error("No d1= in parameters file");
+	if (!sf_histfloat(par,"o1",&ot0)) sf_error("No o1= in parameters file");
+	if (!sf_histint(par,"n2",&nm0)) sf_error("No n2= in parameters file");
+	if (!sf_histfloat(par,"d2",&dm0)) sf_error("No d2= in parameters file");
+	if (!sf_histfloat(par,"o2",&om0)) sf_error("No o2= in parameters file");
+	if (!sf_histint(par,"n3",&np)) sf_error("No n3= in parameters file");
 
 	/* seismic data cube A(m,h,t) */
 	if (!sf_histint(in,"n1",&nt)) sf_error("No n1= in input file");
@@ -93,20 +78,19 @@ int main(int argc, char* argv[])
 	if (verb) {
 
 		sf_warning("Active mode on!!!");
-		sf_warning("Command line parameters: "); 
+		sf_warning("Parameters file: "); 
 		sf_warning("nm0=%d om0=%f dm0=%f",nm0,om0,dm0);
 		sf_warning("nt0=%d ot0=%f dt0=%f",nt0,ot0,dt0);
-		sf_warning("Parameters file: ");
-		sf_warning("n1=%d n2=%d",np1,np2);
+		sf_warning("np=%d",np);
 		sf_warning("Data cube dimensions: ");
 		sf_warning("n1=%d d1=%f o1=%f",nt,dt,ot);
 		sf_warning("n2=%d d2=%f o2=%f",nh,dh,oh);
 		sf_warning("n3=%d d3=%f o3=%f",nm,dm,om);
 	}
 	
-	m = sf_floatalloc2(nh,np2);
-	p = sf_floatalloc2(np1,np2);
-	sf_floatread(p[0],np1*np2,par);
+	m = sf_floatalloc2(nh,nt0*nm0);
+	p = sf_floatalloc3(nt0,nm0,np);
+	sf_floatread(p[0][0],nt0*nm0*np,par);
 
 	for(l=0;l<nm0;l++){
 
@@ -114,7 +98,8 @@ int main(int argc, char* argv[])
 
 		for(k=0;k<nt0;k++){
 
-			alpha = sin(p[(l*nt0)+k][2])/p[(l*nt0)+k][1];
+			/* Alpha=sin(BETA)/RNIP */
+			alpha = sin(p[2][l][k])/p[1][l][k];
 
 			if(alpha <= 0.001 && alpha >= -0.001){
 				for(i=0;i<nh;i++){
@@ -131,14 +116,18 @@ int main(int argc, char* argv[])
 
 	/* axis = sf_maxa(n,o,d)*/
 	ax = sf_maxa(nh, oh, dh);
-	ay = sf_maxa(np2, 0, 1);
+	ay = sf_maxa(nm0*nt0, 0, 1);
 	az = sf_maxa(1, 0, 1);
 
 	/* sf_oaxa(file, axis, axis index) */
 	sf_oaxa(out,ax,1);
 	sf_oaxa(out,ay,2);
 	sf_oaxa(out,az,3);
-	sf_floatwrite(m[0],nh*np2,out);
 
-	exit(0);
+	sf_putstring(out,"label1","Offset");
+	sf_putstring(out,"unit1","Km");
+	sf_putstring(out,"label2","(t0,m0)");
+	sf_putstring(out,"unit2","index");
+
+	sf_floatwrite(m[0],nh*nm0*nt0,out);
 }
