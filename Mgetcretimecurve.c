@@ -30,9 +30,8 @@ int main(int argc, char* argv[])
 	float ot0; // t0s axis origin
 	float dt0; // t0s sampling
 	int ni; // Number of m0s x t0s pairs
-	float** p; // RNIP and BETA temporary vector
-	int np1; // Number of parameters
-	int np2; // Number of m0s x t0s pairs
+	float*** p; // RNIP and BETA temporary vector
+	int np; // Number of parameters
 	bool verb; // Verbose
 	float dh; // Half offset sampling
 	float oh; // Half offset axis origin
@@ -55,26 +54,17 @@ int main(int argc, char* argv[])
 	par = sf_input("param"); // CRS parameters (RNIP, BETA)
 	out = sf_output("out"); // CRE traveltime curve t(m,h)
 
-	if (!sf_getint("nm0",&nm0)) sf_error("Need nm0");
-	/* Numbers of central CMPs in parameters file */
-	if (!sf_getfloat("om0",&om0)) sf_error("Need om0");
-	/* First central CMP (Km) in parameters file */
-	if (!sf_getfloat("dm0",&dm0)) sf_error("Need dm0");
-	/* central CMP sampling (Km) in parameters file */
-
-	if (!sf_getint("nt0",&nt0)) sf_error("Need nt0");
-	/* Numbers of t0s in parameters file */
-	if (!sf_getfloat("ot0",&ot0)) sf_error("Need ot0");
-	/* First t0 (s) in parameters file */
-	if (!sf_getfloat("dt0",&dt0)) sf_error("Need dt0");
-	/* t0s sampling (s) in parameters file */
-
 	if (!sf_getfloat("v0",&v0)) v0=1.5;
 	/* Near surface velocity (Km/s) */
 
 	/* Parameters file */
-	if (!sf_histint(par,"n1",&np1)) sf_error("No n1= in parameters file");
-	if (!sf_histint(par,"n2",&np2)) sf_error("No n2= in parameters file");
+	if (!sf_histint(par,"n1",&nt0)) sf_error("No n1= in parameters file");
+	if (!sf_histfloat(par,"d1",&dt0)) sf_error("No d1= in parameters file");
+	if (!sf_histfloat(par,"o1",&ot0)) sf_error("No o1= in parameters file");
+	if (!sf_histint(par,"n2",&nm0)) sf_error("No n2= in parameters file");
+	if (!sf_histfloat(par,"d2",&dm0)) sf_error("No d2= in parameters file");
+	if (!sf_histfloat(par,"o2",&om0)) sf_error("No o2= in parameters file");
+	if (!sf_histint(par,"n3",&np)) sf_error("No n3= in parameters file");
 
 	/* m(h) coordinates */
 	if (!sf_histint(in,"n1",&nh)) sf_error("No n1= in input file");
@@ -83,13 +73,10 @@ int main(int argc, char* argv[])
 	if (!sf_histint(in,"n2",&ni)) sf_error("No n2= in input file");
 
 	/* Check input dimensions */
-	if ((nt0*nm0) != np2) 
-		sf_error("nt0*nm0 should be equal to n2 in parameters file");
-	if (np2 != ni)
-		sf_error("n2 in input should be equal to n2 in parameters file");
-	if(np1 < 3)
+	if ((nt0*nm0) != ni)
+		sf_error("n2 in input should be equal to n1*n2 in parameters file");
+	if(np < 3)
 		sf_error("Number of parameters should be at least 3 in the input file: RN, RNIP and BETA");
-
 
 	if(! sf_getbool("verb",&verb)) verb=0;
 	/* 1: active mode; 0: quiet mode */
@@ -100,12 +87,10 @@ int main(int argc, char* argv[])
 	if (verb) {
 
 		sf_warning("Active mode on!!!");
-		sf_warning("Command line parameters: "); 
+		sf_warning("Parameters file: "); 
 		sf_warning("nm0=%d om0=%f dm0=%f",nm0,om0,dm0);
 		sf_warning("nt0=%d ot0=%f dt0=%f",nt0,ot0,dt0);
-		sf_warning("CRS parameters: ");
-		sf_warning("n1=%d",np1);
-		sf_warning("n2=%d",np2);
+		sf_warning("n3=%d",np);
 		sf_warning("Input file dimensions: ");
 		sf_warning("n1=%d d1=%f o1=%f",nh,dh,oh);
 		sf_warning("n2=%d",ni);
@@ -114,8 +99,8 @@ int main(int argc, char* argv[])
 	/* Read input and parameters */
 	m = sf_floatalloc2(nh,ni);
 	sf_floatread(m[0],nh*ni,in);
-	p = sf_floatalloc2(np1,np2);
-	sf_floatread(p[0],np1*np2,par);
+	p = sf_floatalloc3(nt0,nm0,np);
+	sf_floatread(p[0][0],nt0*nm0*np,par);
 	t = sf_floatalloc2(nh,ni);
 
 	for(l=0;l<nm0;l++){
@@ -127,23 +112,23 @@ int main(int argc, char* argv[])
 			t0 = dt0*k+ot0;
 
 			if(!cds){
-				alpha = sin(p[(l*nt0)+k][2])/p[(l*nt0)+k][1];
+				alpha = sin(p[2][l][k])/p[1][l][k];
 				/* CRE approximation */
 				for(i=0;i<nh;i++){
 					h = (dh*i) + oh;
 					d = m[(l*nt0)+k][i]-m0;
-					c1 = (d+h)/(p[(l*nt0)+k][1]);
-					c2 = (d-h)/(p[(l*nt0)+k][1]);
-					t[(l*nt0)+k][i] = (t0-2*p[(l*nt0)+k][1]/v0)+(p[(l*nt0)+k][1]/v0)*sqrt(1-2*alpha*(d+h)+c1*c1)+(p[(l*nt0)+k][1]/v0)*sqrt(1-2*alpha*(d-h)+c2*c2);
+					c1 = (d+h)/(p[1][l][k]);
+					c2 = (d-h)/(p[1][l][k]);
+					t[(l*nt0)+k][i] = (t0-2*p[1][l][k]/v0)+(p[1][l][k]/v0)*sqrt(1-2*alpha*(d+h)+c1*c1)+(p[1][l][k]/v0)*sqrt(1-2*alpha*(d-h)+c2*c2);
 				}
 			}else{
 				/* Non-hyperbolic CRS approximation with CDS condition (RN=RNIP) */
 				for(i=0;i<nh;i++){
 					h = (dh*i) + oh;
 					d = m[(l*nt0)+k][i]-m0;
-					a1=(2*sin(p[(l*nt0)+k][2]))/(v0);
-					a2=(2*cos(p[(l*nt0)+k][2])*cos(p[(l*nt0)+k][2])*t0)/(v0*p[(l*nt0)+k][1]);
-					b2=(2*cos(p[(l*nt0)+k][2])*cos(p[(l*nt0)+k][2])*t0)/(v0*p[(l*nt0)+k][1]);
+					a1=(2*sin(p[2][l][k]))/(v0);
+					a2=(2*cos(p[2][l][k])*cos(p[2][l][k])*t0)/(v0*p[1][l][k]);
+					b2=(2*cos(p[2][l][k])*cos(p[2][l][k])*t0)/(v0*p[1][l][k]);
 					b1=2*b2+a1*a1-a2;
 					Fd=(t0+a1*d)*(t0+a1*d)+a2*d*d;
 					Fd2=(t0+a1*(d-h))*(t0+a1*(d-h))+a2*(d-h)*(d-h);
@@ -156,14 +141,20 @@ int main(int argc, char* argv[])
 
 	/* axis = sf_maxa(n,o,d)*/
 	ax = sf_maxa(nh, oh, dh);
-	ay = sf_maxa(ni, 0, 1);
-	az = sf_maxa(1, 0, 1);
+	ay = sf_maxa(nt0, ot0, dt0);
+	az = sf_maxa(nm0, om0, dm0);
 
 	/* sf_oaxa(file, axis, axis index) */
 	sf_oaxa(out,ax,1);
 	sf_oaxa(out,ay,2);
 	sf_oaxa(out,az,3);
-	sf_floatwrite(t[0],nh*ni,out);
 
-	exit(0);
+        sf_putstring(out,"label1","Offset");
+        sf_putstring(out,"unit1","Km");
+        sf_putstring(out,"label2","t0");
+        sf_putstring(out,"unit2","s");
+        sf_putstring(out,"label3","m0");
+        sf_putstring(out,"unit3","Km");
+
+	sf_floatwrite(t[0],nh*ni,out);
 }
