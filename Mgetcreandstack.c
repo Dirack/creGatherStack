@@ -15,6 +15,12 @@ License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 #include <stdlib.h>
 #include <rsf.h>
 #include "interface2d.h"
+#define trace_init(sz,n1,o1,d1) itf2d_init(sz,n1,o1,d1);
+#define trace_seto(itf,o) itf2d_seto(itf,o);
+#define trace_setAmplitudes(itf,z) itf2d_setZNodepoints(itf,z);
+#define trace_getAmplitude(itf,t) getZCoordinateOfInterface(itf,t);
+
+typedef itf2d TRACE;
 
 int main(int argc, char* argv[])
 {
@@ -54,8 +60,8 @@ int main(int argc, char* argv[])
 	float ot0t, om0t, oht; // CRE time curves origin
 	float sumAmplitudes; // Amplitudes sum
 	int tetai; // Time sample index
-        itf2d trace;
-        float a[5]={1.,1.,1.,1.,1.};
+        TRACE trace; // A seismic trace
+        float a[5]={1.,1.,1.,1.,1.}; // Amplitudes vector
 
 	/* RSF files I/O */  
 	sf_file in, out, timeCurves, cremh;
@@ -149,7 +155,7 @@ int main(int argc, char* argv[])
 	mMax = om+dm*nm;
 	mMin = om;
 	
-        trace = itf2d_init(a,5,ot,dt);
+        trace = trace_init(a,5,ot,dt);
 
 	for(im0=0;im0<nm0;im0++){
 
@@ -158,7 +164,6 @@ int main(int argc, char* argv[])
 			/* Generate CRE Gather for (t0,m0) pair */
 			for(i=0;i<aperture;i++){
 				trac_m = (int)((double)m[(im0*nt0)+it0][i]/dm);
-				if(verb) sf_warning("m=%f h=%d trac_m=%d",m[im0*nt0+it0][i],i,trac_m);
 
 				for(j=0;j<nt;j++){
 					creGather[i][j] = 
@@ -173,15 +178,14 @@ int main(int argc, char* argv[])
 
 			for(i=0; i < aperture; i++){
 
+				/* Amplitude interpolation */
 				tetai = (int) ((double)creTimeCurve[im0][it0][i]/dt);
 				for(j=0;j<5;j++)
                                         a[j]=creGather[i][tetai-2+j];
-                                itf2d_seto(trace,(tetai-2)*dt+ot);
-                                itf2d_setZNodepoints(trace,a);
-                                sumAmplitudes += getZCoordinateOfInterface(trace,creTimeCurve[im0][it0][i]);
+                                trace_seto(trace,(tetai-2)*dt+ot);
+                                trace_setAmplitudes(trace,a);
+                                sumAmplitudes += trace_getAmplitude(trace,creTimeCurve[im0][it0][i]);
 
-				//sumAmplitudes += creGather[i][tetai];
-				
 			} /* loop over h*/
 
 			stackedSection[im0][it0] = sumAmplitudes;
@@ -201,6 +205,4 @@ int main(int argc, char* argv[])
 	sf_oaxa(out,az,3);
 	sf_oaxa(out,az,4);
 	sf_floatwrite(stackedSection[0],nt0*nm0,out);
-
-	exit(0);
 }

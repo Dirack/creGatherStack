@@ -10,6 +10,12 @@ License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
 #include <rsf.h>
 #include "interface2d.h"
+#define trace_init(sz,n1,o1,d1) itf2d_init(sz,n1,o1,d1);
+#define trace_seto(itf,o) itf2d_seto(itf,o);
+#define trace_setAmplitudes(itf,z) itf2d_setZNodepoints(itf,z);
+#define trace_getAmplitude(itf,t) getZCoordinateOfInterface(itf,t);
+
+typedef itf2d TRACE;
 
 int main(int argc, char* argv[])
 {
@@ -39,12 +45,11 @@ int main(int argc, char* argv[])
 	float ***creTimeCurve; // CRE traveltime curves
 	float ****creGatherCube; // CRE Data cube A(m0,t0,h,t)
 	float **stackedSection; // CRE stacked section
-	int it0, im0, ih, tetai; // loop counter and indexes
+	int it0, im0, ih, i, tetai; // loop counter and indexes
 	float sumAmplitudes; // Sum of amplitudes in the stacking
 	int aperture; // Number of offsets to stack
-	itf2d trace;
-	float a[5]={1.,1.,1.,1.,1.};
-	int i;
+	TRACE trace; // A seismic trace
+	float a[5]={1.,1.,1.,1.,1.}; // Amplitude vector
 
 	/* RSF files I/O */  
 	sf_file in, timeCurves, out;
@@ -114,7 +119,7 @@ int main(int argc, char* argv[])
 	sf_floatread(creGatherCube[0][0][0],nm0*nt0*nh*nt,in);
 	stackedSection = sf_floatalloc2(nt0,nm0);
 
-	trace = itf2d_init(a,5,ot,dt);
+	trace = trace_init(a,5,ot,dt);
 
 	/* CRE STACKING */	
 	for (im0=0; im0 < nm0; im0++){
@@ -125,12 +130,13 @@ int main(int argc, char* argv[])
 
 			for(ih=0; ih < aperture; ih++){
 
+				/* Amplitude interpolation */
 				tetai = (int) ((double)creTimeCurve[im0][it0][ih]/dt);
 				for(i=0;i<5;i++)
 					a[i]=creGatherCube[im0][it0][ih][tetai-2+i];
-				itf2d_seto(trace,(tetai-2)*dt+ot);
-				itf2d_setZNodepoints(trace,a);
-				sumAmplitudes += getZCoordinateOfInterface(trace,creTimeCurve[im0][it0][ih]);
+				trace_seto(trace,(tetai-2)*dt+ot);
+				trace_setAmplitudes(trace,a);
+				sumAmplitudes += trace_getAmplitude(trace,creTimeCurve[im0][it0][ih]);
 				
 			} /* loop over h*/
 
@@ -151,6 +157,4 @@ int main(int argc, char* argv[])
 	sf_oaxa(out,az,3);
 	sf_oaxa(out,az,4);
 	sf_floatwrite(stackedSection[0],nt0*nm0,out);
-
-	exit(0);
 }
