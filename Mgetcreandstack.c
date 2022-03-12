@@ -14,6 +14,7 @@ License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 #include <stdio.h>
 #include <stdlib.h>
 #include <rsf.h>
+#include "interface2d.h"
 
 int main(int argc, char* argv[])
 {
@@ -53,6 +54,8 @@ int main(int argc, char* argv[])
 	float ot0t, om0t, oht; // CRE time curves origin
 	float sumAmplitudes; // Amplitudes sum
 	int tetai; // Time sample index
+        itf2d trace;
+        float a[5]={1.,1.,1.,1.,1.};
 
 	/* RSF files I/O */  
 	sf_file in, out, timeCurves, cremh;
@@ -146,6 +149,8 @@ int main(int argc, char* argv[])
 	mMax = om+dm*nm;
 	mMin = om;
 	
+        trace = itf2d_init(a,5,ot,dt);
+
 	for(im0=0;im0<nm0;im0++){
 
 		for(it0=0;it0<nt0;it0++){
@@ -169,7 +174,13 @@ int main(int argc, char* argv[])
 			for(i=0; i < aperture; i++){
 
 				tetai = (int) ((double)creTimeCurve[im0][it0][i]/dt);
-				sumAmplitudes += creGather[i][tetai];
+				for(j=0;j<5;j++)
+                                        a[j]=creGather[i][tetai-2+j];
+                                itf2d_seto(trace,(tetai-2)*dt+ot);
+                                itf2d_setZNodepoints(trace,a);
+                                sumAmplitudes += getZCoordinateOfInterface(trace,creTimeCurve[im0][it0][i]);
+
+				//sumAmplitudes += creGather[i][tetai];
 				
 			} /* loop over h*/
 
