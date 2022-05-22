@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 						trace[1][j]=0.;
 						trace[2][j]=t[right_m][i][j];
 					}
-					pefInterpolation(trace,nt);
+					//pefInterpolation(trace,nt);
 					apef(trace,nt);
 					for(j=0;j<nt;j++)
 						creGather[i][j] = trace[1][j];

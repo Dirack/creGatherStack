@@ -18,75 +18,66 @@
 #include "mask4apef.h"
 #include "pefInterpolation_lib.h"
 #include "nmis.h"
-#include "nmis.h"
-
-void pefInterpolation(float** trace, int nt)
-/*< TODO >*/
-{
-	int i;
-	for(i=0;i<nt;i++)
-		trace[1][i]=trace[0][i];
-}
 
 void apef(float** trace, int nt)
 /*<TODO>*/
 {
-	int n[SF_MAX_DIM], m[SF_MAX_DIM], rect[SF_MAX_DIM], a[SF_MAX_DIM];
-    int ndim, mdim=2, nd, ns, n12, i, j, niter;
-    int i1, i2, i3, j1, j2, j3, jump=1, i4, n4;
-    float *d, *f, *g, mean, *ff, *outm;
-    char key[6];
-    bool verb, *mask;
-    int n1, n2, nf1, nf2, nf3, nf4, n3, nf;
-    float *mm, *kk, *filt, eps;
-    bool *known, exact;
+	int n[SF_MAX_DIM];
+	int m[SF_MAX_DIM];
+	int rect[SF_MAX_DIM];
+	int a[SF_MAX_DIM];
+	int ndim, mdim=2, nd, ns, n12, i, j, niter;
+	int i1, i2, i3, j1, j2, j3, jump=2, i4, n4;
+	float *d, *f, *g, mean, *ff;
+	bool *mask;
+	int n1, n2, nf1, nf2, nf3, nf4, n3, nf;
+	float *mm;
+	bool *known;
 
-    ndim=mdim;
+	ndim=mdim;
+	niter=50;
 
-    n4 = 1;
+	n4 = 1;
 
 	a[0] = 10;
-	a[1] = 2;
+	a[1] = 3;
 	a[2] = 1;
 	n[2] = 1;
-	m[0]=nt;
-	m[1]=3;
+	m[0] = nt;
+	m[1] = 3;
 	m[2] = 1;
 
-    for (j=0; j < ndim; j++) {
-	n[j] = m[j];
-    }
-    n[ndim] =1;
-    for (j=0; j < ndim; j++) {
-	n[ndim] *= a[j];
-    }
+	for (j=0; j < ndim; j++) {
+		n[j] = m[j];
+	}
+	n[ndim] =1;
+	for (j=0; j < ndim; j++) {
+		n[ndim] *= a[j];
+	}
 
-    nd = 1;
-    for (j=0; j < ndim; j++) {
-	nd *= m[j];
-	snprintf(key,6,"rect%d",j+1);
-	if (!sf_getint(key,rect+j)) rect[j]=1;
-    }
+	nd = 1;
+	for (j=0; j < ndim; j++) {
+		nd *= m[j];
+	}
+	rect[0]=25;
+	rect[1]=3;
 
-    ns = n[ndim];
-    n12 = nd*ns;
-
-    if (!sf_getint("niter",&niter)) niter=100;
-
-    if (!sf_getbool("verb",&verb)) verb = false;
+	ns = n[ndim];
+	n12 = nd*ns;
 
 	mask = sf_boolalloc(nd);
 
-    d = sf_floatalloc(n12);
-    f = sf_floatalloc(n12);
-    ff = sf_floatalloc(n12);
-    g = sf_floatalloc(nd);
+	d = sf_floatalloc(n12);
+	f = sf_floatalloc(n12);
+	ff = sf_floatalloc(n12);
+	g = sf_floatalloc(nd);
 
-    sf_multidivn_init(ns, ndim, nd, m, rect, d, NULL, verb); 
+	sf_multidivn_init(ns, ndim, nd, m, rect, d, NULL, false); 
 
 	for(i=0;i<m[0];i++) g[i]=1;
 	for(i=0;i<m[0];i++) g[i+m[0]]=0;
 	for(i=0;i<m[0];i++) g[i+2*m[0]]=1;
+
 	mask4apef (a, jump, m, g, mask);
 
 	for(i=0;i<m[0];i++) g[i]=trace[0][i];
@@ -207,61 +198,44 @@ void apef(float** trace, int nt)
 	}
 
 
-	niter=50;
+	niter=25;
 
-    exact=true;
+	n1=nt;
+	n2=m[1];
+	n3=1;
 
-    eps=0.;
+	nf1=a[0];
+	nf2=a[1];
+	nf3=nt;
+	nf4=m[1];
 
-    n1=nt;
-    n2=m[1];
-    n3=1;
+	nf = nf1*nf2*nf3*nf4;
+	mm = sf_floatalloc(n1*n2);
+	known = sf_boolalloc(n1*n2);
 
-    nf1=a[0];
-    nf2=a[1];
-    nf3=nt;
-    nf4=m[1];
-    
-    nf = nf1*nf2*nf3*nf4;
-    mm = sf_floatalloc(n1*n2);
-    kk = sf_floatalloc(n1*n2);
-    known = sf_boolalloc(n1*n2);
-
-    for (i=0; i < n1*n2; i++) {
-	kk[i]=1.;
-	known[i]=true;
-    }
-
-	  for(i=0;i<n1;i++){
-		kk[i+n1]=0.;
+	for (i=0; i < n1; i++) {
+		known[i]=true;
 		known[i+n1]=false;
+		known[i+2*n1]=true;
 	}
- 
-	    for (i=0; i < n1*n2; i++) {
-		known[i] = (bool) (kk[i] != 0.);
-	    }
-	
-		for(j=0;j<n2;j++){
-	    for (i=0; i < n1; i++) {
-		if (known[i+j*n1]) kk[i+j*n1] = trace[j][i];
-		mm[i]=trace[j][i];
-	    }
-		}
-	
-	nmis (niter, nf1, nf2, nf3, nf4, ff, mm, known, eps, verb);
-	
-	if (exact) {
-		for(j=0;j<n2;j++){
-	    for (i=0; i < n1; i++) {
-		trace[j][i]=mm[i];
-		if (known[i+j*n1]) trace[j][i] = kk[i+j*n1];
-	    }
+
+	for(j=0;j<n2;j++){
+		for (i=0; i < n1; i++) {
+			mm[i]=trace[j][i];
 		}
 	}
 	
+	nmis (niter, nf1, nf2, nf3, nf4, ff, mm, known, 0., false);
+	
+	for(j=0;j<n2;j++){
+		for (i=0; i < n1; i++) {
+			trace[j][i]=mm[i];
+		}
+	}
+	
+	sf_multidivn_close();
 	free(mask);
 	free(mm);
-	free(kk);
 	free(known);
 	free(g);
 	free(ff);

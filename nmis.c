@@ -46,8 +46,12 @@ void nmis(int niter         /* number of iterations */,
 	       "known", known, "x0", xx, "verb", verb, "end");
     free(dd);
     sf_cgstep_close();
-//	mmmult_close();
 
 }
 
-
+void nmis_close()
+/*<TODO>*/
+{
+	sf_warning("%d",__LINE__);
+	mmmult_close();
+}
