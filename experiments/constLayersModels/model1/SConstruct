@@ -32,9 +32,10 @@ Help('''
 from rsf.proj import *
 
 # Madagascar Recipes
-from rsf.recipes.pefInterpolation2 import pefInterpolation as pef
-from rsf.recipes.kimodel import multiLayerModelBuild
-from rsf.recipes.kimodel import kirchhoffNewtonModeling
+from rsf.recipes.creGatherStack import modeling
+from rsf.recipes.creGatherStack import interpolation
+from rsf.recipes.creGatherStack import vfsa
+from rsf.recipes.creGatherStack import stack
 from rsf.recipes.utils import arr2str
 from rsf.recipes.utils import velplot
 from rsf.recipes.utils import plotStackedSection
@@ -61,26 +62,10 @@ Use Kirchhoff modeling to build seismic data from this model
 # Velocity model parameters
 xmax = 6.0
 zmax = 4.0
+layers = ((1.00,1.20,0.90,1.00),(1.85,1.85,1.85,1.85))
+velocities = (1.508,1.690,2.0)
 
-layers = ((1.00,1.20,0.90,1.00),
-          (1.85,1.85,1.85,1.85))
-
-velocities = (1.508,
-              1.690,
-              2.0)
-
-multiLayerModelBuild(
-        interfaces='interfaces',
-        dipsfile='interfacesDip',
-        modelfile=trueModel,
-        xmax=xmax,
-        zmax=zmax,
-        layers=layers,
-        velocities=velocities)
-
-Result(trueModel,velplot("Model 1"))
-
-# Generate seismic data cube
+# Generate velocity model and seismic data cube
 nt=1001
 dt=0.004
 nm=241
@@ -88,17 +73,20 @@ dm=0.025
 nh=161
 dh=0.025
 
-kirchhoffNewtonModeling(
-        reflectors='interfaces',
-        reflectorsDip='interfacesDip',
-        filename=dataCube,
-        velocities=velocities,
-        nt=nt,
-        dt=dt,
-        ns=nm,
-        ds=dm,
-        nh=nh,
-        dh=dh)
+modeling(trueModel,
+        dataCube,
+        xmax,
+        zmax,
+        layers,
+        velocities,
+        nt,
+        dt,
+        nm,
+        dm,
+        nh,
+        dh)
+
+Result(trueModel,velplot("Model 1"))
 
 Help('''
 ### PEF interpolation ###
@@ -119,29 +107,18 @@ rect2=int(ARGUMENTS.get('rect2',2))
 # Number of offsets to interpolate
 nhi=int(ARGUMENTS.get('nhi',nh))
 
-pef(dataCube=dataCube,
-    interpolated='interpolatedDataCube',
-    nm=nm,
-    dm=dm,
-    nt=nt,
-    dt=dt,
-    nhi=nhi,
-    a1=a1,
-    a2=a2,
-    rect1=rect1,
-    rect2=rect2)
-
-pef('interpolatedDataCube',
-    interpolatedDataCube,
-    nm=2*nm,
-    dm=dm/2.0,
-    nt=nt,
-    dt=dt,
-    nhi=nhi,
-    a1=a1,
-    a2=a2,
-    rect1=rect1,
-    rect2=rect2)
+interpolation(dataCube,
+        'interpolatedDataCube',
+        interpolatedDataCube,
+        nm,
+        dm,
+        nt,
+        dt,
+        nhi,
+        a1,
+        a2,
+        rect1,
+        rect2)
 
 Help('''
 ### Very Fast Simulated Annealing (VFSA) ####
@@ -165,11 +142,26 @@ repeat = int(ARGUMENTS.get('repeat',4))
 itmax = int(ARGUMENTS.get('itmax',500))
 cds = bool(ARGUMENTS.get('cds',False))
 
-# VFSA global optimization
-Flow(parametersCube,interpolatedDataCube,
-        '''
-        vfsacrsnh nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g v0=%g repeat=%d itmax=%d verb=y rnmin=2 rnmax=10 rnipmin=0.3 rnipmax=3 half=y
-        '''%(nm0,om0,dm0,nt0,ot0,dt0,v0,repeat,itmax))
+# VFSA global optimization CRS parameters
+vfsa(parametersCube,
+        interpolatedDataCube,
+        nm0,
+        om0,
+        dm0,
+        nt0,
+        ot0,
+        dt0,
+        v0,
+        repeat,
+        itmax,
+        rnmin=2,
+        rnmax=10,
+        rnipmin=0.3,
+        rnipmax=3.0,
+        betamin=-1.0,
+        betamax=1.0,
+        half='y',
+        verb='y')
 
 # CRS parameters smoothing
 Flow('parametersCube2',parametersCube,
@@ -186,30 +178,17 @@ Generate CRE trajectories, traveltime curves and stack
 # Use smoothed parameters
 parametersCube='parametersCube2'
 
-Flow('creTrajectories',[interpolatedDataCube,parametersCube],
-        '''
-        cretrajec param=${SOURCES[1]} nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g verb=y 
-        '''%(nm0,om0,dm0,nt0,ot0,dt0))
-
-Flow(['cregathers','mhCoordinates'],[interpolatedDataCube,'creTrajectories'],
-        '''
-        getcregather cremh=${SOURCES[1]} m=${TARGETS[1]} aperture=%d nm0=%g nt0=%g |
-        put label1=Time unit1=s label2=Offset unit2=Km label3=t0 unit3=s
-        label4=m0 unit4=Km n3=%d d3=%g o3=%g n4=%d d4=%g o4=%g
-        ''' % (aperture,nm0,nt0,nt0,dt0,ot0,nm0,dm0,om0))
-
-Flow('cretimecurves',['mhCoordinates',parametersCube],
-        '''
-        getcretimecurve param=${SOURCES[1]} nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g verb=y v0=%g |
-        put label1=Offset unit1=Km label2=t0 unit2=s label3=m0 unit3=Km
-        n2=%d d2=%g o2=%g n3=%d d3=%g o3=%g
-        '''%(nm0,om0,dm0,nt0,ot0,dt0,v0,nt0,dt0,ot0,nm0,dm0,om0))
-
-Flow(stackedSection,['cregathers','cretimecurves'],
-        '''
-        crestack aperture=%d verb=y timeCurves=${SOURCES[1]} |
-        put label1=t0 unit1=s label2=m0 unit2=Km
-        ''' %(aperture))
+stack(stackedSection,
+        interpolatedDataCube,
+        parametersCube,
+        nm0,
+        om0,
+        dm0,
+        nt0,
+        ot0,
+        dt0,
+        v0,
+        aperture)
 
 Result(stackedSection,plotStackedSection("Stacked Section"))
 
