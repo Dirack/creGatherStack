@@ -1,0 +1,191 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# SConstruct (Python3)
+# 
+# Purpose: Full velocity inversion with NIP tomography.
+# Velocity model with plane interfaces.
+# 
+# Site: https://dirack.github.io
+# 
+# Version 1.0
+# 
+# Programmer: Rodolfo A C Neves (Dirack) 31/01/2022
+# 
+# Email: rodolfo_profissional@hotmail.com
+# 
+# License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
+
+# Madagascar Package
+from rsf.proj import *
+
+# Madagascar Recipes
+from rsf.recipes.pefInterpolation import pefInterpolation as pef
+from rsf.recipes.kimodel import multiLayerModel as mlmod
+from rsf.recipes.kimodel import kirchhoffNewtonModeling as kinewmod
+from rsf.recipes.kimodel import arr2str
+
+# Main Files
+trueModel='trueModel'
+stackedSection='stackedSection'
+parametersCube='parametersCube'
+dataCube='dataCube'
+interpolatedDataCube='interpolatedDataCube2'
+
+Fetch(dataCube+'.rsf',server='https://github.com/Dirack/dirack.github.io/',
+        top='releases/download/',
+        dir='v0.1-alpha.1/',
+        usedatapath=0)
+
+# Establish building dependencies
+Depends('interpolatedDataCube.rsf',dataCube+'.rsf')
+Depends('interpolatedDataCube2.rsf','interpolatedDataCube.rsf')
+Depends('crsParameters-m0-0-t0-0.rsf','interpolatedDataCube2.rsf')
+
+# Generate a modeled data cube
+nt=1001
+dt=0.004
+nm=400
+dm=0.025
+nh=51
+dh=0.025
+
+### PEF interpolation ###
+
+# Use default value or pass through command line
+# PEF coeficients and PEF Smooth radius
+a1=int(ARGUMENTS.get('a1',10))
+a2=int(ARGUMENTS.get('a2',2))
+rect1=int(ARGUMENTS.get('rect1',50))
+rect2=int(ARGUMENTS.get('rect2',2))
+
+# Number of offsets to interpolate
+nhi=int(ARGUMENTS.get('nhi',nh))
+
+pef(dataCube=dataCube,
+    interpolated='interpolatedDataCube',
+    nm=nm,
+    dm=dm,
+    nt=nt,
+    dt=dt,
+    nhi=nhi,
+    a1=a1,
+    a2=a2,
+    rect1=rect1,
+    rect2=rect2)
+
+# Do the PEF interpolation one more time
+# to increase the CMP sampling
+pef('interpolatedDataCube',
+    interpolatedDataCube,
+    nm=2*nm,
+    dm=dm/2.0,
+    nt=nt,
+    dt=dt,
+   nhi=nhi,
+    a1=a1,
+    a2=a2,
+    rect1=rect1,
+    rect2=rect2)
+
+### VFSA and CRE Stacking ####
+
+# It uses Very Fast Simulated Aneeling and non hyperbolic CRS
+# to get zero offset CRS parameters (RN, RNIP and BETA) from interpolated data cube
+
+# VFSA Parameters
+v0 = float(ARGUMENTS.get('v0',1.8))
+ot0 = float(ARGUMENTS.get('ot0',0.2))
+dt0 = float(ARGUMENTS.get('dt0',0.004))
+nt0 = int(ARGUMENTS.get('nt0',750))
+om0 = float(ARGUMENTS.get('om0',7.76875))
+dm0 = float(ARGUMENTS.get('dm0',0.00625))
+nm0 = int(ARGUMENTS.get('nm0',160))
+aperture = int(ARGUMENTS.get('aperture',40))
+cds = bool(ARGUMENTS.get('cds',False))
+itmax = int(ARGUMENTS.get('itmax',500))
+
+vmin=8.
+vmax=8.
+
+Flow('rnmin',None,'sfmath n1=%d o1=%f d1=%f n2=%d output="-50"' %(nt0,ot0,dt0,1))
+Flow('rnmax',None,'sfmath n1=%d o1=%f d1=%f n2=%d output="50"' %(nt0,ot0,dt0,1))
+Flow('rnipmin',None,
+	'''
+	sfmath n1=%d o1=%f d1=%f n2=%d output="%g+%g*%g*(x1/(2*%g))"
+	''' %(nt0,ot0,dt0,1,vmin,vmin,vmin,v0))
+Flow('rnipmax',None,
+	'''
+	sfmath n1=%d o1=%f d1=%f n2=%d output="9.+%g+%g*1.25*%g*(x1/(2*%g))"
+	''' %(nt0,ot0,dt0,1,vmax,vmax,vmax,v0))
+Flow('betamin',None,'sfmath n1=%d o1=%f d1=%f n2=%d output="-1"' %(nt0,ot0,dt0,1))
+Flow('betamax',None,'sfmath n1=%d o1=%f d1=%f n2=%d output="1"' %(nt0,ot0,dt0,1))
+
+Flow(parametersCube,[interpolatedDataCube],
+        '''
+        vfsacrsnh nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g v0=%g c0=0.75 temp0=1.5 itmax=%d repeat=4 verb=y rnmin=-50 rnmax=50 rnipmin=0 rnipmax=50 betamin=-1 betamax=1 varlim=n half=n
+        '''%(nm0,om0,dm0,nt0,ot0,dt0,v0,itmax))
+
+Flow('parametersCube2',parametersCube,
+        '''
+        parsmoother rect1=10 rect2=10 smin=0. f=1. dbeta=0.5
+        ''')
+
+parametersCube='parametersCube2'
+
+#Flow('rnmin1',None,'sfmath n1=%d o1=%f d1=%f n2=%d output="-50"' %(nt0,ot0,dt0,nm0))
+#Flow('rnmax1',None,'sfmath n1=%d o1=%f d1=%f n2=%d output="50"' %(nt0,ot0,dt0,nm0))
+#Flow('betamin1',None,'sfmath n1=%d o1=%f d1=%f n2=%d output="-1"' %(nt0,ot0,dt0,nm0))
+#Flow('betamax1',None,'sfmath n1=%d o1=%f d1=%f n2=%d output="1"' %(nt0,ot0,dt0,nm0))
+#Flow('rnipfunc','parametersCube2',
+#	'''
+#	window n3=1 f3=1 |
+#	smooth repeat=2 rect1=2 rect2=5 |
+#	window n2=1 f2=1	
+#	''')
+#Flow('rnipmin1','rnipfunc2',
+#	'''
+#	sfmath output="input" |
+#	sfspray axis=2 n=%d
+#	''' %nm0)
+#Flow('rnipmax1','rnipfunc2',
+#	'''
+#	sfmath output="input+4" |
+#	sfspray axis=2 n=%d
+#	'''%nm0)
+
+#Flow(parametersCube,[interpolatedDataCube,'rnmin1','rnmax1','rnipmin1','rnipmax1','betamin1','betamax1'],
+# #       '''
+#        vfsacrsnh nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g v0=%g c0=0.5 temp0=10 itmax=%d repeat=8 verb=y rnmin=-50 rnmax=50 rnipmin=0 rnipmax=50 betamin=-1 betamax=1 varlim=n rnminfile=${SOURCES[1]} rnmaxfile=${SOURCES[2]} rnipminfile=${SOURCES[3]} rnipmaxfile=${SOURCES[4]} betaminfile=${SOURCES[5]} betamaxfile=${SOURCES[6]} half=n
+#        '''%(nm0,om0,dm0,nt0,ot0,dt0,v0,itmax))
+
+Flow('creTrajectories',[interpolatedDataCube,parametersCube],
+        '''
+        cretrajec param=${SOURCES[1]} nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g verb=y 
+        '''%(nm0,om0,dm0,nt0,ot0,dt0))
+
+Flow('cretimecurves',['creTrajectories',parametersCube],
+        '''
+        getcretimecurve param=${SOURCES[1]} nm0=%d om0=%g dm0=%g nt0=%d ot0=%g dt0=%g verb=y v0=%g |
+        put label1=Offset unit1=Km label2=t0 unit2=s label3=m0 unit3=Km
+        n2=%d d2=%g o2=%g n3=%d d3=%g o3=%g
+        '''%(nm0,om0,dm0,nt0,ot0,dt0,v0,nt0,dt0,ot0,nm0,dm0,om0))
+
+Flow(stackedSection,[interpolatedDataCube,'creTrajectories','cretimecurves'],
+        '''
+        getcreandstack cremh=${SOURCES[1]} timeCurves=${SOURCES[2]} aperture=%d nm0=%g om0=%g dm0=%g nt0=%g ot0=%g dt0=%g
+        ''' % (aperture,nm0,om0,dm0,nt0,ot0,dt0))
+
+maxcorr = nt0*dt0+ot0
+maxcorr /= 10
+# Stacked Section bandpass and deconvolution
+Flow('spik',stackedSection,
+        '''
+        bandpass fhi=45 flo=10 |
+        pef minlag=.004 maxlag=.140 pnoise=.1 mincorr=0 maxcorr=%g
+        ''' %(maxcorr))
+
+Result('spik','grey title="Stacked Section"')
+
+
+End()
