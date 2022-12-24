@@ -132,11 +132,17 @@ int main(int argc, char* argv[])
 
 				/* Amplitude interpolation */
 				tetai = (int) ((double)creTimeCurve[im0][it0][ih]/dt);
+				// TODO: Use or not use amplitude interpolation?
+				//#define amplitude_interpolation
+				#ifdef amplitude_interpolation
 				for(i=0;i<5;i++)
 					a[i]=creGatherCube[im0][it0][ih][tetai-2+i];
 				trace_seto(trace,(tetai-2)*dt+ot);
 				trace_setAmplitudes(trace,a);
 				sumAmplitudes += trace_getAmplitude(trace,creTimeCurve[im0][it0][ih]);
+				#else
+				sumAmplitudes += creGatherCube[im0][it0][ih][tetai];
+				#endif
 				
 			} /* loop over h*/
 

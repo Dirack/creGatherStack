@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
 
 			/* Generate CRE Gather for (t0,m0) pair */
 			for(i=0;i<aperture;i++){
-				trac_m = (int)((double)m[(im0*nt0)+it0][i]/dm);
+				trac_m = (int)roundf((double)m[(im0*nt0)+it0][i]/dm);
 
 				for(j=0;j<nt;j++){
 					creGather[i][j] = 
@@ -172,11 +172,17 @@ int main(int argc, char* argv[])
 
 				/* Amplitude interpolation */
 				tetai = (int) ((double)creTimeCurve[im0][it0][i]/dt);
+				// TODO: Use or not use amplitude interpolation?
+				//#define amplitude_interpolation
+				#ifdef amplitude_interpolation
 				for(j=0;j<5;j++)
                                         a[j]=creGather[i][tetai-2+j];
                                 trace_seto(trace,(tetai-2)*dt+ot);
                                 trace_setAmplitudes(trace,a);
                                 sumAmplitudes += trace_getAmplitude(trace,creTimeCurve[im0][it0][i]);
+				#else
+				sumAmplitudes += creGather[i][tetai];
+				#endif
 
 			} /* loop over h*/
 
