@@ -55,6 +55,7 @@ int main(int argc, char *argv[]){
 	float sum; // Samples sum
 	float ***pp; // Parameters after smoothing
 	bool **mask; // Samples mask
+	float ***filemask;
 	int imm, itt; // Samples index in CMP and Time
 	int ns, nss; // Number of samples
 	float *v; // Samples vector to sorting and median calculation
@@ -62,11 +63,13 @@ int main(int argc, char *argv[]){
 	
 	sf_file in;
 	sf_file out;
+	sf_file mask_file;
 
 	sf_init(argc,argv);
 
 	in = sf_input("in");
 	out = sf_output("out");
+	mask_file = sf_output("mask");
 
 	for(i=0;i<2;i++){
 		snprintf(key,6,"rect%d",i+1);
@@ -96,6 +99,7 @@ int main(int argc, char *argv[]){
 
 	p = sf_floatalloc3(n1,n2,n3);
 	pp = sf_floatalloc3(n1,n2,n3);
+	filemask = sf_floatalloc3(n1,n2,n3);
 	sf_floatread(p[0][0],n1*n2*n3,in);
 
 	mask = sf_boolalloc2(rect[0],rect[1]);
@@ -105,6 +109,7 @@ int main(int argc, char *argv[]){
 		for(im0=0;im0<n2;im0++){
 			for(it0=0;it0<n1;it0++){
 				pp[ip][im0][it0] = p[ip][im0][it0];
+				filemask[ip][im0][it0]=1.;
 				sum = 0.; ns=0;
 				for(ix=0;ix<rect[1];ix++){
 					for(it=0;it<rect[0];it++){
@@ -117,6 +122,7 @@ int main(int argc, char *argv[]){
 						}
 					} // Loop window time
 				} // Loop window space
+				if(p[3][im0][it0]<smin) filemask[ip][im0][it0]=0.;
 				if(ns<=1){
 					pp[ip][im0][it0]=p[ip][im0][it0];
 				}else{
@@ -155,9 +161,13 @@ int main(int argc, char *argv[]){
 		for(im0=0;im0<n2;im0++){
 			for(it0=0;it0<n1;it0++){
 				pp[ip][im0][it0]=p[ip][im0][it0];
+				filemask[ip][im0][it0]=1.;
 			}
 		}
 	}
 
+	//sf_setformat(mask_file,"native_int");
+	//sf_putint(mask_file,"n3",1);
+	sf_floatwrite(filemask[0][0],n1*n2*n3,mask_file);
 	sf_floatwrite(pp[0][0],n1*n2*n3,out);
 }
