@@ -10,8 +10,9 @@ The basic processing steps to calculate the smoothed wavefield attributes for a 
 follows:
  - reject all points within the window with S < Smin to avoid the use of unreliable attributes
  - reject all points within the window with dbeta > dbetaMax to avoid a mixing of attributes associated with independent reflection events
- - separately compute the average of each attribute for a fraction f of the remaining data points centered around the respective median of its distribution. If no data points remain for averaging after the application of the above-mentioned criteria, the original
-wavefield attributes are used. Note that for the normal wavefront.
+ - separately compute the average of each attribute for a fraction f of the remaining data points centered around the respective median of its distribution.
+ 
+ If no data points remain for averaging after the application of the above-mentioned criteria, the original wavefield attributes are used. Note that for the normal wavefront.
 */
 
 #include <rsf.h>
@@ -55,7 +56,7 @@ int main(int argc, char *argv[]){
 	float ***pp; // Parameters after smoothing
 	bool **mask; // Samples mask
 	int imm, itt; // Samples index in CMP and Time
-	int ns; // Number of samples
+	int ns, nss; // Number of samples
 	float *v; // Samples vector to sorting and median calculation
 	float median; // Median of the distribution
 	
@@ -100,7 +101,7 @@ int main(int argc, char *argv[]){
 	mask = sf_boolalloc2(rect[0],rect[1]);
 
 	// Smoothing
-	for(ip=0;ip<n3;ip++){
+	for(ip=0;ip<n3-1;ip++){
 		for(im0=0;im0<n2;im0++){
 			for(it0=0;it0<n1;it0++){
 				pp[ip][im0][it0] = p[ip][im0][it0];
@@ -137,16 +138,26 @@ int main(int argc, char *argv[]){
 						median = v[ns/2];
 					}
 
+					nss=0;
 					for(i=(1-f)*ns/2;i<(1+f)*ns/2;i++){
-						sum += v[i];
+						sum += v[i]; nss++;
 					}
-					pp[ip][im0][it0] = sum/(ns);
+					pp[ip][im0][it0] = sum/(nss);
 					free(v);
 				}
 			} // Loop for t0s
 		} // Loop for m0s
 	} // Loop for parameters
 	
+	// Semblance should not be smoothed
+	// Just keep semblance values
+	for(ip=n3-1;ip<n3;ip++){
+		for(im0=0;im0<n2;im0++){
+			for(it0=0;it0<n1;it0++){
+				pp[ip][im0][it0]=p[ip][im0][it0];
+			}
+		}
+	}
 
 	sf_floatwrite(pp[0][0],n1*n2*n3,out);
 }
