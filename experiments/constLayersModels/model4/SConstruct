@@ -86,6 +86,9 @@ modeling(trueModel,
         nh,
         dh)
 
+Flow('noisyDataCube',dataCube,'noise seed=2011 range=0.051')
+dataCube='noisyDataCube'
+
 Result(trueModel,velplot("Model 4"))
 
 Help('''
@@ -160,13 +163,13 @@ vfsa(parametersCube,
         rnipmax=3.0,
         betamin=-1.0,
         betamax=1.0,
-        half='y',
+        half='n',
         verb='y')
 
 # CRS parameters smoothing
 Flow('parametersCube2',parametersCube,
 	'''
-	parsmoother rect1=5 rect2=5 smin=0. f=1. dbeta=0.5
+	parsmoother rect1=5 rect2=5 smin=0.1 f=1. dbeta=0.5
 	''')
 
 Help('''
