@@ -41,7 +41,7 @@ from rsf.recipes.utils import arr2str
 from rsf.recipes.utils import velplot
 from rsf.recipes.utils import plotStackedSection
 
-def creGatherStack(xmax,zmax,layers,velocities):
+def creGatherStack(modelname,xmax,zmax,layers,velocities):
 
     # Main Files
     trueModel='trueModel'
@@ -86,7 +86,7 @@ def creGatherStack(xmax,zmax,layers,velocities):
     Flow('noisyDataCube',dataCube,'noise seed=2011 range=0.051')
     dataCube='noisyDataCube'
 
-    Result(trueModel,velplot("Model 1"))
+    Result(trueModel,velplot(modelname))
 
     Help('''
     ### PEF interpolation ###

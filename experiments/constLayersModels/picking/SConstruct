@@ -3,7 +3,7 @@
 #
 # SConstruct (Python3)
 # 
-# Purpose: CRE stacking for a constant velocity layers model.
+# Purpose: Traveltime picking and parameters search.
 # 
 # Site: https://www.geofisicando.com
 # 
@@ -23,28 +23,37 @@ sys.path.append(rsfsrc+'/user/creGatherStack/experiments/constLayersModels')
 # Madagascar Package
 from rsf.proj import *
 
-from util.recipes.fullCreStackSimpleModels import creGatherStack
+from rsf.recipes.utils import Pull
+from util.recipes.traveltimePicking import pick
 
 __author__="Rodolfo Dirack <rodolfo_profissional@hotmail.com>"
 __version__="1.0"
 __site__="https://www.geofisicando.com"
 
 Help('''
-    CRE stacking for a constant velocity layers model
-    =================================================
+    Traveltime Picking and paramenters search
+    =========================================
 
     Author: %s
     Version: %s
     Site: %s
     ''' % (__author__,__version__,__site__))
 
-# Velocity model parameters
-xmax = 6.0
-zmax = 4.0
-layers = ((1.00,1.00,1.00,1.00),(1.85,1.85,1.85,1.85))
-velocities = (1.508,1.690,2.0)
+# Main Files
+trueModel='trueModel'
+stackedSection='stackedSection'
+parametersCube='parametersCube'
+interpolatedDataCube='interpolatedDataCube'
+
+exp=ARGUMENTS.get('exp','model1')
+nitf=int(ARGUMENTS.get('nitf','2'))
+
+# fetch experiment
+Pull([stackedSection,parametersCube,interpolatedDataCube,trueModel],
+        path=os.environ.get('RSFSRC')+
+        '/user/creGatherStack/experiments/constLayersModels/'+exp+'/backup/')
 
 # Full CRE stack algorithm
-creGatherStack("Model 3",xmax,zmax,layers,velocities)
+pick(parametersCube,nitf)
 
 End()

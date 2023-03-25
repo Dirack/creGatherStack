@@ -15,10 +15,10 @@
 all:	build keep clean
 
 build:	SConstruct
-	scons -j4 interpolatedDataCube2.rsf nhi=50 && scons stackedSection.rsf nhi=50
+	scons trueModel.rsf && scons -j4 interpolatedDataCube2.rsf nhi=50 && scons stackedSection.rsf nhi=50
 
 keep:	backup
-	<interpolatedDataCube2.rsf sfput --out=stdout > backup/interpolatedDataCube.rsf && <stackedSection.rsf sfput --out=stdout > backup/stackedSection.rsf && <parametersCube2.rsf sfput --out=stdout > backup/parametersCube.rsf
+	<interpolatedDataCube2.rsf sfput --out=stdout > backup/interpolatedDataCube.rsf && <stackedSection.rsf sfput --out=stdout > backup/stackedSection.rsf && <parametersCube2.rsf sfput --out=stdout > backup/parametersCube.rsf && <trueModel.rsf sfput --out=stdout> backup/trueModel.rsf
 
 backup:
 	mkdir -p backup
