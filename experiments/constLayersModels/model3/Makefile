@@ -25,3 +25,9 @@ backup:
 
 clean:	SConstruct
 	scons -c
+
+help:
+	@echo "Use 'make' to run build keep and clean steps in sequence"
+	@echo "Use 'make build' to experiment build"
+	@echo "Use 'make keep' to save experiment results into backup folder"
+	@echo "Use 'make clean' to clean targets keeping backup folder"

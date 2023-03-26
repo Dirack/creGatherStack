@@ -15,13 +15,19 @@
 all:	build keep clean
 
 build:	SConstruct
-	scons -j4 interpolatedDataCube2.rsf nhi=30 && scons stackedSection.rsf nhi=30
+	scons trueModel.rsf && scons -j4 interpolatedDataCube2.rsf nhi=50 && scons stackedSection.rsf nhi=50
 
 keep:	backup
-	<interpolatedDataCube2.rsf sfput --out=stdout > backup/interpolatedDataCube.rsf && <stackedSection.rsf sfput --out=stdout > backup/stackedSection.rsf && <parametersCube.rsf sfput --out=stdout > backup/parametersCube.rsf
+	<interpolatedDataCube2.rsf sfput --out=stdout > backup/interpolatedDataCube.rsf && <stackedSection.rsf sfput --out=stdout > backup/stackedSection.rsf && <parametersCube.rsf sfput --out=stdout > backup/parametersCube.rsf && <trueModel.rsf sfput --out=stdout> backup/trueModel.rsf
 
 backup:
 	mkdir -p backup
 
 clean:	SConstruct
 	scons -c
+
+help:
+	@echo "Use 'make' to run build keep and clean steps in sequence"
+	@echo "Use 'make build' to experiment build"
+	@echo "Use 'make keep' to save experiment results into backup folder"
+	@echo "Use 'make clean' to clean targets keeping backup folder"

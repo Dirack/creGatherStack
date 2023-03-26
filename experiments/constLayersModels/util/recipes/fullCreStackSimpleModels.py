@@ -164,9 +164,9 @@ def creGatherStack(modelname,xmax,zmax,layers,velocities):
             verb='y')
 
     # CRS parameters smoothing
-    Flow('parametersCube2',parametersCube,
+    Flow(['parametersCube2','mask'],parametersCube,
             '''
-            parsmoother rect1=10 rect2=10 smin=0.3 f=0.5 dbeta=0.5
+            parsmoother mask=${TARGETS[1]} rect1=10 rect2=10 smin=0.3 f=0.5 dbeta=0.5
             ''')
 
     Help('''
