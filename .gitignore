@@ -33,3 +33,4 @@ checkpoints
 *.asc
 *.x
 *.deploy
+*.h

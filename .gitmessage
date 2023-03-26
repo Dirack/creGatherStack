@@ -1,0 +1,12 @@
+
+
+
+# If you want this commit in the CHANGELOG of the new version
+# please add some of this marks below to the commit title:
+#
+# - [ADD] Added for new features.
+# - [CHA] Changed for changes in existing functionality.
+# - [DEP] Deprecated for once-stable features removed in upcoming releases.
+# - [REM] Removed for deprecated features removed in this release.
+# - [FIX] Fixed for any bug fixes.
+# - [SEC] Security to invite users to upgrade in case of vulnerabilities.

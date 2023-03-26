@@ -1,6 +1,6 @@
-/* Version 1.0 - Calculate CRE trajectory on m,h plane given zero offset CRS parameters (RN, RNIP, BETA)
+/* Calculate CRE trajectory on CMP x Offset plane given zero-offset CRS parameters (RN, RNIP, BETA)
 
-Programer: Rodolfo A. C. Neves (Dirack) 31/08/2019
+Programmer: Rodolfo A. C. Neves (Dirack) 31/08/2019
 
 Email:  rodolfo_profissional@hotmail.com 
 
@@ -16,15 +16,19 @@ License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 int main(int argc, char* argv[])
 {
 
-	float* m; // CMP
+	float** m; // CMP
 	float h; // Half offset
+	float m0; // Central CMP
 	double alpha; // Assymetry parameter
-	float m0; // central CMP
-	float* p; // RNIP and BETA parameters temporary vector
-	float RNIP; 
-	float BETA;
-	int np; // Number of parameters
-	bool verb;
+	float om0; // m0's axis origin
+	float dm0; // m0's sampling
+	int nm0; // Number of m0s
+	float ot0; // t0's axis origin
+	float dt0; // t0's sampling
+	int nt0; // Number of t0's
+	float*** p; // RN, RNIP and BETA parameters vector
+	int np; // Parameter index "RN, RNIP, BETA, Semblance, C0, Temp0, t0, m0"
+	bool verb; // Verbose parameter
 	float dm; // CMP sampling
 	float om; // CMP axis origin
 	int nm; // Number of CMP samples
@@ -34,7 +38,7 @@ int main(int argc, char* argv[])
 	float dt; // Time sampling
 	float ot; // Time axis origin
 	int nt; // Number of time samples
-	int i; // counter
+	int i,l,k; // counters
 
 	/* RSF files I/O */  
 	sf_file in, out, par;
@@ -46,23 +50,18 @@ int main(int argc, char* argv[])
 
 	in = sf_input("in"); // Data cube A(m,h,t)
 	par = sf_input("param"); // RNIP and BETA parameters
-	out = sf_output("out"); // m(h) vector
+	out = sf_output("out"); // m(h) vector CRE coordinates
 
-	if (!sf_getfloat("m0",&m0)) m0=0;
-	/* central CMP (Km) */
+	/* Parameters file */
+	if (!sf_histint(par,"n1",&nt0)) sf_error("No n1= in parameters file");
+	if (!sf_histfloat(par,"d1",&dt0)) sf_error("No d1= in parameters file");
+	if (!sf_histfloat(par,"o1",&ot0)) sf_error("No o1= in parameters file");
+	if (!sf_histint(par,"n2",&nm0)) sf_error("No n2= in parameters file");
+	if (!sf_histfloat(par,"d2",&dm0)) sf_error("No d2= in parameters file");
+	if (!sf_histfloat(par,"o2",&om0)) sf_error("No o2= in parameters file");
+	if (!sf_histint(par,"n3",&np)) sf_error("No n3= in parameters file");
 
-	if (!sf_histint(par,"n1",&np)){
-		sf_error("No n1= in parameters file");
-	}else if(np < 3){
-		sf_error("The number of paramters should be 3 at least: RN, RNIP and BETA");
-	}else{
-		p = sf_floatalloc(np);
-		sf_floatread(p,np,par);
-		RNIP = p[1];
-		if(RNIP == 0) sf_error("RNIP can't be zero");
-		BETA = p[2];
-	}
-
+	/* seismic data cube A(m,h,t) */
 	if (!sf_histint(in,"n1",&nt)) sf_error("No n1= in input file");
 	if (!sf_histfloat(in,"d1",&dt)) sf_error("No d1= in input file");
 	if (!sf_histfloat(in,"o1",&ot)) sf_error("No o1= in input file");
@@ -76,46 +75,59 @@ int main(int argc, char* argv[])
 	if(! sf_getbool("verb",&verb)) verb=0;
 	/* 1: active mode; 0: quiet mode */
 
-	alpha = sin(BETA)/RNIP;
-
 	if (verb) {
 
 		sf_warning("Active mode on!!!");
-		sf_warning("Command line parameters: "); 
-		sf_warning("m0=%f",m0);
-		sf_warning("Input file parameters: ");
-		sf_warning("RNIP=%f BETA=%f",RNIP,BETA);
+		sf_warning("Parameters file: "); 
+		sf_warning("nm0=%d om0=%f dm0=%f",nm0,om0,dm0);
+		sf_warning("nt0=%d ot0=%f dt0=%f",nt0,ot0,dt0);
+		sf_warning("np=%d",np);
 		sf_warning("Data cube dimensions: ");
-		sf_warning("n1=%i d1=%f o1=%f",nt,dt,ot);
-		sf_warning("n2=%i d2=%f o2=%f",nh,dh,oh);
-		sf_warning("n3=%i d3=%f o3=%f",nm,dm,om);
-		sf_warning("Calculated assimetry parameter:");
-		sf_warning("alpha=%f", alpha);
+		sf_warning("n1=%d d1=%f o1=%f",nt,dt,ot);
+		sf_warning("n2=%d d2=%f o2=%f",nh,dh,oh);
+		sf_warning("n3=%d d3=%f o3=%f",nm,dm,om);
 	}
 	
-	m = sf_floatalloc(nh);
+	m = sf_floatalloc2(nh,nt0*nm0);
+	p = sf_floatalloc3(nt0,nm0,np);
+	sf_floatread(p[0][0],nt0*nm0*np,par);
 
-	if(alpha <= 0.001 && alpha >= -0.001){
-		for(i=0;i<nh;i++){
-			m[i] = m0;
-		}
-	}else{
-		for(i=0;i<nh;i++){
-			h = (dh*i) + oh;
-			m[i] = m0 + (1/(2*alpha)) * (1 - sqrt(1 + 4 * alpha * alpha * h * h));
-		}
-	}
+	for(l=0;l<nm0;l++){
+
+		m0 = l*dm0+om0;
+
+		for(k=0;k<nt0;k++){
+
+			/* Alpha=sin(BETA)/RNIP */
+			alpha = sin(p[2][l][k])/p[1][l][k];
+
+			if(alpha <= 0.001 && alpha >= -0.001){
+				for(i=0;i<nh;i++){
+					m[(l*nt0)+k][i] = m0;
+				}
+			}else{
+				for(i=0;i<nh;i++){
+					h = (dh*i) + oh;
+					m[(l*nt0)+k][i] = m0 + (1/(2*alpha)) * (1 - sqrt(1 + 4 * alpha * alpha * h * h));
+				}
+			}
+		}/* loop over t0s */
+	}/*loop over m0s */
 
 	/* axis = sf_maxa(n,o,d)*/
 	ax = sf_maxa(nh, oh, dh);
-	ay = sf_maxa(1, 0, 1);
+	ay = sf_maxa(nm0*nt0, 0, 1);
 	az = sf_maxa(1, 0, 1);
 
 	/* sf_oaxa(file, axis, axis index) */
 	sf_oaxa(out,ax,1);
 	sf_oaxa(out,ay,2);
 	sf_oaxa(out,az,3);
-	sf_floatwrite(m,nh,out);
 
-	exit(0);
+	sf_putstring(out,"label1","Offset");
+	sf_putstring(out,"unit1","Km");
+	sf_putstring(out,"label2","(t0,m0)");
+	sf_putstring(out,"unit2","index");
+
+	sf_floatwrite(m[0],nh*nm0*nt0,out);
 }

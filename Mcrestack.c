@@ -1,6 +1,6 @@
-/* Version 1.0 - cre stacking
+/* Common Reflection Element (CRE) stacking
 
-Programer: Rodolfo A. C. Neves (Dirack) 06/10/2019
+Programmer: Rodolfo A. C. Neves (Dirack) 06/10/2019
 
 Email:  rodolfo_profissional@hotmail.com
 
@@ -9,6 +9,13 @@ License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
 #include <rsf.h>
+#include "interface2d.h"
+#define trace_init(sz,n1,o1,d1) itf2d_init(sz,n1,o1,d1);
+#define trace_seto(itf,o) itf2d_seto(itf,o);
+#define trace_setAmplitudes(itf,z) itf2d_setZNodepoints(itf,z);
+#define trace_getAmplitude(itf,t) getZCoordinateOfInterface(itf,t);
+
+typedef itf2d TRACE;
 
 int main(int argc, char* argv[])
 {
@@ -22,25 +29,27 @@ int main(int argc, char* argv[])
 	int nt; // Number of time samples
 	float ot; // Time axis origin
 	float dt; // Time sampling
-	int nt0;
-	float ot0;
-	float dt0;
+	int nt0; // Number of t0s in stacked section
+	float ot0; // t0s axis origin
+	float dt0; // t0s sampling
 	float om0t; // CMP axis origin
 	float dm0t; // CMP sampling
 	int nm0t; // Number of CMP's
 	float oht; // Offset axis origin
 	float dht; // Offset sampling
 	int nht; // Number of Offsets
-	int nt0t;
-	float ot0t;
-	float dt0t;
+	int nt0t; // Number of samples in CRE stacking curve 
+	float ot0t; // Axis origin of CRE stacking curve
+	float dt0t; // Sampling in CRE stacking curve
 	bool verb; // Key to turn On/Off active mode
 	float ***creTimeCurve; // CRE traveltime curves
 	float ****creGatherCube; // CRE Data cube A(m0,t0,h,t)
 	float **stackedSection; // CRE stacked section
-	int it0, im0, ih, tetai; // loop counter and indexes
+	int it0, im0, ih, i, tetai; // loop counter and indexes
 	float sumAmplitudes; // Sum of amplitudes in the stacking
 	int aperture; // Number of offsets to stack
+	TRACE trace; // A seismic trace
+	float a[5]={1.,1.,1.,1.,1.}; // Amplitude vector
 
 	/* RSF files I/O */  
 	sf_file in, timeCurves, out;
@@ -110,6 +119,8 @@ int main(int argc, char* argv[])
 	sf_floatread(creGatherCube[0][0][0],nm0*nt0*nh*nt,in);
 	stackedSection = sf_floatalloc2(nt0,nm0);
 
+	trace = trace_init(a,5,ot,dt);
+
 	/* CRE STACKING */	
 	for (im0=0; im0 < nm0; im0++){
 			
@@ -119,11 +130,20 @@ int main(int argc, char* argv[])
 
 			for(ih=0; ih < aperture; ih++){
 
+				/* Amplitude interpolation */
 				tetai = (int) ((double)creTimeCurve[im0][it0][ih]/dt);
+				// TODO: Use or not use amplitude interpolation?
+				//#define amplitude_interpolation
+				#ifdef amplitude_interpolation
+				for(i=0;i<5;i++)
+					a[i]=creGatherCube[im0][it0][ih][tetai-2+i];
+				trace_seto(trace,(tetai-2)*dt+ot);
+				trace_setAmplitudes(trace,a);
+				sumAmplitudes += trace_getAmplitude(trace,creTimeCurve[im0][it0][ih]);
+				#else
 				sumAmplitudes += creGatherCube[im0][it0][ih][tetai];
+				#endif
 				
-				//sf_warning("%i, %f, %f",tetai,creTimeCurve[im0][it0][ih],sumAmplitudes);
-
 			} /* loop over h*/
 
 			stackedSection[im0][it0] = sumAmplitudes;
@@ -143,6 +163,4 @@ int main(int argc, char* argv[])
 	sf_oaxa(out,az,3);
 	sf_oaxa(out,az,4);
 	sf_floatwrite(stackedSection[0],nt0*nm0,out);
-
-	exit(0);
 }

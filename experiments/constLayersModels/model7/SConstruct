@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# SConstruct (Python3)
+# 
+# Purpose: CRE stacking for a constant velocity layers model.
+# 
+# Site: https://www.geofisicando.com
+# 
+# Version 1.0
+# 
+# Programmer: Rodolfo A C Neves (Dirack) 31/01/2022
+# 
+# Email: rodolfo_profissional@hotmail.com
+# 
+# License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
+
+import sys,os
+
+rsfsrc = os.environ['RSFSRC']
+sys.path.append(rsfsrc+'/user/creGatherStack/experiments/constLayersModels')
+
+# Madagascar Package
+from rsf.proj import *
+
+from util.recipes.fullCreStackSimpleModels import creGatherStack
+
+__author__="Rodolfo Dirack <rodolfo_profissional@hotmail.com>"
+__version__="1.0"
+__site__="https://www.geofisicando.com"
+
+Help('''
+    CRE stacking for a constant velocity layers model
+    =================================================
+
+    Author: %s
+    Version: %s
+    Site: %s
+    ''' % (__author__,__version__,__site__))
+
+# Velocity model parameters
+xmax = 6.0
+zmax = 4.0
+layers = ((0.4,0.45,0.46,0.47,0.48,0.5,0.8,0.85,0.85,0.85,0.6,1.0,1.0,0.4,0.4,0.7,0.8,0.7,0.6,0.5,0.4,0.4),
+	(0.95,0.95,0.95,0.95,1.35,1.4,1.3,1.0,1.2,1.4,1.3,1.4,1.5,1.3,1.2,1.1,1.2,1.2,1.3,1.3,1.3,1.3),
+	(1.7,1.7,1.7,1.7,1.7,1.8,1.8,1.9,1.9,1.8,1.6,1.8,2.0,1.9,1.7,1.8,1.8,1.7,2.0,2.0,2.0,1.8),
+	(2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5))
+
+velocities = (1.508,1.690,1.750,1.85,2.0)
+
+# Full CRE stack algorithm
+creGatherStack("Model 7",xmax,zmax,layers,velocities)
+
+End()

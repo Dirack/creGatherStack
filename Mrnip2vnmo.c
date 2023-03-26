@@ -1,19 +1,16 @@
-/* Estimate root mean square velocity (VRMS) from RNIP parameter
+/* Estimate Normal Moveout Velocity (VNMO) from RNIP parameter
 
  This program is based on multifocus formula that allows to estimate
- VRMS from RNIP: vrms = sqrt(2*RNIP*v0/t0)
+ VNMO from RNIP: vnmo = sqrt(2*RNIP*v0/(t0*(cosbeta)*cos(beta)))
 
- Reference: Diffraction imaging by multifocusing, Berkovitch A.,
- Belfer I., Hassin Y., and Landa E., 2009.
-
- Programer: Rodolfo A C Neves (Dirack) 21/09/2020
+ Programmer: Rodolfo A C Neves (Dirack) 14/03/2022
  
  Email: rodolfo_profissional@hotmail.com
  
  License: GPL-3.0 <https://www.gnu.org/licenses/gpl-3.0.txt>.
 */
 
-#include "rnip2vrms_lib.h"
+#include "rnip2vnmo_lib.h"
 #include <rsf.h>
 /*^*/
 
@@ -28,12 +25,14 @@ int main(int argc,char* argv[]){
 	float om0; // Origin of the CMP axis in stacked section
 	float v0; // Near surface velocity
 	float** rnip; // (t0,m0,rnip) section
+	float** beta; // (t0,m0,beta) section
 	float** vrmsSection; // (t0,m0,VRMS) section
 
-	sf_file in,out;
+	sf_file in,out, betas_file;
 	sf_init(argc,argv);
 
 	in = sf_input("in");
+	betas_file = sf_input("betas");
 	out = sf_output("out");
 
 	/* Read coordinates of the stacked section file */
@@ -61,10 +60,12 @@ int main(int argc,char* argv[]){
 	/* Load rnip values */
 	rnip = sf_floatalloc2(nt0,nm0);
 	sf_floatread(rnip[0],nm0*nt0,in);
+	beta = sf_floatalloc2(nt0,nm0);
+	sf_floatread(beta[0],nm0*nt0,betas_file);
 	vrmsSection = sf_floatalloc2(nt0,nm0);
 
 	/* Calculate VRMS from RNIP */
-	vrmsSection = calculateVrmsSectionForRnipVector(rnip,nt0,ot0,dt0,nm0,v0);
+	vrmsSection = calculateVnmoSectionForRnipVector(rnip,beta,nt0,ot0,dt0,nm0,v0);
 
 	/* Output the VRMS section */
 	sf_floatwrite(vrmsSection[0],nt0*nm0,out);
