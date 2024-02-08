@@ -1,0 +1,21 @@
+from rsf.proj import *
+
+parametersCube = 'parametersCube2'
+stackedSection = 'stackedSection'
+dataCube = 'dataCube'
+
+Flow(dataCube,'interpolatedDataCube','window f1=50 n1=750 f3=240 n3=1163')
+Flow('rnip',parametersCube,'window n3=1 f3=1')
+Flow('beta',parametersCube,'window n3=1 f3=2')
+
+v0=1.
+
+Flow('vnmo',[stackedSection,'rnip','beta'],
+	'''
+	math rnip=${SOURCES[1]} beta=${SOURCES[2]} output="sqrt((2*%g*rnip)/(x1*cos(beta)*cos(beta)))"
+	''' % (v0))
+# NMO and stack
+Flow('nmo',[dataCube,'vnmo'],'nmo half=n velocity=${SOURCES[1]}')
+
+Flow('nmoStack','nmo','stack')
+
