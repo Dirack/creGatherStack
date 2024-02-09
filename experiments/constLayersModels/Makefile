@@ -20,7 +20,7 @@ all:	$(BUILD)
 	$(foreach var,$(BUILD),make -C $(var);)
 
 pick:	picking
-	scons -C picking -c && sfrm picking/*.rsf
+	scons -C picking -c
 	scons -C picking exp=$(exp) nitf=$(nitf)
 	@echo "--- Result $(exp) ---"
 	@echo "--- T0 ---"

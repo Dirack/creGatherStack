@@ -34,3 +34,4 @@ checkpoints
 *.x
 *.deploy
 *.h
+experiments/constLayersModels/picking/pick*.txt
